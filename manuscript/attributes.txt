@@ -1,0 +1,93 @@
+# Using and Understanding HTML Element Attributes {#element-attributes}
+
+Here in chapter five, prepare yourself for a full-scale, in-depth, no-holds-barred discussion on everything related to element attributes. All that you learned in the ["finding elements" chapter](#finding-elements) will prove to be useful as I will need to build on some of this knowledge in an effort to help you discover attributes. Here, I'll be sure you have a [proper understanding of attributes](#what-are-attributes), as well [how they came about and became part of HTML, and how they fit into the web API](#attribute-history). Additionally, you'll learn how to [use attributes to locate DOM elements](#finding-elements-with-attributes). While this was covered a bit in the ["finding elements" chapter](#finding-elements), you'll find that the coverage _here_ is comprehensive. And finally, I'll dive deeper into attributes and cover how you can [read, add, and update them on any DOM element](#reading-attributes). Special sections on [`data-`](#data-attributes), [`style`](#style-attribute), and [`class`](#class-attributes) attributes will be included as well.
+
+Other than two exceptions, all of the web API code in this chapter has full support across _all_ [modern browsers](#modern-browsers) _and_ even Internet Explorer 8. And for those couple that do not have wide browser support, there is an equally elegant solution available for one, and a relatively straightforward approach for the other. After you complete this chapter, you will not only have a complete understanding of attributes, but you will also have the confidence to read, update, and use them to select elements all browsers, even those as old as Internet Explorer 8. Read on to continue your quest to move beyond jQuery.
+
+
+## What is an attribute? {#what-are-attributes}
+
+%%- what are attributes, what do they look like
+
+
+### History and standardization {#attribute-history}
+
+%%- part of initial HTML RFC, and the first HTML spec
+
+%%- very early native attributes
+
+%%- custom attribute support
+
+
+### How do attributes differ from properties?
+
+%%- the differences between attrs & props
+
+%%- history of jQuery's handling of attrs vs props
+
+
+## Finding elements using attributes {#finding-elements-with-attributes}
+
+%%- Extending class and ID selection from prev chapter
+%%  - while ID/class attr selection uses special syntax, you can select those as you would any other attribute (though there is no real reason to do so due to perf and readability drawbacks)
+   
+%%- Associated W3C standards
+%%http://www.w3.org/TR/css3-selectors/#attribute-selectors
+
+%%- HTML fragment for code demos
+
+
+### Finding elements using attribute names
+
+
+### Finding elements using attribute names _and_ values
+
+
+### The power of wildcard and fuzzy attribute selectors
+
+%% Browser support via querySelector - IE8+
+
+%%- [att|=val]
+%%Represents an element with the att attribute, its value either being exactly "val" or beginning with "val" immediately followed by "-" (U+002D). This is primarily intended to allow language subcode matches (e.g., the hreflang attribute on the a element in HTML) as described in BCP 47 ([BCP47]) or its successor. For lang (or xml:lang) language subcode matching, please see the :lang pseudo-class.
+
+%% -[att^=val]
+%%Represents an element with the att attribute whose value begins with the prefix "val". If "val" is the empty string then the selector does not represent anything.
+
+%%- [att$=val]
+%%Represents an element with the att attribute whose value ends with the suffix "val". If "val" is the empty string then the selector does not represent anything.
+
+%%- [att*=val]
+%%Represents an element with the att attribute whose value contains at least one instance of the substring "val". If "val" is the empty string then the selector does not represent anything.
+
+
+## Reading and modifying element attributes {#reading-attributes}
+
+%%- three types of attributes: class, data, and everything else
+
+%%- parsing, adding, removing, and changing attributes can differ depending on type
+
+
+### Class attributes {#class-attributes}
+
+%%- reading classes ("hasClass")
+
+%%- adding / removing classes
+
+%%- toggleClass
+
+
+### Data attributes {#data-attributes}
+
+%%- data attributes (more about this in the html-data.txt chapter)
+
+
+### Other standard and custom attributes
+
+%%- reading attributes ("hasAttribute", "getAttribute")
+
+%%- adding / removing / changing attributes
+
+
+### The `style` attribute {#style-attribute}
+
+%%- normally shouldn't use this - more about styling in the styling-elements.txt chapter)
