@@ -7,7 +7,25 @@ Other than two exceptions, all of the web API code in this chapter has full supp
 
 ## What is an attribute? {#what-are-attributes}
 
-%%- what are attributes, what do they look like
+HTML tags, declaratively speaking, can be distilled down into two parts: names and attributes. Take a look at the following simple fragment, which I'll reference as I explain these two parts a bit more.
+
+{title="html tags are made up of two parts", lang=html}
+~~~~~~~
+<form action="/rest/login.php" method="POST">
+   <input name="username" required>
+   <input type="password" name="password" required>
+</form>
+~~~~~~~
+
+In the above markup, you see three elements: one `<form>` and two `<input>`s. The `<form>` element has a tag name of "form". In fact, `tagName` is a property available on every object in the DOM that implements the `Element` interface. This property was [standardized as part of W3C's DOM Level 2 Core specification][element.tagname]. In my above HTML, the `<form>` element, represented as a [`HTMLFormElement` object][html5-form], has a `tagName` of "form". The two `<input>` elements are represented as [`HTMLInputElement` objects][html5-input], and unsurprisingly they have `tagName` values of "input".
+   
+I> ## A note about my form example markup
+I>
+I> Normally you would want to associate each form field with a `<label>` and a text node with a display name. Also, a submit button is usually prudent, but I left all of these out of my fragment to keep it simple and focused on the discussion of attributes.
+
+Attributes provide a way to annotate elements directly in your markup. You may use them to provide data or state. For example, the `<form>` element above contains two such attributes: `action` and `method`, which together tell the form to send a POST request (`method`) to the "/rest/login.php" server endpoint (`action`) when the form is submitted. The first input has a `name` attribute of "username" and the second has a `name` of "password". This information is used to construct the request and tie these elements to their values when the server parses the form submit. This is not evident in the above HTML, but you can even create your own proprietary attributes and reference them in your code for the purposes of associating state or data with elements in your markup. Though not strictly required, the more standard way to do this is with `data-` attributes, which [will be discussed later on in this chapter](#data-attributes).
+   
+In addition to providing data or state, some attributes are used to define specific behaviors for a more general element. Take a look at the `type` attribute on the second input in the above fragment, as an example of this. This `type` attribute defines the second input to be a password input, which signals the browser to mask any characters entered into this field by the user. The first input _could_ include a `type` attribute with a value of "text", but this is not necessary as all `<input>` elements are, by default, text inputs. This default has been in place since the inception of HTML, and [is visible in one of the earliest drafts of the specification][html1-input]. Another example of a behavior imposed by an attribute can be seen on both of the inputs above. Notice the `required` attributes on each of the inputs - this is a signal to any browser that supports [the `constraints API`][html5-constraints] to prevent form submission if either of these fields are left empty by the user. 
 
 
 ### History and standardization {#attribute-history}
@@ -18,6 +36,7 @@ Other than two exceptions, all of the web API code in this chapter has full supp
 
 %%- custom attribute support
 
+%%- 4 types of attribute declarations in HTML5, and how this differs from HTML4
 
 ### How do attributes differ from properties?
 
@@ -91,3 +110,14 @@ Other than two exceptions, all of the web API code in this chapter has full supp
 ### The `style` attribute {#style-attribute}
 
 %%- normally shouldn't use this - more about styling in the styling-elements.txt chapter)
+
+
+[element.tagname]: http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-104682815
+
+[html1-input]: http://www.w3.org/MarkUp/HTMLPlus/htmlplus_41.html
+
+[html5-constraints]: http://www.w3.org/TR/html5/forms.html#constraints
+
+[html5-form]: http://www.w3.org/TR/html5/forms.html#the-form-element
+
+[html5-input]: http://www.w3.org/TR/html5/forms.html#the-input-element
