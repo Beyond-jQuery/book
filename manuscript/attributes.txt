@@ -40,7 +40,20 @@ Berners-Lee went on to mention a few such attributes, using the `href`, `type`, 
 
 Purely custom attributes are not, and have never been _officially_ supported in any HTML specification. But you may prefix an attribute name of your choice with "data-" as of the HTML5 spec - more on that [later](#data-attributes). However, if you would like to introduce a purely custom attribute into your markup, such as "myproject-uuid", you are certainly free to do so. The page will render without issue, and there will be no errors in your browser's developer tools console. Everything will work just fine. The only drawback is that your document will fail validation, as it will contain non-standard attributes, that is, attributes that are not mentioned in any accepted HTML standard. In fact, non-standard custom attributes are quite common, and even quite prevalent in popular JavaScript frameworks, such as AngularJS, which relies on non-standard custom attributes heavily to facilitate communication between element directives.
 
-%%- 4 types of attribute declarations in HTML5, and how this differs from HTML4
+The latest _completed_ HTML spec - HTML5 - defines [four different types of attributes][html5-attribute-styntax]. One type commonly known as a ["boolean attribute"][html5-boolean-attribute] is expressed as an element attribute without any value. Take the `required` attribute commonly found on `<input>` elements as one example (seen in the [previous section's](#what-are-attributes) HTML fragment). As the specification states, "The presence of a boolean attribute on an element represents the true value, and the absence of the attribute represents the false value." The HTML 5.1 standardized [`hidden` attribute][html51-hidden], which instructs the browser to _not_ render any element bearing the attribute, is another example of this first type.
+
+A second type of attribute is described as "unquoted". A little known fact is that you may omit quotes around your attribute values, provided the attribute value does not contain spaces, equal signs, or angle brackets (`<` and `>`), or an empty string (among other less notable character restrictions). So, the HTML fragment in the previous section can be re-written as follows:
+
+{title="unquoted attributes are perfectly legal", lang=html}
+~~~~~~~
+<form action=/rest/login.php method=POST>
+   <input name=username required>
+   <input type=password name=password required>
+</form>
+~~~~~~~
+
+The final two types of HTML element attributes are very similar: single-quoted and double-quoted. Both are similar in that they largely have the same restrictions, and are much more common than unquoted attributes. Though, double-quoted attributes are arguably the _most_ common of all types. In contrast to unquoted attribute values, those that are surrounded by either single or double quotation marks _may_ contain spaces, equal signs, angle brackets, or an empty string. The portion of the latest W3C specification that describes attributes only may never contain any ambiguous ampersand characters, that is, an `&` sign followed by ASCII characters and terminated with a semicolon (`;`) where the character code does _not_ match any character codes defined in the [named character references][html5-named-character-references] portion of the spec.
+
 
 ### How do attributes differ from properties?
 
@@ -126,10 +139,18 @@ Purely custom attributes are not, and have never been _officially_ supported in 
 
 [html5-anchor]: http://www.w3.org/TR/html5/text-level-semantics.html#the-a-element
 
+[html5-attribute-syntax]: http://www.w3.org/TR/html5/syntax.html#attributes-0
+
+[html5-boolean-attribute]: http://www.w3.org/TR/html5/single-page.html#boolean-attributes
+
 [html5-constraints]: http://www.w3.org/TR/html5/forms.html#constraints
 
 [html5-form]: http://www.w3.org/TR/html5/forms.html#the-form-element
 
 [html5-input]: http://www.w3.org/TR/html5/forms.html#the-input-element
+
+[html5-named-character-references]: http://www.w3.org/TR/html5/syntax.html#named-character-references
+
+[html51-hidden]: http://www.w3.org/TR/html51/editing.html#the-hidden-attribute
 
 [html-tags]: http://www.w3.org/History/19921103-hypertext/hypertext/WWW/MarkUp/Tags.html
