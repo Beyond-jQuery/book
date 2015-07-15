@@ -21,7 +21,7 @@ In the above markup, you see three elements: one `<form>` and two `<input>`s. Th
    
 Content describes any other node that are are descendants of an element. My example `<form>` has two `<input>` elements as content, while the two `<input>` elements have _no_ content. In fact, `<input>` elements are not allowed to have any content. This restriction was likely in place since `<input>` elements were first introduced in [the HTML 2 specification][html2], but was only first [explicitly mentioned in the HTML 3 official standard document][html3].
    
-I> ## A note about my form example markup
+I> ## A note about my example form markup
 I>
 I> Normally you would want to associate each form field with a `<label>` and a text node with a display name. Also, a submit button is usually prudent, but I left all of these out of my fragment to keep it simple and focused on the discussion of attributes.
 
