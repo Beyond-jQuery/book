@@ -75,7 +75,7 @@ The `<div>` has a `class` attribute with a value of "bold". But we can set prope
 </script>
 ~~~~~~~
 
-After executing the above fragment, our `<div>` now has a `class` attribute with a value of "bold" _and_ a property of `index` with a value of `0`. The property is set on the underlying JavaScript object, which in this case is an implementation of the [`HTMLDivElement`][htmldivelement] interface. Properties such as our `index` on element objects are also known as "expando" properties, which is just a terse way to classify non-standard element object properties. Don't worry, if that's still not entirely clear, I'll talk more about standardized element properties before this subsection is complete.
+After executing the above fragment, our `<div>` now has a `class` attribute with a value of "bold" _and_ a property of `index` with a value of `0`. The property is set on the underlying JavaScript object, which in this case is an implementation of the [`HTMLDivElement`][htmldivelement] interface. Properties such as our `index` on element objects are also known as "expando" properties, which is just a terse way to classify non-standard element object properties. Understand that not _all_ element properties are expando properties. Don't worry if this is still not entirely clear. I'll talk more about standardized element properties before this section is complete.
 
 %%  - some props and attributes are connected
 %%    - those attributes defined on the element's prototype
