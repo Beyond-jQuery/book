@@ -57,9 +57,31 @@ The final two types of HTML element attributes are very similar: single-quoted a
 
 ### How do attributes differ from properties?
 
-%%- the differences between attrs & props
+Now that you have a solid understanding of element attributes, you may _still_ be confused regarding their relation to element "properties", _especially_ if you have been [using jQuery for a while][jquery-16]. At a very basic level, properties and attributes are entirely different from each other. While attributes are declared at the HTML level in the element's markup, properties are declared and updated on the element's object representation. For example, consider the following element:
 
-%%- history of jQuery's handling of attrs vs props
+{title="element for attributes vs properties explanation", lang=html}
+~~~~~~~
+<div class="bold">I'm a bold element</div>
+~~~~~~~
+
+The `<div>` has a `class` attribute with a value of "bold". But we can set properties on this element too. Suppose we want to set a property of `index` with a value of `0`:
+   
+{title="setting an element property", lang=html}
+~~~~~~~
+<div class="bold">I'm a bold element</div>
+
+<script>
+   document.querySelector('.bold').index = 0;
+</script>
+~~~~~~~
+
+After executing the above fragment, our `<div>` now has a `class` attribute with a value of "bold" _and_ a property of `index` with a value of `0`. The property is set on the underlying JavaScript object, which in this case is an implementation of the [`HTMLDivElement`][htmldivelement] interface. Properties such as our `index` on element objects are also known as "expando" properties, which is just a terse way to classify non-standard element object properties. Don't worry, if that's still not entirely clear, I'll talk more about standardized element properties before this subsection is complete.
+
+%%  - some props and attributes are connected
+%%    - those attributes defined on the element's prototype
+%%    - class attribute is a special case (className)
+%%    - checked attribute is only initially connected, other boolean attributes fine
+%%  - others (custom attributes) are not connected to properties
 
 
 ## Finding elements using attributes {#finding-elements-with-attributes}
@@ -154,3 +176,7 @@ The final two types of HTML element attributes are very similar: single-quoted a
 [html51-hidden]: http://www.w3.org/TR/html51/editing.html#the-hidden-attribute
 
 [html-tags]: http://www.w3.org/History/19921103-hypertext/hypertext/WWW/MarkUp/Tags.html
+
+[htmldivelement]: http://www.w3.org/TR/html5/grouping-content.html#the-div-element
+
+[jquery-16]: http://blog.jquery.com/2011/05/03/jquery-16-released/
