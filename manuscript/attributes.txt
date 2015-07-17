@@ -77,11 +77,41 @@ The `<div>` has a `class` attribute with a value of "bold". But we can set prope
 
 After executing the above fragment, our `<div>` now has a `class` attribute with a value of "bold" _and_ a property of `index` with a value of `0`. The property is set on the underlying JavaScript object, which in this case is an implementation of the [`HTMLDivElement`][htmldivelement] interface. Properties such as our `index` on element objects are also known as "expando" properties, which is just a terse way to classify non-standard element object properties. Understand that not _all_ element properties are expando properties. Don't worry if this is still not entirely clear. I'll talk more about standardized element properties before this section is complete.
 
-%%  - some props and attributes are connected
-%%    - those attributes defined on the element's prototype
-%%    - class attribute is a special case (className)
-%%    - checked attribute is only initially connected, other boolean attributes fine
-%%  - others (custom attributes) are not connected to properties
+While properties and attributes are conceptually and syntactically different, they are very closely linked together in some cases. In fact, all standardized element attributes have corresponding properties defined in the element's object representation. For the most part, the each attribute and property pair share the same value. And in all but one case, the attribute and property share the same name as well. These standardized attributes are special in that you can update them without touching the markup. In fact, updating the corresponding element object's property value will cause the browser to update the attribute's value in the document, and updating the attribute value with in turn up the element's property value. Let's take a look at a simple example, where we define an anchor link with an initial `href`, and then update the anchor to point to a different location using JavaScript:
+
+{title="standard element attributes and properties are linked", lang=html}
+~~~~~~~
+<a href="http://www.widen.com/blog/">Read the Widen blog</a>
+
+<script>
+   document.querySelector('A').href = 'http://www.widen.com/blog/ray-nicholus';
+</script>
+~~~~~~~
+
+After executing the script in the above code block, the anchor now appears in the document as follows:
+
+{title="after updating the href property in the previous example", lang=html}
+~~~~~~~
+<a href="http://www.widen.com/blog/ray-nicholus">Read the Widen blog</a>
+~~~~~~~
+
+In this case, the [`HTMLAnchorElement`][html51-a], which is the object representation of an `<a>`, has an `href` property defined on its prototype that is directly connected to the `href` attribute on the element tag. Note that this `href` property is actually inherited from the [`URLUtils` interface][whatwg-urlutils], which the `HTMLAnchorElement` object also implements. `URLUtils` is an interface formally defined in the [WHATWG URL Living Standard][whatwg-url] specification.
+    
+There are many such other element attributes with connected properties, such as `id` (all elements), `action` (form elements), and `src` (script elements), to name a few. Remember that all attributes that appear in the HTML specifications fall into this category. But there are a few special cases and points to consider. First, `class` attributes are a bit different in that the corresponding property name is not `class`, but `className`. This is due to the fact that ["class" is a reserved word in JavaScript][es6-reserved-words]. More on the `class` attribute [later on](#class-attributes). Also keep in mind that the `checked` attribute, common to radio and checkbox input elements, is only _initially_ connected to the corresponding element property value. Consider the following code to demonstrate this limitation a bit more clearly:
+
+{title="the checked boolean attribute is a bit unusual", lang=html}
+~~~~~~~
+<input type="checkbox" checked>
+
+<script>
+    // this does not remove the checked attribute
+    document.querySelector('INPUT').checked = false;
+</script>
+~~~~~~~
+
+After executing the above script, you may expect the `checked` attribute to be removed from the input element, since this would happen for other boolean attributes, such as `required` and `disabled`. However, the `checked` attribute remains on the element, even though the property value has been changed to `false` and the checkbox is indeed unchecked.
+
+"Custom" attributes, that is, attributes that are _not_ defined in any accepted specification, are not linked in this way to a similarly named property on the element object. Any properties you create to match non-standard attributes fall into the category of expando properties.
 
 
 ## Finding elements using attributes {#finding-elements-with-attributes}
@@ -153,6 +183,8 @@ After executing the above fragment, our `<div>` now has a `class` attribute with
 
 [element.tagname]: http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-104682815
 
+[es6-reserved-words]: http://www.ecma-international.org/ecma-262/6.0/#sec-keywords
+
 [html1-input]: http://www.w3.org/MarkUp/HTMLPlus/htmlplus_41.html
 
 [html2]: http://www.w3.org/MarkUp/html-spec/html-spec_toc.html
@@ -173,6 +205,8 @@ After executing the above fragment, our `<div>` now has a `class` attribute with
 
 [html5-named-character-references]: http://www.w3.org/TR/html5/syntax.html#named-character-references
 
+[html51-a]: http://www.w3.org/TR/html51/semantics.html#the-a-element
+
 [html51-hidden]: http://www.w3.org/TR/html51/editing.html#the-hidden-attribute
 
 [html-tags]: http://www.w3.org/History/19921103-hypertext/hypertext/WWW/MarkUp/Tags.html
@@ -180,3 +214,7 @@ After executing the above fragment, our `<div>` now has a `class` attribute with
 [htmldivelement]: http://www.w3.org/TR/html5/grouping-content.html#the-div-element
 
 [jquery-16]: http://blog.jquery.com/2011/05/03/jquery-16-released/
+
+[whatwg-url]: https://url.spec.whatwg.org
+
+[whatwg-urlutils]: https://url.spec.whatwg.org/#urlutils
