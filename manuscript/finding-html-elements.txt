@@ -12,7 +12,7 @@ While jQuery does admittedly save you some keystrokes, you _will_ sacrifice perf
 In this first section on the topic of finding HTML elements in a document, I'll discuss selecting elements by using some of the more traditional element properties, such as ID, class, and tag name. here, we will compare element selection in jQuery with "vanilla" JavaScript through examples that interface directly with the DOM by making use of the functionality codified in various web API specifications. After completing this section, you will have the necessary confidence and understanding to select elements in the DOM using the most common methods, without relying on jQuery at all.
 
 
-### IDs
+### IDs {#selecting-ids}
 
 The [W3C HTML4 specification][html4-spec] defines the `id` attribute as one that _must_ be unique among all IDs defined inside of a document. This part of the specification goes on to [describe its primary uses][html4-id], such as element selection and navigation to other sections of a page using anchor links. [The DOM Level 1 specification defines the `HTMLElement` interface][dom1-htmlelement], from which all other elements inherit from. The `id` property is defined in this interface, which is directly connected to the `id` attribute defined on the corresponding element in the markup.
 
@@ -78,7 +78,7 @@ I>
 I> [`querySelector` is a bit slower than `getElementById`][select-by-id-perf], but this performance gap is closing as browser JavaScript engines evolve.
 
 
-### Classes
+### Classes {#selecting-classes}
 
 Contrary to the focus of IDs, class attributes do _not_ uniquely identify an element in a document. Instead, classes are traditionally used to semantically group elements in the context of an application as a whole. While IDs can certainly be used to style elements via CSS, this role is most often tied to class attributes. Elements may also be assigned multiple class names, while they are limited to one ID (for obvious reasons). The HTML 4.01 specification goes into more [detail regarding the role of class attributes][html4-classes]. I will discuss working with element attributes in much more detail in [the "understanding HTML attributes" chapter](#element-attributes).
 
@@ -751,7 +751,7 @@ for (var i = 0; i < allItems.length; i++) {
 [The above solution is _still_ more performant than jQuery's implementation of the `not()` method][jsperf-not]. 
 
 
-### Multiple selectors
+### Multiple selectors {#multiple-selectors}
 
 Suppose you want to select several groups of disparate elements. Consider the following HTML fragment:
 
