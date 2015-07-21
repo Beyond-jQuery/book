@@ -116,16 +116,46 @@ After executing the above script, you may expect the `checked` attribute to be r
 
 ## Finding elements using attributes {#finding-elements-with-attributes}
 
-%%- Extending class and ID selection from prev chapter
-%%  - while ID/class attr selection uses special syntax, you can select those as you would any other attribute (though there is no real reason to do so due to perf and readability drawbacks)
+Building upon the [class](#selecting-classes) and [ID](#selecting-ids) selector examples from [the previous chapter](#finding-elements), this section is going to provide a much more comprehensive guide to selecting any and _all_ attributes using the web API. While ID and class attribute selection is commonly accomplished using a syntax specific to these two types of attributes, you are able to use the more general attribute selection approaches found in this chapter as well. In some cases, some of the generic but powerful attribute selectors demonstrated here are most appropriate when looking for multiple elements by ID or class that follow a known pattern.
+
+For the sake of consistency and reference, jQuery examples will be provided throughout this section. But attributes can be selected in a number of ways without jQuery, simply by using either `querySelector` or `querySelectorAll`. Since attribute selectors were first introduced as [part of the W3C CSS 2 specification][css2-attributes] **all of the simple web API examples here are supported all the way back to Internet Explorer 8**! You truly don't need jQuery to write simple but powerful attribute selectors.
    
-%%- Associated W3C standards
-%%http://www.w3.org/TR/css3-selectors/#attribute-selectors
-
-%%- HTML fragment for code demos
-
-
+   
 ### Finding elements using attribute names
+
+We'll cover values in quite a bit of detail shortly, but let's first focus on attribute names. Why might you want to only focus on an attribute name? Perhaps for many reasons, including:
+
+1. Locating `disabled` elements or `required` form fields.
+2. Finding one or more elements that include a custom attribute that groups these elements in some way.
+3. Locating invalid markup in a document, such as `<img>` elements without a `src` attribute.
+
+The following jQuery and web API examples will revolve around #1 above. For this, a small HTML fragment will be used for reference:
+
+{title="selecting attributes by name - sample HTML", lang=html}
+~~~~~~~
+<form action="/submitHandler.php" method="POST">
+    <input name="first-name">
+    <input name="last-name" required>
+    <input type="email" name="email" required>
+    <button disabled>submit</button>
+</form>
+~~~~~~~
+
+
+#### jQuery
+
+There is one way to select elements given their attributes in jQuery, and that is by passing a valid CSS 2+ attribute selector string into the jQuery function:
+
+{title="selecting by attribute name - jQuery", lang=javascript}
+~~~~~~~
+var $result = $('[required], [disabled]');
+~~~~~~~
+
+The above code will result in a `$result` jQuery object that contains the "last-name", "email" `<input>` elements, along with the disabled submit `<button>`. In case the comma in the selector string is causing you some confusion, I covered this in [the previous chapter's multiple element selector section](#multiple-selectors). This jQuery code relies entirely on the web API. 
+
+
+#### Web API
+
 
 
 ### Finding elements using attribute names _and_ values
@@ -180,6 +210,8 @@ After executing the above script, you may expect the `checked` attribute to be r
 
 %%- normally shouldn't use this - more about styling in the styling-elements.txt chapter)
 
+
+[css2-attributes]: http://www.w3.org/TR/CSS2/selector.html#attribute-selectors
 
 [element.tagname]: http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-104682815
 
