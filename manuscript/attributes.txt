@@ -189,15 +189,38 @@ Given the following HTML:
 <span class>I'm not</span>
 ~~~~~~~
 
-Now, even though the `<span>` does not have any CSS classes assigned to it, the mere presence of the `class` attribute means that our selector includes it in the result set alongside the `<div>`. This is probably not what we wanted. This is not a deficiency of the selector API, but it _is_ important to understand exactly how attribute name selectors function. Note that you will run into the same "problem" using jQuery if you don't have a firm grasp of this CSS selector.
+Even though the `<span>` does not have any CSS classes assigned to it, the mere presence of the `class` attribute means that our selector includes it in the result set alongside the `<div>`. This is probably not what we wanted. This is not a deficiency of the selector API, but it _is_ important to understand exactly how attribute name selectors function. Note that you will run into the same "problem" using jQuery if you don't have a firm grasp of this CSS selector.
 
 
 ### Finding elements using attribute names _and_ values
 
+Sometimes locating an element or group of elements by attribute name alone is not sufficient. You may want to, for example, locate all password input fields, in which case you would need to find all `<input>` elements with a `type` attribute of "password". Or perhaps you need to located all anchor elements that link to a specific endpoint, in which case you'd need to key on the desired value of the `href` attribute of all `<a>` elements. 
+   
+To setup our jQuery and web API examples, let's use the following HTML and state that our goal is to locate all anchors that link to the ajax-form web component documentation page.
+
+{title="elements with and without CSS classes", lang=html}
+~~~~~~~
+<section>
+   <h2>web components</h2>
+   <ul>
+      <a href="http://file-input.raynicholus.com/">file-input</a>
+      <a href="http://ajax-form.raynicholus.com/">ajax-form</a>
+   </ul>
+</section>
+<section>
+   <h2>no-dependency libraries</h2>
+   <ul>
+      <a href="http://ajax-form.raynicholus.com/">ajax-form</a>
+      <a href="http://fineuploader.com/">Fine Uploader</a>
+   </ul>
+</section>
+~~~~~~~
+
+
+%- Fix the previous class attr selector: [class]:not([class=""])
+
 
 ### The power of wildcard and fuzzy attribute selectors
-
-%% Browser support via querySelector - IE8+
 
 %%- [att|=val]
 %%Represents an element with the att attribute, its value either being exactly "val" or beginning with "val" immediately followed by "-" (U+002D). This is primarily intended to allow language subcode matches (e.g., the hreflang attribute on the a element in HTML) as described in BCP 47 ([BCP47]) or its successor. For lang (or xml:lang) language subcode matching, please see the :lang pseudo-class.
