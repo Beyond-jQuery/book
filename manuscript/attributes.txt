@@ -40,6 +40,7 @@ Berners-Lee went on to mention a few such attributes, using the `href`, `type`, 
 
 Purely custom attributes are not, and have never been _officially_ supported in any HTML specification. But you may prefix an attribute name of your choice with "data-" as of the HTML5 spec - more on that [later](#data-attributes). However, if you would like to introduce a purely custom attribute into your markup, such as "myproject-uuid", you are certainly free to do so. The page will render without issue, and there will be no errors in your browser's developer tools console. Everything will work just fine. The only drawback is that your document will fail validation, as it will contain non-standard attributes, that is, attributes that are not mentioned in any accepted HTML standard. In fact, non-standard custom attributes are quite common, and even quite prevalent in popular JavaScript frameworks, such as AngularJS, which relies on non-standard custom attributes heavily to facilitate communication between element directives.
 
+{#boolean-attributes}
 The latest _completed_ HTML spec - HTML5 - defines [four different types of attributes][html5-attribute-styntax]. One type commonly known as a ["boolean attribute"][html5-boolean-attribute] is expressed as an element attribute without any value. Take the `required` attribute commonly found on `<input>` elements as one example (seen in the [previous section's](#what-are-attributes) HTML fragment). As the specification states, "The presence of a boolean attribute on an element represents the true value, and the absence of the attribute represents the false value." The HTML 5.1 standardized [`hidden` attribute][html51-hidden], which instructs the browser to _not_ render any element bearing the attribute, is another example of this first type.
 
 A second type of attribute is described as "unquoted". A little known fact is that you may omit quotes around your attribute values, provided the attribute value does not contain spaces, equal signs, or angle brackets (`<` and `>`), or an empty string (among other less notable character restrictions). So, the HTML fragment in the previous section can be re-written as follows:
@@ -156,6 +157,39 @@ The above code will result in a `$result` jQuery object that contains the "last-
 
 #### Web API
 
+As with many of the native solutions in the ["finding elements" chapter](#finding-elements), the code required to locate elements using attribute names is eerily similar to the jQuery solution you have just seen. 
+
+{title="selecting by attribute name - web API - all modern browsers + IE8", lang=javascript}
+~~~~~~~
+var result = document.querySelectorAll('[required], [disabled]');
+~~~~~~~
+
+Similar to the jQuery example, the above code will populate the `result` variable with a `NodeList` containing the "last-name" and "email" inputs, along with the disabled submit button. 
+
+While `disabled` and `required` are [boolean attributes](#boolean-attributes), the above code will yield the same results even if we assigned them values. The attribute selector simply matches on the attribute name - the value (or lack of one) is irrelevant. This means you can easily locate all elements in a document that have CSS classes assigned to them. For example, look at the following simple attribute selector:
+
+{title="selecting all elements with a class attribute - modern browsers + IE8", lang=javascript}
+~~~~~~~
+var result = document.querySelectorAll('[class]');
+~~~~~~~
+
+Given the following HTML:
+
+{title="elements with and without CSS classes", lang=html}
+~~~~~~~
+<div class="bold">I'm bold</div>
+<span>I'm not</span>
+~~~~~~~
+
+...the `result` variable in the previous selector will yield one element - the `<div>`. But beware, simply adding an _empty_ `class` attribute to the `<span>` may result in an unexpected result set:
+   
+{title="elements with and without CSS classes", lang=html}
+~~~~~~~
+<div class="bold">I'm bold</div>
+<span class>I'm not</span>
+~~~~~~~
+
+Now, even though the `<span>` does not have any CSS classes assigned to it, the mere presence of the `class` attribute means that our selector includes it in the result set alongside the `<div>`. This is probably not what we wanted. This is not a deficiency of the selector API, but it _is_ important to understand exactly how attribute name selectors function. Note that you will run into the same "problem" using jQuery if you don't have a firm grasp of this CSS selector.
 
 
 ### Finding elements using attribute names _and_ values
