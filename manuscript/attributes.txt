@@ -257,7 +257,7 @@ Remember the [empty class attribute example](#empty-class-attribute) from the se
 var result = document.querySelectorAll('[class]:not([class=""]');
 ~~~~~~~
 
-Using the sample HTML from the initial [empty class attribute example](#empty-class-attribute) section, the above code block, `result` contains a `NodeList` containing _only_ the `<div>` with a `class` attribute of "bold". The `<span>` with an empty `class` attribute has been skipped over.
+Using the sample HTML from the initial [empty class attribute example](#empty-class-attribute) section, the above code block, `result` contains a `NodeList` containing _only_ the `<div>` with a `class` attribute of "bold". The `<span>` with an empty `class` attribute has been successfully skipped over.
 
 
 ### The power of wildcard and fuzzy attribute selectors
