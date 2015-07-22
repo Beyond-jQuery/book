@@ -166,9 +166,9 @@ var result = document.querySelectorAll('[required], [disabled]');
 
 Similar to the jQuery example, the above code will populate the `result` variable with a `NodeList` containing the "last-name" and "email" inputs, along with the disabled submit button. 
 
+{#empty-class-attribute}
 While `disabled` and `required` are [boolean attributes](#boolean-attributes), the above code will yield the same results even if we assigned them values. The attribute selector simply matches on the attribute name - the value (or lack of one) is irrelevant. This means you can easily locate all elements in a document that have CSS classes assigned to them. For example, look at the following simple attribute selector:
 
-{#empty-class-attribute}
 {title="selecting all elements with a class attribute - modern browsers + IE8", lang=javascript}
 ~~~~~~~
 var result = document.querySelectorAll('[class]');
@@ -248,7 +248,7 @@ var result =
     document.querySelectorAll('A[href="http://ajax-form.raynicholus.com/"]');
 ~~~~~~~
 
-The `result` variable is a `NodeList` containing both ajax-form anchors from our example HTML at the start of this section. Support for this simple but effective selector is part of the [W3C CSS 2 selector specification][css2-attributes], so even Internet Explorer 8 is supported. Note that I'm combining the attribute name/value selector with a tag name selector. This ensures that any other elements that may include a non-standard `href` attribute are ignored (along with any `<link>` elements), since we are only concerned with anchor links.
+The `result` variable is a `NodeList` containing both ajax-form anchors from our example HTML at the start of this section. Support for this simple but effective selector is part of the [W3C CSS 2 selector specification][css2-attributes], so even Internet Explorer 8 is supported. Note that I'm combining the attribute name/value selector with a [tag name selector](#tag-selector). This ensures that any other elements that may include a non-standard `href` attribute are ignored (along with any `<link>` elements), since we are only concerned with anchor links.
 
 Remember the [empty class attribute example](#empty-class-attribute) from the selecting by attribute name section? During our search for all elements with CSS classes, we were unable to ignore empty `class` attributes with a simple attribute name selector. But if we pair an attribute name/value selector with the [exclusion selector from the "finding elements chapter"](#excluding-elements), we can effectively filter out empty `class` attributes:
 
