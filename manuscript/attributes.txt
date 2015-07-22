@@ -180,7 +180,7 @@ Given the following HTML:
 <div class="bold">I'm bold</div>
 <span>I'm not</span>
 ~~~~~~~
-
+{#empty-class-attribute}
 ...the `result` variable in the previous selector will yield one element - the `<div>`. But beware, simply adding an _empty_ `class` attribute to the `<span>` may result in an unexpected result set:
    
 {title="elements with and without CSS classes", lang=html}
@@ -195,7 +195,7 @@ Even though the `<span>` does not have any CSS classes assigned to it, the mere 
 ### Finding elements using attribute names _and_ values
 
 Sometimes locating an element or group of elements by attribute name alone is not sufficient. You may want to, for example, locate all password input fields, in which case you would need to find all `<input>` elements with a `type` attribute of "password". Or perhaps you need to located all anchor elements that link to a specific endpoint, in which case you'd need to key on the desired value of the `href` attribute of all `<a>` elements. 
-   
+
 To setup our jQuery and web API examples, let's use the following HTML and state that our goal is to locate all anchors that link to the ajax-form web component documentation page.
 
 {title="elements with and without CSS classes", lang=html}
@@ -203,21 +203,59 @@ To setup our jQuery and web API examples, let's use the following HTML and state
 <section>
    <h2>web components</h2>
    <ul>
-      <a href="http://file-input.raynicholus.com/">file-input</a>
-      <a href="http://ajax-form.raynicholus.com/">ajax-form</a>
+       <li>
+           <a href="http://file-input.raynicholus.com/">file-input</a>
+       </li>
+       <li>
+           <a href="http://ajax-form.raynicholus.com/">ajax-form</a>
+       </li>
    </ul>
 </section>
 <section>
    <h2>no-dependency libraries</h2>
    <ul>
-      <a href="http://ajax-form.raynicholus.com/">ajax-form</a>
-      <a href="http://fineuploader.com/">Fine Uploader</a>
+      <li>
+          <a href="http://ajax-form.raynicholus.com/">ajax-form</a>
+      </li>
+      <li>
+          <a href="http://fineuploader.com/">Fine Uploader</a>
+      </li>
    </ul>
 </section>
 ~~~~~~~
 
 
-%- Fix the previous class attr selector: [class]:not([class=""])
+#### jQuery
+
+In order to find all anchor elements that point to the ajax-form library page, we'll use a standardized CSS selector string passed into the `jQuery` function, as we've seen so many times before:
+
+{title="find anchors with specific href attributes - jQuery", lang=javascript}
+~~~~~~~
+var $result = $('A[href="http://ajax-form.raynicholus.com/"]');
+~~~~~~~
+
+The above selector returns a jQuery object containing the two ajax-form `HTMLAnchorElement` objects from our example markup.
+ 
+
+#### Web API
+
+You've already seen how a standard CSS selector is required to select by attribute name and value when using jQuery, so of course the same selector is most appropriate when attempting to find specific anchor elements without jQuery. The solution here is, as you have seen in most other element selection examples, almost identical to the jQuery approach, but more efficient:
+
+{title="find anchors with specific href attributes - web API - modern browsers + IE8", lang=javascript}
+~~~~~~~
+var result = document.querySelectorAll('A[href="http://ajax-form.raynicholus.com/"]');
+~~~~~~~
+
+The `result` variable is a `NodeList` containing both ajax-form anchors from our example HTML at the start of this section. Support for this simple but effective selector is part of the [W3C CSS 2 selector specification][css2-attributes], so even Internet Explorer 8 is supported. Note that I'm combining the attribute name/value selector with a tag name selector. This ensures that any other elements that may include a non-standard `href` attribute are ignored (along with any `<link>` elements), since we are only concerned with anchor links.
+
+Remember the [empty class attribute example](#empty-class-attribute) from the selecting by attribute name section? During our search for all elements with CSS classes, we were unable to ignore empty `class` attributes with a simple attribute name selector. But if we pair an attribute name/value selector with the [exclusion selector from the "finding elements chapter"](#excluding-elements), we can effectively filter out empty `class` attributes:
+
+{title="find anchors with specific href attributes - web API - modern browsers", lang=javascript}
+~~~~~~~
+var result = document.querySelectorAll('[class]:not([class=""]');
+~~~~~~~
+
+Using the sample HTML from the initial [empty class attribute example](#empty-class-attribute) section, the above code block, `result` contains a `NodeList` containing _only_ the `<div>` with a `class` attribute of "bold". The `<span>` with an empty `class` attribute has been skipped over.
 
 
 ### The power of wildcard and fuzzy attribute selectors

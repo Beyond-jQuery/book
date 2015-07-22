@@ -691,7 +691,7 @@ What follows are some more advanced methods used to select even more specific el
 All of the native examples in this section are supported in all modern browsers. In some cases, I will also touch on how to achieve the same goals using the web API in ancient browsers as well. Should you find yourself needing some of the following selectors in support of an ancient browser, perhaps you'll forgo pulling in jQuery after understanding how to approach the problem using the browser's native tools instead. Or not, but at least the solution will shed some light on jQuery's inner-workings, which is still beneficial if you insist on making it part of your core toolset.
  
 
-### Excluding elements
+### Excluding elements {#excluding-elements}
 
 While the ability to exclude specific matches in a set is part of the jQuery API, we'll also see how we can achieve the same results natively with another appropriately named pseudo-class. Before we dive into code, let's consider the following HTML fragment:
 
