@@ -265,7 +265,7 @@ Using the sample HTML from the initial [empty class attribute example](#empty-cl
 This last part of the attribute selectors section focuses on more advanced use cases. Below, I'll demonstrate four very powerful attribute selector tricks that are also easy to understand _and_ supported in all modern browsers as well as Internet Explorer 8. Also, the pattern you have already seen (many times) between the jQuery and the web API selector code continues in this last set of examples. So, let's just forgo the jQuery vs. web API code snippets, as they are mostly redundant when discussing element selectors. If you really want to run the following examples "the jQuery way" just replace `document.querySelectorAll()` with `$()` and be prepared for your code to run a bit slower.
 
 
-#### Looking for specific characters
+#### Looking for specific characters {#substring-attribute-selector}
 
 Remember the example from the section on [attribute names and values](#attribute-names-and-values)? We wanted to locate any anchor links in a document that pointed to a very specific endpoint. But what if we don't care about the entire URL, but just the domain? Consider the following HTML fragment:
 
@@ -296,8 +296,40 @@ var result =
 
 #### Looking for specific words
 
-[attr~=value]
-Represents an element with an attribute name of attr whose value is a whitespace-separated list of words, one of which is exactly "value".
+Instead of looking for groups of characters, perhaps we need to locate a specific "word" inside of an attribute value. For example, we can write an alternate CSS class selector using this attribute word selector. Given the following HTML fragment:
+
+{title="elements with varying classes - for an alternate CSS class selector example", lang=html}
+~~~~~~~
+<div class="one two three">1 2 3</div>
+<div class="onetwothree">123</div>
+~~~~~~~
+
+Let's say we want to find only the element with a CSS class of "two". In addition to the [CSS class selector](#selecting-classes) I demonstrated in the last chapter, we can make use of a special attribute selector to accomplish this as well.
+
+{title="alternate class selector", lang=javascript}
+~~~~~~~
+var result = document.querySelectorAll('[class~=two]');
+~~~~~~~
+
+The `result` variable is a `NodeList` containing one entry - the first `<div>` in our sample element collection - exactly what we were looking for. But why do we need to create another class selector? We don't and the above example is not exactly practical, though it does illustrate the behavior of this selector very well. A more realistic example may be to locate a specific word in an element `title` attribute. Consider this set of elements:
+
+{title="elements with various title attributes", lang=html}
+~~~~~~~
+<a href="https://github.com/rnicholus/frame-grab.js" title="frame-grab repo">frame-grab GitHub repo</a>
+<a href="https://github.com/rnicholus/frame-grab.js/blob/master/docs/api.md" title="frame-grab docs">frame-grab documentation</a>
+<a href="https://www.youtube.com/watch?v=hHBhP03JHIQ" title="frame-grab + fine-uploader">Video frame uploader</a>
+<img src="https://travis-ci.org/rnicholus/frame-grab.js.svg?branch=master" title="frame-grab build status">
+<a href="https://foo.bar/subframe-grabber" title="window-subframe-grabber">Locates all iframes inside of a given iframe</a>
+~~~~~~~
+
+Imagine the two links and one image, all obviously related to the frame-grab library, exist among a number of other unrelated links and images in a large document. But we want to find only those resources that directly relate to the frame-grab library. We can't key on "frame-grab.js" using the substring attribute selector(#substring-attribute-selector) since not all of the elements contain an `href` or `src` attribute with "frame-grab.js". We also don't want to key on the phrase "frame-grab", as this would include the last link, which does _not_ relate to the frame-grab library.  Instead we need to select all elements with a `title` attribute that contains the specific word "frame-grab". 
+
+{title="alternate class selector", lang=javascript}
+~~~~~~~
+var result = document.querySelectorAll('[title~=frame-grab]');
+~~~~~~~
+
+Above, `result` is a `NodeList` that contains all elements in our HTML sample _except_ for the last anchor link, which is the exact result we are looking for.
 
 
 #### Attribute values that start with...
