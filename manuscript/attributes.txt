@@ -328,12 +328,13 @@ The `result` variable is a `NodeList` containing one entry - the first `<div>` i
     title="frame-grab build status">
     
 <a href="https://foo.bar/subframe-grabber" 
-    title="window-subframe-grabber">Locates all iframes inside of a given iframe</a>
+    title="window-subframe-grabber">
+    Locates all iframes inside of a given iframe</a>
 ~~~~~~~
 
-Imagine the two links and one image, all obviously related to the frame-grab library, exist among a number of other unrelated links and images in a large document. But we want to find only those resources that directly relate to the frame-grab library. We can't key on "frame-grab.js" using the substring attribute selector(#substring-attribute-selector) since not all of the elements contain an `href` or `src` attribute with "frame-grab.js". We also don't want to key on the phrase "frame-grab", as this would include the last link, which does _not_ relate to the frame-grab library.  Instead we need to select all elements with a `title` attribute that contains the specific word "frame-grab". 
+Imagine the two links and one image, all obviously related to the frame-grab library, exist among a number of other unrelated links and images in a large document. But we want to find only those resources that directly relate to the frame-grab library. We can't key on "frame-grab.js" using [the substring attribute selector](#substring-attribute-selector) since not all of the elements contain an `href` or `src` attribute with "frame-grab.js". We also don't want to key on the phrase "frame-grab", as this would include the last link, which does _not_ relate to the frame-grab library.  Instead we need to select all elements with a `title` attribute that contains the specific word "frame-grab". 
 
-{title="alternate class selector", lang=javascript}
+{title="locate all title attrs with 'frame-grab' word", lang=javascript}
 ~~~~~~~
 var result = document.querySelectorAll('[title~=frame-grab]');
 ~~~~~~~
