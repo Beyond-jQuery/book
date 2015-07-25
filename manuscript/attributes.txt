@@ -315,11 +315,20 @@ The `result` variable is a `NodeList` containing one entry - the first `<div>` i
 
 {title="elements with various title attributes", lang=html}
 ~~~~~~~
-<a href="https://github.com/rnicholus/frame-grab.js" title="frame-grab repo">frame-grab GitHub repo</a>
-<a href="https://github.com/rnicholus/frame-grab.js/blob/master/docs/api.md" title="frame-grab docs">frame-grab documentation</a>
-<a href="https://www.youtube.com/watch?v=hHBhP03JHIQ" title="frame-grab + fine-uploader">Video frame uploader</a>
-<img src="https://travis-ci.org/rnicholus/frame-grab.js.svg?branch=master" title="frame-grab build status">
-<a href="https://foo.bar/subframe-grabber" title="window-subframe-grabber">Locates all iframes inside of a given iframe</a>
+<a href="https://github.com/rnicholus/frame-grab.js" 
+    title="frame-grab repo">frame-grab GitHub repo</a> 
+    
+<a href="https://github.com/rnicholus/frame-grab.js/blob/master/docs/api.md" 
+    title="frame-grab docs">frame-grab documentation</a>
+    
+<a href="https://www.youtube.com/watch?v=hHBhP03JHIQ" 
+    title="frame-grab + fine-uploader">Video frame uploader</a>
+    
+<img src="https://travis-ci.org/rnicholus/frame-grab.js.svg?branch=master" 
+    title="frame-grab build status">
+    
+<a href="https://foo.bar/subframe-grabber" 
+    title="window-subframe-grabber">Locates all iframes inside of a given iframe</a>
 ~~~~~~~
 
 Imagine the two links and one image, all obviously related to the frame-grab library, exist among a number of other unrelated links and images in a large document. But we want to find only those resources that directly relate to the frame-grab library. We can't key on "frame-grab.js" using the substring attribute selector(#substring-attribute-selector) since not all of the elements contain an `href` or `src` attribute with "frame-grab.js". We also don't want to key on the phrase "frame-grab", as this would include the last link, which does _not_ relate to the frame-grab library.  Instead we need to select all elements with a `title` attribute that contains the specific word "frame-grab". 
