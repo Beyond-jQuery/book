@@ -342,17 +342,32 @@ var result = document.querySelectorAll('[title~=frame-grab]');
 Above, `result` is a `NodeList` that contains all elements in our HTML sample _except_ for the last anchor link, which is the exact result we are looking for.
 
 
-#### Attribute values that start with...
+#### Attribute values that start or end with...
 
-%% -[att^=val]
-%%Represents an element with the att attribute whose value begins with the prefix "val". If "val" is the empty string then the selector does not represent anything.
+The final set of useful advanced attribute selectors to be aware of allow you to locate elements in a document with attribute values that either start with or end with one or more specific characters. Perhaps you are wondering at this point why such a selector would be useful, pragmatically speaking. As we have done so many times before, let's start with a bit of HTML, and then discuss how these two attribute selectors may be important to us.
 
+{title="markup for demonstrating start and end attribute value selectors", lang=html}
+~~~~~~~
+<img id="dancing-cat" src="/images/dancing-cat.gif">
+<img id="still-cat" src="/images/still-cat.png">
+<img id="dancing-zebra" src="dancing-zebra.gif">
+<a href="#dancing-zebra">watch the zebra dance</a>
+<a href="/logout">logout</a>
+~~~~~~~
 
-#### Attribute values that end with...
+The above fragment is likely to appear inside a large document, among many other anchor links and images, but can be considered representative of a number of such elements. Say that we want to locate two things in this document:
 
-%%- [att$=val]
-%%Represents an element with the att attribute whose value ends with the suffix "val". If "val" is the empty string then the selector does not represent anything.
+1. All GIF images.
+2. All anchors that reference elements on the current page.
 
+The refreshing reality is that we can meet both goals in one line _without_ any third-party dependencies!
+
+{title="locate all GIFs and references to the current page", lang=javascript}
+~~~~~~~
+var result = document.querySelectorAll('A[href^="#"], [src$=".gif"]');
+~~~~~~~
+
+The above selector combines a "starts with" and an "ends with" attribute value selector (respectively) using the [multiple selectors syntax](#multiple-selectors) covered in the previous chapter on finding elements. Our "starts with" selector targets any anchor element with an `href` attribute that starts with a hash mark, which would only include anchors that reference the current page. And the second selector focuses on elements with a `src` attribute value that ends with ".gif". This would include references to GIF images, assuming the image URL ends with the expected extension.
 
 
 ## Reading and modifying element attributes {#reading-attributes}
