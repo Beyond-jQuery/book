@@ -56,7 +56,7 @@ A second type of attribute is described as "unquoted". A little known fact is th
 The final two types of HTML element attributes are very similar: single-quoted and double-quoted. Both are similar in that they largely have the same restrictions, and are much more common than unquoted attributes. Though, double-quoted attributes are arguably the _most_ common of all types. In contrast to unquoted attribute values, those that are surrounded by either single or double quotation marks _may_ contain spaces, equal signs, angle brackets, or an empty string. The portion of the latest W3C specification that describes attributes only may never contain any ambiguous ampersand characters, that is, an `&` sign followed by ASCII characters and terminated with a semicolon (`;`) where the character code does _not_ match any character codes defined in the [named character references][html5-named-character-references] portion of the spec.
 
 
-### How do attributes differ from properties?
+### How do attributes differ from properties? {#attributes-vs-properties}
 
 Now that you have a solid understanding of element attributes, you may _still_ be confused regarding their relation to element "properties", _especially_ if you have been [using jQuery for a while][jquery-16]. At a very basic level, properties and attributes are entirely different from each other. While attributes are declared at the HTML level in the element's markup, properties are declared and updated on the element's object representation. For example, consider the following element:
 
@@ -372,18 +372,50 @@ The above selector combines a "starts with" and an "ends with" attribute value s
 
 ## Reading and modifying element attributes {#reading-attributes}
 
-%%- three types of attributes: class, data, and everything else
-
-%%- parsing, adding, removing, and changing attributes can differ depending on type
+So now you know exactly what attributes are (and what they are _not_), and you are well-versed in selecting elements by their attribute names and values. The final aspect of attributes for me to discuss involves reading and updating an element's attributes, as well as creating new attributes. You'll discover that appropriate approach for parsing, adding, removing, and changing attributes may depend on the type of attribute. In this final section, I will go over four distinct types of attributes: class attributes, data attributes, the style attribute, and all other generic native and custom attributes.
 
 
 ### Class attributes {#class-attributes}
 
-%%- reading classes ("hasClass")
+Element class attributes seem to be a popular topic in "Beyond jQuery" so far. I [discussed them at length in the "Finding HTML Elements" chapter](#selecting-classes), mentioned how the `class` attribute differs from its element property name in the [attributes vs. properties section](#attributes-vs-properties) earlier in this chapter, and I even showed you how to select elements using class attributes given various types of values recently in the [finding elements with attributes section](#finding-elements-with-attributes). Well, here we are again discussing classes. But this time, I'm going to show you how to read a specific element's classes, as well as add, toggle, and remove an element's classes.
 
-%%- adding / removing classes
 
-%%- toggleClass
+#### Reading classes
+
+All of the situations in the reading and modifying attributes section assume you already have a handle on a specific element or elements. So, since we already have an element, perhaps we would like to know what specific CSS classes it is associated with. Or maybe we just want to find out if it is connected to one specific class. "Reading classes" will examine both of these needs.
+
+Let's start with an actual element, for reference:
+
+{title="reading classes reference element", lang=html}
+~~~~~~~
+<p class="product-name out-of-stock manual-tool">saw</p>
+~~~~~~~
+
+Imagine this element is the name of a specific tool among many other such tools in a larger document. Let's say we want to know two things about the particular tool element we've landed on:  
+
+1. Is this tool in stock?
+2. Is this a manual or a power tool?
+
+The solution provided by jQuery makes use of its `hasClass` API method:
+
+{title="reading classes using jQuery", lang=javascript}
+~~~~~~~
+var inStock = !$toolEl.hasClass('out-of-stock');
+var type = $toolEl.hasClass('manual-tool') ? 'manual' : 'power';
+~~~~~~~
+
+The `inStock` boolean variable will be set to a value of `false` since the element contains an "out-of-stock" class. While `type` is "manual" due to the presence of a "manual-tool" class. No surprises here.
+
+But we don't want to use jQuery! So, how do we do all of this without it? Luckily, the modern web API offers an equally elegant solution, thanks to the [`classList` property on the `Element` interface][dom-classlist]. The WHATWG web standards organization initially drafted the specification for `classList`, and the W3C has [included it in its DOM4 document][dom4-classlist] as well. 
+
+Note that the `classList` property is set to a value of type [`DomTokenList`][dom-domtokenlist]. The `DomTokenList` interface contains four notable methods, each of which I will demonstrate throughout this section. You'll see how `classList` can be used to perform all sorts of operations on an element's `class` attribute throughout this section, but right now I'm going to focus one such method - [`contains`][dom-classlist-contains].
+
+
+
+#### Adding and removing classes
+
+
+#### Toggling classes
 
 
 ### Data attributes {#data-attributes}
@@ -406,6 +438,14 @@ The above selector combines a "starts with" and an "ends with" attribute value s
 [css2-attributes]: http://www.w3.org/TR/CSS2/selector.html#attribute-selectors
 
 [css3-attribute-substrings]: http://www.w3.org/TR/css3-selectors/#attribute-substrings
+
+[dom-classlist]: https://dom.spec.whatwg.org/#dom-element-classlist
+
+[dom-classlist-contains]: https://dom.spec.whatwg.org/#dom-domtokenlist-contains
+
+[dom-domtokenlist]: https://dom.spec.whatwg.org/#domtokenlist
+
+[dom4-classlist]: http://www.w3.org/TR/dom/#dom-element-classlist
 
 [element.tagname]: http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-104682815
 
