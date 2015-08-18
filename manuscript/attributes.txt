@@ -408,11 +408,35 @@ The `inStock` boolean variable will be set to a value of `false` since the eleme
 
 But we don't want to use jQuery! So, how do we do all of this without it? Luckily, the modern web API offers an equally elegant solution, thanks to the [`classList` property on the `Element` interface][dom-classlist]. The WHATWG web standards organization initially drafted the specification for `classList`, and the W3C has [included it in its DOM4 document][dom4-classlist] as well. 
 
-Note that the `classList` property is set to a value of type [`DomTokenList`][dom-domtokenlist]. The `DomTokenList` interface contains four notable methods, each of which I will demonstrate throughout this section. You'll see how `classList` can be used to perform all sorts of operations on an element's `class` attribute throughout this section, but right now I'm going to focus one such method - [`contains`][dom-classlist-contains].
+Note that the `classList` property is set to a value of type [`DomTokenList`][dom-domtokenlist]. The `DomTokenList` interface contains four notable methods, each of which I will demonstrate throughout this section. You'll see how `classList` can be used to perform all sorts of operations on an element's `class` attribute soon, but first I'm going to focus one such method - [`contains`][dom-classlist-contains].
 
+To determine if a specific element contains a specific CSS class, the DOM API provides an intuitive property on the `classList` object: `contains`. The above jQuery solution looks equally elegant when using a native web solution.
+
+{title="reading classes using the DOM API - all modern browsers except for IE9", lang=javascript}
+~~~~~~~
+var inStock = !toolEl.classList.contains('out-of-stock');
+var type = toolEl.classList.contains('manual-tool') ? 'manual' : 'power';
+~~~~~~~
+
+The above code is _identical_ to the jQuery example - just replace `hasClass` with `classList.contains` and [reap the performance benefits][jsperf-classlist-contains]!
+
+If you need to support older browsers, you will need to resort to a regular expression in order to determine if your target element contains a certain class. Luckily, this too is fairly simple.
+
+{title="reading classes using the DOM API - all browsers", lang=javascript}
+~~~~~~~
+var hasClass = function(el, className) {
+   return new RegExp('^|\s' + className + '\s|$').test(el.className);
+};
+var inStock = !hasClass(toolEl, 'out-of-stock');
+var type = hasClass(toolEl, 'manual-tool') ? 'manual' : 'power';
+~~~~~~~
+
+Whether you are using jQuery or not, if you want to get a list of _all_ CSS classes associated with an element, you must either directly access the `class` attribute, or the `className` property on the `Element` object. In both cases, the value will be a space-delimited string of all CSS classes attached to the element.
 
 
 #### Adding and removing classes
+
+
 
 
 #### Toggling classes
@@ -480,6 +504,8 @@ Note that the `classList` property is set to a value of type [`DomTokenList`][do
 [htmldivelement]: http://www.w3.org/TR/html5/grouping-content.html#the-div-element
 
 [jquery-16]: http://blog.jquery.com/2011/05/03/jquery-16-released/
+
+[jsperf-classlist-contains]: http://jsperf.com/classlist-contains-vs-hasclass
 
 [whatwg-url]: https://url.spec.whatwg.org
 
