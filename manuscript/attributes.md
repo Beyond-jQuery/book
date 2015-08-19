@@ -422,10 +422,10 @@ The above code is _identical_ to the jQuery example - just replace `hasClass` wi
 
 If you need to support older browsers, you will need to resort to a regular expression in order to determine if your target element contains a certain class. Luckily, this too is fairly simple.
 
-{title="reading classes using the DOM API - all browsers", lang=javascript}
+{title="reading classes using the DOM API - any browser", lang=javascript}
 ~~~~~~~
 var hasClass = function(el, className) {
-   return new RegExp('^|\s' + className + '\s|$').test(el.className);
+   return new RegExp('(^|\\s)' + className + '(\\s|$)').test(el.className);
 };
 var inStock = !hasClass(toolEl, 'out-of-stock');
 var type = hasClass(toolEl, 'manual-tool') ? 'manual' : 'power';
@@ -436,7 +436,43 @@ Whether you are using jQuery or not, if you want to get a list of _all_ CSS clas
 
 #### Adding and removing classes
 
+Below, we have an element, and we need to remove the "red" class, and add a "blue" one instead.
 
+{title="HTML for add/remove classes demo", lang=html}
+~~~~~~~
+<p class="red">I'm red. Make me blue!</p>
+~~~~~~~
+
+We all know that the `addClass` and `removeClass` jQuery functions are used to add and remove CSS classes from elements, respectively.
+
+{title="remove a class and add another - jQuery", lang=javascript}
+~~~~~~~
+$pEl.removeClass('red').addClass('blue');
+~~~~~~~
+
+The jQuery solution is pretty, and we can do it all in one line without sacrificing readability. Can we do the same thing without jQuery? Well, the web API approach is a tad more wordy, and chaining isn't built it, but it's just as easy. [The non-jQuery solution is faster as well][jsperf-classlist-addremove].
+
+{title="remove a class and add another - web API - all modern browsers except for IE9", lang=javascript}
+~~~~~~~
+pEl.classList.remove('red');
+pEl.classList.add('blue');
+~~~~~~~
+
+Once again, `classList` to the rescue! Perhaps you are saying to yourself, "The native solution makes me type a few more characters! This will greatly affect my productivity!" Really? If you're adding and removing classes via JavaScript so often that a few more characters will have a profoundly negative impact on agility, then perhaps it is time to instead re-evaluate your application design!
+
+Stuck supporting IE9 and older, a solution that covers every browser under the sun is similar to the fallback for `contains` from the previous section.
+
+{title="remove a class and add another - web API - any browser", lang=javascript}
+~~~~~~~
+var removeClass = function(el, className) {
+   el.className =
+      el.className.replace(new RegExp('(^|\\s)' + className + '(\\s|$)'), ' '));
+};
+removeClass(el, 'red');
+pEl.className += 'blue';
+~~~~~~~
+
+That _is_ quite a bit harder than `addClass(...)` and `removeClass(...)`. Luckily, `classList` is standardized and a suitable replacement for jQuery's class manipulation going forward.
 
 
 #### Toggling classes
@@ -506,6 +542,8 @@ Whether you are using jQuery or not, if you want to get a list of _all_ CSS clas
 [jquery-16]: http://blog.jquery.com/2011/05/03/jquery-16-released/
 
 [jsperf-classlist-contains]: http://jsperf.com/classlist-contains-vs-hasclass
+
+[jsperf-classlist-addremove]: http://jsperf.com/jquery-addclass-removeclass-vs-dom-classlist
 
 [whatwg-url]: https://url.spec.whatwg.org
 
