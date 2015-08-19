@@ -11,7 +11,7 @@ Coming soon!
 
 ## Listening (and un-listening) for event notifications
 
-    
+
 ## Controlling an event inside your event listener
 
 
@@ -22,5 +22,3 @@ Coming soon!
 
 
 ## Determining when something has loaded
-
-

@@ -11,9 +11,8 @@ Coming soon!
 
 ## Encoding requests and reading encoded responses
 
-   
+
 ## Uploading and manipulating files
 
-    
-## Cross-domain communication: an important topic
 
+## Cross-domain communication: an important topic

@@ -13,4 +13,3 @@ Coming soon!
 
 
 ## jQuery vs. the web API: Breaking down the differences
-

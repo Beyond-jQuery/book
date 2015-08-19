@@ -8,9 +8,8 @@ Coming soon!
 
 ## Changing and reading you element's CSS rules
 
-    
+
 ## Determining width, height, and position of any element
 
-    
-## Reading and updating scroll positions
 
+## Reading and updating scroll positions

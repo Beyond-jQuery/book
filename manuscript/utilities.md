@@ -15,13 +15,10 @@ Coming soon!
 ## Solving problems with Arrays {#javascript-arrays}
 
 {#pseudo-arrays}
-TOOD psuedo-arrays 
+TOOD psuedo-arrays
 
 
 ## Yes, you can modify functions too!
 
 
-## Understanding primitive data types 
-
-
-
+## Understanding primitive data types

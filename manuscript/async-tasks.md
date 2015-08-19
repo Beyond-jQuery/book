@@ -10,4 +10,3 @@ Coming soon!
 
 
 ## Using promises with and without jQuery
-

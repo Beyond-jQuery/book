@@ -28,7 +28,7 @@ The `<div>` element's `id` attribute is also accessible via the JavaScript repre
 {title="HTML element ID - JavaScript", lang=javascript}
 ~~~~~~~
 // `theDiv` is the <div> from our sample HMTL above
-theDiv.id === 'my-element-id'; // returns true 
+theDiv.id === 'my-element-id'; // returns true
 ~~~~~~~
 
 
@@ -38,7 +38,7 @@ In jQuery-land, obtaining a handle on the `<div>` element object looks something
 
 {title="select by ID - jQuery", lang=javascript}
 ~~~~~~~
-// returns a jQuery object with 1 element - 
+// returns a jQuery object with 1 element -
 // the <div> from our sample HMTL above
 var result = $('#my-element-id');
 
@@ -62,7 +62,7 @@ var result = document.getElementById('my-element-id');
 result.id === 'my-element-id'; // returns true
 ~~~~~~~
 
-A second approach makes use of the `querySelector` method, which was [first defined on both the `Document` and `Element` interfaces in the W3C Selectors API Level 1 specification][selectors1-queryselector]. Remember that the `HTMLElement` interface, on which the `id` attribute is defined, inherits from the `Element` interface, so `Element`s have an `id` property as well. The `querySelector` method is available in all [modern browsers](#modern-browsers), as well as Internet Explorer 8. In the following example, you will start to notice some stark similarities between the native approach and the jQuery shortcut. 
+A second approach makes use of the `querySelector` method, which was [first defined on both the `Document` and `Element` interfaces in the W3C Selectors API Level 1 specification][selectors1-queryselector]. Remember that the `HTMLElement` interface, on which the `id` attribute is defined, inherits from the `Element` interface, so `Element`s have an `id` property as well. The `querySelector` method is available in all [modern browsers](#modern-browsers), as well as Internet Explorer 8. In the following example, you will start to notice some stark similarities between the native approach and the jQuery shortcut.
 
 {title="select by ID - web API - modern browsers & Internet Explorer 8", lang=javascript}
 ~~~~~~~
@@ -82,7 +82,7 @@ I> [`querySelector` is a bit slower than `getElementById`][select-by-id-perf], b
 
 Contrary to the focus of IDs, class attributes do _not_ uniquely identify an element in a document. Instead, classes are traditionally used to semantically group elements in the context of an application as a whole. While IDs can certainly be used to style elements via CSS, this role is most often tied to class attributes. Elements may also be assigned multiple class names, while they are limited to one ID (for obvious reasons). The HTML 4.01 specification goes into more [detail regarding the role of class attributes][html4-classes]. I will discuss working with element attributes in much more detail in [the "understanding HTML attributes" chapter](#element-attributes).
 
-Generally speaking, a valid CSS class is case-insensitive, can only contain alphanumeric characters or hyphen or underscore, and may not start with a digit or two hyphens or a hyphen and a digit. These rules also apply to IDs, along with other element properties used to target elements via CSS. You can read about all of the [allowed values in CSS selectors in the CSS 2.1 specification][css21-selectors]. 
+Generally speaking, a valid CSS class is case-insensitive, can only contain alphanumeric characters or hyphen or underscore, and may not start with a digit or two hyphens or a hyphen and a digit. These rules also apply to IDs, along with other element properties used to target elements via CSS. You can read about all of the [allowed values in CSS selectors in the CSS 2.1 specification][css21-selectors].
 
 For example, consider the following markup:
 
@@ -106,7 +106,7 @@ Selecting an element by class in jQuery looks very similar to the approach used 
 
 {title="select by class - jQuery", lang=javascript}
 ~~~~~~~
-// Returns a jQuery object with 0 elements (element not found) 
+// Returns a jQuery object with 0 elements (element not found)
 // or all elements with the 'some-class' class attribute.
 var result = $('.some-class');
 
@@ -123,7 +123,7 @@ As with ids, there are several different way to select elements by class name us
 
 {title="select by class - web API - modern browsers", lang=javascript}
 ~~~~~~~
-// Returns an HTMLCollection containing all matching elements, 
+// Returns an HTMLCollection containing all matching elements,
 // which is empty if there are no matches.
 var result = anyElement.getElementsByClassName('some-class');
 
@@ -139,7 +139,7 @@ A second approach to selecting elements by class name involves a cousin to the p
 
 {title="select by class - web API - modern browsers & Internet Explorer 8", lang=javascript}
 ~~~~~~~
-// Returns a NodeList containing all matching elements, 
+// Returns a NodeList containing all matching elements,
 // which is empty if there are no matches.
 var result = anyElement.querySelectorAll('.some-class');
 
@@ -147,7 +147,7 @@ var result = anyElement.querySelectorAll('.some-class');
 result[0].className === 'some-class'; // returns true
 ~~~~~~~
 
-Like `getElementsByClassName`, `querySelectorAll` returns all matches in an [array-like](#pseudo-arrays) object. The differences end here, though. For one, `querySelectorAll` returns a `NodeList` object, [an interface which was first formally defined in the W3C DOM Level 3 Core specification][dom3core-nodelist]. `NodeList` differs in one important way from an `HTMLCollection` - it is _not_ a "live" collection. So, if a matching element contained in a `NodeList` is removed from the DOM, it will _not_ be removed from any `NodeList`. 
+Like `getElementsByClassName`, `querySelectorAll` returns all matches in an [array-like](#pseudo-arrays) object. The differences end here, though. For one, `querySelectorAll` returns a `NodeList` object, [an interface which was first formally defined in the W3C DOM Level 3 Core specification][dom3core-nodelist]. `NodeList` differs in one important way from an `HTMLCollection` - it is _not_ a "live" collection. So, if a matching element contained in a `NodeList` is removed from the DOM, it will _not_ be removed from any `NodeList`.
 
 `querySelectorAll` is available both on the `Document` interface _and_ the `Element` interface, [according to the W3C Selectors API][selectors1-queryselectorall] (just like `getElementsByClassName`). The `querySelector` method, which can _also_ be used when looking for an element with a specific class name, will _only_ return the _first_ matching element, which may actually be desirable in some instances. In either case, a CSS selector string must be passed. When looking for a class name, we must include a "." prefix, which was [first described in the CSS 1 specification][css1-classes], although more detail was included in [the later CSS 2.1 specification][css21-classes]. While `getElementsByClassName` is not available in IE8, you can alternatively locate elements by class name in this browser simply by passing a CSS class selector string into the `querySelectorAll` method.
 
@@ -156,9 +156,9 @@ If you _must_ support Internet Explorer 7, or older, the approach for selecting 
 
 ### Element tags {#tag-selector}
 
-The most basic property of any element is its name. In the [IETF HTML specification drafted in part by Tim Berners-Lee way back in 1993][html1], a valid element/tag name may "consist of a letter followed by up to 33 letters, digits, periods, or hyphens." This specification goes on to say "names are not case sensitive". There were also a small number of elements defined in this document, such as the anchor tag (`<a>`), the paragraph tag (`<p>`), and the `<address>` element for supplying contact information. Since this first specification, many more elements have been added, such as [`<video>`][html5-video] and [`<audio>`][html5-audio], added in the relatively recent HTML5 specification. 
+The most basic property of any element is its name. In the [IETF HTML specification drafted in part by Tim Berners-Lee way back in 1993][html1], a valid element/tag name may "consist of a letter followed by up to 33 letters, digits, periods, or hyphens." This specification goes on to say "names are not case sensitive". There were also a small number of elements defined in this document, such as the anchor tag (`<a>`), the paragraph tag (`<p>`), and the `<address>` element for supplying contact information. Since this first specification, many more elements have been added, such as [`<video>`][html5-video] and [`<audio>`][html5-audio], added in the relatively recent HTML5 specification.
 
-While custom elements have not been explicitly banned by browsers, there was little motivation to create them, until the [Web Components specification][wc-wiki] came along. Web Components is a collection of specifications, one being [the custom elements specification][custom-elements], which details a way to create new `HTMLElement`s with their own API and properties, or even extensions of existing elements - such as [the ajax-form custom element][ajax-form] which extends and adds features to a native `<form>`. 
+While custom elements have not been explicitly banned by browsers, there was little motivation to create them, until the [Web Components specification][wc-wiki] came along. Web Components is a collection of specifications, one being [the custom elements specification][custom-elements], which details a way to create new `HTMLElement`s with their own API and properties, or even extensions of existing elements - such as [the ajax-form custom element][ajax-form] which extends and adds features to a native `<form>`.
 
 To setup our examples, let's take the following very simple HTML block into consideration:
 
@@ -182,7 +182,7 @@ Selecting elements by jQuery is, predictably, facilitated by passing a CSS eleme
 
 {title="select by tag name - jQuery", lang=javascript}
 ~~~~~~~
-// Returns a jQuery object with 0 elements (element not found) 
+// Returns a jQuery object with 0 elements (element not found)
 // or all elements with a matching tag name.
 var result = $('code');
 
@@ -199,7 +199,7 @@ Let's start with a quick look at the traditional method for selecting elements b
 
 {title="select by tag name - web API - all browsers", lang=javascript}
 ~~~~~~~
-// Returns a HTMLCollection containing all matching elements, 
+// Returns a HTMLCollection containing all matching elements,
 // which is empty if there are no matches.
 var result = anyElement.getElementsByTagName('code');
 
@@ -207,13 +207,13 @@ var result = anyElement.getElementsByTagName('code');
 result[0].tagName === 'code'; // returns true
 ~~~~~~~
 
-The above method has been available as early as DOM Level 1 Core, and, like `getElementsByClassName`, is available on both [the `Document` interface][dom1core-document-tagname] _and_ [the `Element` interface][dom1core-element-tagname]. So, this approach is available on all browsers in existence. 
+The above method has been available as early as DOM Level 1 Core, and, like `getElementsByClassName`, is available on both [the `Document` interface][dom1core-document-tagname] _and_ [the `Element` interface][dom1core-element-tagname]. So, this approach is available on all browsers in existence.
 
-A more "modern" approach involves, as you might expect, `querySelector` or `querySelectorAll`. 
+A more "modern" approach involves, as you might expect, `querySelector` or `querySelectorAll`.
 
 {title="select by tag name - web API - modern browsers & Internet Explorer 8", lang=javascript}
 ~~~~~~~
-// Returns a NodeList containing all matching elements, 
+// Returns a NodeList containing all matching elements,
 // which is empty if there are no matches.
 var result = anyElement.querySelectorAll('code');
 
@@ -222,7 +222,7 @@ result[0].tagName === 'code'; // returns true
 
 // -OR-
 
-// ...you can use this if you know there is  only one <code> 
+// ...you can use this if you know there is  only one <code>
 // element to find, or if you only care about the first.
 // Returns true.
 anyElement.querySelector('code').tagName === 'code';
@@ -257,12 +257,12 @@ Say we want to select the input that is currently focused, using jQuery.
 
 {title="select the focused input using a pseduo-class selector - jQuery", lang=javascript}
 ~~~~~~~
-// Return value will be a jQuery object containing the 
+// Return value will be a jQuery object containing the
 // "company" input element
 var focusedInputs = $('INPUT:focus');
 ~~~~~~~
 
-Above is, once again, a standardized CSS selector string. We are making use of a [tag name selector](#tag-selector) with a pseudo-class modifier. jQuery isn't doing anything special for us at all. In fact, it's simply delegating directly to the web API. 
+Above is, once again, a standardized CSS selector string. We are making use of a [tag name selector](#tag-selector) with a pseudo-class modifier. jQuery isn't doing anything special for us at all. In fact, it's simply delegating directly to the web API.
 
 
 #### Web API
@@ -278,7 +278,7 @@ The above code avoids all of the overhead associated with filtering the call thr
 
 ## Selecting elements based on their relations
 
-With some rudimentary approaches to selecting elements fresh in our heads, we're ready to move on to the next step in our trip through element selectors. The following sections will cover selecting elements based on their relation to other elements. We will examine locating children and descendants, parents of children, and elements that are siblings of other elements. The DOM is organized as a tree-like structure. With this in mind, it is often advantageous to be able to navigate this hierarchy of nodes with relations in mind. Just as we already witnessed in the core selectors section, finding elements based on their relations is fairly straightforward _and_ more performant _without_ jQuery. 
+With some rudimentary approaches to selecting elements fresh in our heads, we're ready to move on to the next step in our trip through element selectors. The following sections will cover selecting elements based on their relation to other elements. We will examine locating children and descendants, parents of children, and elements that are siblings of other elements. The DOM is organized as a tree-like structure. With this in mind, it is often advantageous to be able to navigate this hierarchy of nodes with relations in mind. Just as we already witnessed in the core selectors section, finding elements based on their relations is fairly straightforward _and_ more performant _without_ jQuery.
 
 
 ### Parents and children
@@ -312,16 +312,16 @@ jQuery's API includes a `parent` method. To keep things simple, we'll assume tha
 var $result = $a.parent();
 
 // Assuming $span is a reference to the <span> in our example HTML,
-// the first parent() call references the <a> element, and the 
+// the first parent() call references the <a> element, and the
 // $result will contain the <div> root element.
 var $result = $span.parent().parent();
 
-// Assuming $someText is a reference to the "Some text" Text node, 
+// Assuming $someText is a reference to the "Some text" Text node,
 // the $result will contain the <p> element in our example HTML.
 var $result = $someText.parent();
 ~~~~~~~
 
-To locate children, jQuery provides a `children` method that will return all immediate child `Element`s of a given element. You may also select child elements given a reference element using [the child selector standardized in the CSS 2.1 W3C specification][css2-child]. But since `children` will _only_ return `Element`s, we must use jQuery's `contents` API method to obtain any `Node'`s that are not also `Element`s, such as `Text` items. Again, to keep this simple, we'll assume that the reference jQuery object in our example only refers to _one_ specific element in the DOM. 
+To locate children, jQuery provides a `children` method that will return all immediate child `Element`s of a given element. You may also select child elements given a reference element using [the child selector standardized in the CSS 2.1 W3C specification][css2-child]. But since `children` will _only_ return `Element`s, we must use jQuery's `contents` API method to obtain any `Node'`s that are not also `Element`s, such as `Text` items. Again, to keep this simple, we'll assume that the reference jQuery object in our example only refers to _one_ specific element in the DOM.
 
 {title="get child elements and/or child nodes - jQuery", lang=javascript}
 ~~~~~~~
@@ -336,7 +336,7 @@ var $result = $('DIV > P');
 // $result will contain 3 nodes: <a>, <p>, and "Some other text".
 var $result = $div.contents();
 
-// Assuming $a refers to the <a> element in our example markup, 
+// Assuming $a refers to the <a> element in our example markup,
 // $result will contains 1 element: <span>.
 var $result = $a.children();
 
@@ -351,22 +351,22 @@ For the most part, locating the parent of an element/node without jQuery is simp
 
 {title="get parent element/node - web API", lang=javascript}
 ~~~~~~~
-// Assuming "a" is the <a> element in our HTML example, 
+// Assuming "a" is the <a> element in our HTML example,
 // "result" will be the the <div> above it.
 var result = a.parentNode;
 
-// Assuming "span" is the <span> element in our HTML example, 
+// Assuming "span" is the <span> element in our HTML example,
 // the first parentNode is the <a>, while "result" is the <div>
 // at the root of our example markup.
 var result = span.parentNode.parentNode;
 
-// Assuming "someText" is the "Some text" Text node in our HTML example, 
+// Assuming "someText" is the "Some text" Text node in our HTML example,
 // "result" will be the the <p> that contains it.
 var result = someText.parentNode;
 ~~~~~~~
 
 {#web-api-children}
-There are a number of different ways to locate immediate children of an element using the web API. I will demonstrate two such ways next, and briefly discuss a third approach. The simplest and most common method of locating an element's children in all [modern browsers](#modern-browsers) involves using the `children` property on [the `ParentNode` interface][dom4-parentnode]. `ParentNode` is defined to be implemented by both the `Element` _and_ `Document` interfaces, though it is only commonly implemented on the `Element` interface. It applies to a `Node` that may potentially have children. It was first defined in the [W3C DOM4 specification][dom4], and is only available in [modern browsers](#modern-browsers). `ParentNode.children` returns all children of the reference `Node` in an `HTMLCollection`, which you may remember from earlier in this chapter represents a "live" collection of `Element`s. 
+There are a number of different ways to locate immediate children of an element using the web API. I will demonstrate two such ways next, and briefly discuss a third approach. The simplest and most common method of locating an element's children in all [modern browsers](#modern-browsers) involves using the `children` property on [the `ParentNode` interface][dom4-parentnode]. `ParentNode` is defined to be implemented by both the `Element` _and_ `Document` interfaces, though it is only commonly implemented on the `Element` interface. It applies to a `Node` that may potentially have children. It was first defined in the [W3C DOM4 specification][dom4], and is only available in [modern browsers](#modern-browsers). `ParentNode.children` returns all children of the reference `Node` in an `HTMLCollection`, which you may remember from earlier in this chapter represents a "live" collection of `Element`s.
 
 {title="get children Elements of a parent - web API - modern browsers", lang=javascript}
 ~~~~~~~
@@ -380,7 +380,7 @@ A second method used to locate child `Element`s involves using `querySelectorAll
 {title="get children Elements of a parent - web API - modern browsers & IE8", lang=javascript}
 ~~~~~~~
 // The result will contain a NodeList holding 2 elements: <a> and <p>
-// from our HTML fragment above. 
+// from our HTML fragment above.
 var result = document.querySelectorAll('DIV > *');
 
 // The result will be all <p> children of the <div>, which, in this case
@@ -388,12 +388,12 @@ var result = document.querySelectorAll('DIV > *');
 var result = document.querySelectorAll('DIV > P');
 ~~~~~~~
 
-A third option used to select children with the web API involves the [`childNodes` property on the `Node` interface][dom1core-node]. This property was declared on the original [W3C DOM Level 1 Core specification][dom1core]. As a result, it is supported by all browsers, even ancient ones. The `childNodes` property will reveal _all_ child `Node`s, even `Text` and `Comment` items. You _can_ filter out the non-`Element` objects in the collection simply by iterating over the results and ignoring any that have a [`nodeType` property][dom1core-node] that is _not_ equal to `1`. This `nodeType` property was _also_ defined on the original `Node` interface specification. 
+A third option used to select children with the web API involves the [`childNodes` property on the `Node` interface][dom1core-node]. This property was declared on the original [W3C DOM Level 1 Core specification][dom1core]. As a result, it is supported by all browsers, even ancient ones. The `childNodes` property will reveal _all_ child `Node`s, even `Text` and `Comment` items. You _can_ filter out the non-`Element` objects in the collection simply by iterating over the results and ignoring any that have a [`nodeType` property][dom1core-node] that is _not_ equal to `1`. This `nodeType` property was _also_ defined on the original `Node` interface specification.
 
 {title="get children Nodes of a parent - web API - any browser", lang=javascript}
 ~~~~~~~
-// Assuming "div" is an Element object containing the <div> in 
-// our example HTML, result will contain a NodeList 
+// Assuming "div" is an Element object containing the <div> in
+// our example HTML, result will contain a NodeList
 // holding 3 Nodes: <a>, <p>, and "Some other text".
 var result = div.childNodes;
 ~~~~~~~
@@ -423,20 +423,20 @@ To find all sibling `Element`s of a given `Element`, jQuery provides a `siblings
 
 {title="find and traverse through siblings - jQuery", lang=javascript}
 ~~~~~~~
-// $result will be a jQuery object that contains <a>, <span>, <p>, 
+// $result will be a jQuery object that contains <a>, <span>, <p>,
 // and <div> elements inside of the #parent <div>.
 var $result = $('SPAN').siblings();
 
-// $result will be a jQuery object that contains the <a> element 
+// $result will be a jQuery object that contains the <a> element
 // that precedes the <span>.
 var $result = $('SPAN').prev();
 
-// The first next() refers to the <p>, and the 2nd next() 
-// refers to the <div>Div text</div> element, which is also 
+// The first next() refers to the <p>, and the 2nd next()
+// refers to the <div>Div text</div> element, which is also
 // the element contained in the jQuery $result object.
 var $result = $('SPAN').next().next();
 
-// The first next() refers to the <p>, and the 2nd next() 
+// The first next() refers to the <p>, and the 2nd next()
 // refers to the <div>Div text</div> element. The final next()
 // does not reference any element, since the final Node in the
 // fragment is a Text Node, and not an element. So, the $result
@@ -472,7 +472,7 @@ var result = document.querySelectorAll('#parent > SPAN ~ *');
 var result = document.querySelectorAll('#parent > SPAN ~ DIV');
 
 // This is an adjacent sibling selector in action. It will target
-// the first sibling after the <span>. So, "result", is the same 
+// the first sibling after the <span>. So, "result", is the same
 // as in the previous general sibling selector example.
 var result = document.querySelector('#parent > SPAN + *');
 ~~~~~~~
@@ -513,7 +513,7 @@ var previousSiblings = [],
 
 do {
    currentElement = referenceElement.previousSibling;
-   // This differs from the previous example in that we must 
+   // This differs from the previous example in that we must
    // exclude non-Element Nodes by examining the nodeType property.
    if (currentElement && currentElement.nodeType === 1) {
       previousSiblings.push(currentElement);
@@ -525,7 +525,7 @@ The web API also exposes a `nextSibling` property on the `Node` interface and a 
 
 {title="traverse through all subsequent siblings - web API - modern browsers & IE8", lang=javascript}
 ~~~~~~~
-// The first nextSibling refers to the <p>, and the 2nd nextSibling 
+// The first nextSibling refers to the <p>, and the 2nd nextSibling
 // refers to the <div>Div text</div> element. The final nextSibling
 // refers to the "Text node" Text Node, since nextSibling targets
 // any type of Node. So, the result is this Text Node.
@@ -575,7 +575,7 @@ jQuery's API provides a single method used to retrieve all of an element's ances
 {title="retrieve all element ancestors - jQuery", lang=javascript}
 ~~~~~~~
 // Using our HTML example, $result is a jQuery object that
-// contains the following elements: <li>, <ul>, 
+// contains the following elements: <li>, <ul>,
 // <div>, and <body>
 var $result = $('A').parents();
 ~~~~~~~
@@ -594,7 +594,7 @@ For locating descendants, you may use jQuery's `find()` method.
 {title="retrieve element descendants - jQuery", lang=javascript}
 ~~~~~~~
 // Using our HTML example, $result is a jQuery object that
-// contains the following elements: both <li>s, the <span>, 
+// contains the following elements: both <li>s, the <span>,
 // and the <a>.
 var $result = $('UL').find('*');
 
@@ -611,12 +611,12 @@ The native web does not provide a single API method that returns all ancestors o
 {title="retrieve all element ancestors - web API - any browser", lang=javascript}
 ~~~~~~~
 // When this code is complete, "ancestors" will contain all
-// ancestors of the anchor element: <li>, <ul>, 
+// ancestors of the anchor element: <li>, <ul>,
 // <div>, and <body>
 var currentNode = document.getElementsByTagName('A')[0],
     ancestors = [];
 
-while (currentNode.parentNode) {   
+while (currentNode.parentNode) {
    ancestors.push(currentNode.parentElement);
    currentNode = currentNode.parentElement;
 }
@@ -639,25 +639,25 @@ function closest(referenceEl, closestSelector) {
    if (referenceEl.closest) {
       return referenceEl.closest(closestSelector);
    }
-    
+
    // ...otherwise use brute force (like jQuery)
-    
-   // To find a match for our closestSelector, we must use the 
-   // Element.matches method, which is still vendor-prefixed 
+
+   // To find a match for our closestSelector, we must use the
+   // Element.matches method, which is still vendor-prefixed
    // in some browsers.
-   var matches = Element.prototype.matches || 
-            Element.prototype.msMatchesSelector || 
+   var matches = Element.prototype.matches ||
+            Element.prototype.msMatchesSelector ||
             Element.prototype.webkitMatchesSelector,
- 
+
        currentEl = referenceEl;
-        
-   while (currentEl.parentElement) {   
+
+   while (currentEl.parentElement) {
       currentEl = currentEl.parentElement;
       if (matches.call(currentEl, closestSelector)) {
          return currentEl;
       }
    }
-    
+
    return null;
 }
 
@@ -674,7 +674,7 @@ Finding descendants using the web API is just as easy as with jQuery:
 {title="retrieve element descendants - web API - modern browsers & IE8", lang=javascript}
 ~~~~~~~
 // Using our HTML example, result is a NodeList that
-// contains the following elements: the two <li>s, <span>, 
+// contains the following elements: the two <li>s, <span>,
 // and <a>.
 var result = document.querySelectorAll('UL *');
 
@@ -686,10 +686,10 @@ var result = document.querySelectorAll('UL SPAN');
 
 ## Mastering advanced element selection
 
-What follows are some more advanced methods used to select even more specific elements or groups of elements. While jQuery provides API methods to deal with each scenario, you'll see that modern web specifications _also_ provide the same support, which means that jQuery is not needed in modern browsers for _any_ of these examples. Web API Solutions here will mostly involve the use of various [CSS3 selectors][selectors-level3], which are also usable from jQuery. 
+What follows are some more advanced methods used to select even more specific elements or groups of elements. While jQuery provides API methods to deal with each scenario, you'll see that modern web specifications _also_ provide the same support, which means that jQuery is not needed in modern browsers for _any_ of these examples. Web API Solutions here will mostly involve the use of various [CSS3 selectors][selectors-level3], which are also usable from jQuery.
 
 All of the native examples in this section are supported in all modern browsers. In some cases, I will also touch on how to achieve the same goals using the web API in ancient browsers as well. Should you find yourself needing some of the following selectors in support of an ancient browser, perhaps you'll forgo pulling in jQuery after understanding how to approach the problem using the browser's native tools instead. Or not, but at least the solution will shed some light on jQuery's inner-workings, which is still beneficial if you insist on making it part of your core toolset.
- 
+
 
 ### Excluding elements {#excluding-elements}
 
@@ -704,16 +704,16 @@ While the ability to exclude specific matches in a set is part of the jQuery API
 </ul>
 ~~~~~~~
 
-Imagine this is some sort of menu, with three items to choose from. The second item, "choice 2", is currently selected. What if you want to easily gather all of the menu items that are _not_ selected? 
+Imagine this is some sort of menu, with three items to choose from. The second item, "choice 2", is currently selected. What if you want to easily gather all of the menu items that are _not_ selected?
 
 
 #### jQuery
 
-jQuery's API provides a `not()` method that will remove any elements that match a selector from the original set of elements. 
+jQuery's API provides a `not()` method that will remove any elements that match a selector from the original set of elements.
 
 {title="excluding elements - jQuery", lang=javascript}
 ~~~~~~~
-// $result is a jQuery object that contains all 
+// $result is a jQuery object that contains all
 // `<li>`s that are not "active" (the first and last).
 var $result = $('UL LI').not('.active');
 ~~~~~~~
@@ -723,11 +723,11 @@ While the above example is idiomatic jQuery, you don't _have_ to use the `not()`
 
 #### Web API
 
-The native solution for modern browsers is arguably just as elegant as jQuery's, and certainly just as easy. Below, we are using the [W3C CSS3 negation pseudo-class][css3-negation] to locate the non-active list items. There is no library overhead, so this is of course more performant than jQuery's implementation. 
+The native solution for modern browsers is arguably just as elegant as jQuery's, and certainly just as easy. Below, we are using the [W3C CSS3 negation pseudo-class][css3-negation] to locate the non-active list items. There is no library overhead, so this is of course more performant than jQuery's implementation.
 
 {title="excluding elements - web API - modern browsers", lang=javascript}
 ~~~~~~~
-// "result" is a NodeList that contains all 
+// "result" is a NodeList that contains all
 // `<li>`s that are not "active" (the first and last).
 var result = document.querySelectorAll('UL LI:not(.active)');
 ~~~~~~~
@@ -739,8 +739,8 @@ But what if we still need to support Internet Explorer 8, which unfortunately do
 var allItems = document.querySelectorAll('UL LI'),
     result = [];
 
-// "result" will be an Array that contains all 
-// `<li>`s that are not "active" (the first and last).    
+// "result" will be an Array that contains all
+// `<li>`s that are not "active" (the first and last).
 for (var i = 0; i < allItems.length; i++) {
    if (allItems[i].className !== 'active') {
       result.push(allItems[i]);
@@ -748,7 +748,7 @@ for (var i = 0; i < allItems.length; i++) {
 }
 ~~~~~~~
 
-[The above solution is _still_ more performant than jQuery's implementation of the `not()` method][jsperf-not]. 
+[The above solution is _still_ more performant than jQuery's implementation of the `not()` method][jsperf-not].
 
 
 ### Multiple selectors {#multiple-selectors}
@@ -767,7 +767,7 @@ Suppose you want to select several groups of disparate elements. Consider the fo
 <span class="my-name">Ray Nicholus</span>
 ~~~~~~~
 
-What if you want to select the "link-container" _and_ the "my-name" element, along with the ordered list? Let's also assume you want to accomplish this without loops - in one simple line of code. 
+What if you want to select the "link-container" _and_ the "my-name" element, along with the ordered list? Let's also assume you want to accomplish this without loops - in one simple line of code.
 
 
 #### jQuery
@@ -776,8 +776,8 @@ jQuery allows you to select multiple unrelated elements simply by providing one 
 
 {title="selecting unrelated groups of elements - jQuery", lang=javascript}
 ~~~~~~~
-// $result is a jQuery object that contains 3 elements - 
-// the <div>, <ol> and the <span> from this section's 
+// $result is a jQuery object that contains 3 elements -
+// the <div>, <ol> and the <span> from this section's
 // HTML fragment.
 var $result = $('#link-container, .my-name, OL');
 ~~~~~~~
@@ -789,8 +789,8 @@ The exact same result can be obtained without jQuery, using the web API. And the
 
 {title="selecting unrelated groups of elements - web API - modern browsers & IE8", lang=javascript}
 ~~~~~~~
-// "result" is a NodeList that contains 3 elements - 
-// the <div>, <ol> and the <span> from this section's 
+// "result" is a NodeList that contains 3 elements -
+// the <div>, <ol> and the <span> from this section's
 // HTML fragment.
 var result = document.querySelectorAll('#link-container, .my-name, OL');
 ~~~~~~~
@@ -806,7 +806,7 @@ I'll demonstrate how to mimic the behavior of a few of jQuery's own pseudo-class
 
 {title="implementing jQuery's :button pseudo-class - web API - modern browsers & IE8", lang=javascript}
 ~~~~~~~
-// "result" will contain a NodeList of all <button> and 
+// "result" will contain a NodeList of all <button> and
 // <input type="button"> elements in the document, just like
 // jQuery's :button pseudo-class.
 var result = document.querySelectorAll('BUTTON, INPUT[type="button"]');
@@ -814,7 +814,7 @@ var result = document.querySelectorAll('BUTTON, INPUT[type="button"]');
 
 {title="implementing jQuery's :submit pseudo-class - web API - modern browsers & IE8", lang=javascript}
 ~~~~~~~
-// "result" will contain a NodeList of all <button type="submit"> and 
+// "result" will contain a NodeList of all <button type="submit"> and
 // <input type="submit"> elements in the document, just like
 // jQuery's :submit pseudo-class.
 var result = document.querySelectorAll(
@@ -853,7 +853,7 @@ Suppose we want to select the first `<div>` in this fragment. With jQuery, our c
 
 {title="selecting the first match - jQuery", lang=javascript}
 ~~~~~~~
-// $result is a jQuery object containing 
+// $result is a jQuery object containing
 // the first <div> in our example markup.
 var $result = $('DIV:first');
 
@@ -874,7 +874,7 @@ Since `querySelector` returns the first match for a selector string, this is act
 
 ## A simple replacement for $(selector)
 
-Throughout this chapter, you've seen a number of element selection approaches that involve passing a CSS selector string into the `jQuery` function (aliased as `$`). The native solution often involves the same selector string passed into either `querySelector` or `querySelectorAll`. All things being equal, and assuming we are only using valid CSS selector strings, we can replace the jQuery function with a native solution that is both simple to wire up _and_ more performant than jQuery. 
+Throughout this chapter, you've seen a number of element selection approaches that involve passing a CSS selector string into the `jQuery` function (aliased as `$`). The native solution often involves the same selector string passed into either `querySelector` or `querySelectorAll`. All things being equal, and assuming we are only using valid CSS selector strings, we can replace the jQuery function with a native solution that is both simple to wire up _and_ more performant than jQuery.
 
 If we focus exclusively on selector support, and only need support for modern browsers, we can get pretty far by forgoing jQuery entirely and replacing it with a surprisingly concise native alternative.
 
