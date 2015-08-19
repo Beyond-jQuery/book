@@ -466,7 +466,7 @@ Stuck supporting IE9 and older, a solution that covers every browser under the s
 ~~~~~~~
 var removeClass = function(el, className) {
    el.className =
-      el.className.replace(new RegExp('(^|\\s)' + className + '(\\s|$)'), ' '));
+      el.className.replace(new RegExp('(^|\\s)' + className + '(\\s|$)'), ' ');
 };
 removeClass(el, 'red');
 pEl.className += 'blue';
