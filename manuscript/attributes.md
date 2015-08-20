@@ -477,6 +477,58 @@ That _is_ quite a bit harder than `addClass(...)` and `removeClass(...)`. Luckil
 
 #### Toggling classes
 
+Say we have an element, and we'd like to toggle its visibility, perhaps in response to a button click. We'll [cover events a bit later](#browser-events), so let's just focus on the logic required to toggle the visibility of this element.
+
+{title="element that is initially hidden", lang=html}
+~~~~~~~
+<section class="hide">
+  <h1>User Info</h1>
+</section>
+~~~~~~~
+
+jQuery provides the familiar `toggleClass` method, and it is used as follows:
+
+{title="toggle visibility of the above section - jQuery", lang=javascript}
+~~~~~~~
+// removes "hide" class
+$sectionEl.toggleClass('hide');
+
+// re-adds "hide" class
+$sectionEl.toggleClass('hide');
+~~~~~~~
+
+This is _just as easy_ without jQuery, provided you are using a modern browser (except for IE9):
+
+{title="toggle visibility of the above section - web API - modern browsers except IE9", lang=javascript}
+~~~~~~~
+// removes "hide" class
+sectionEl.classList.toggle('hide');
+
+// re-adds "hide" class
+$sectionEl.classList.toggle('hide');
+~~~~~~~
+
+The solution for IE9 and older is a bit hairier, but still possible. It involves checking if the class exists, and then either adding, or removing it, depending on the current state.
+
+{title="toggle visibility of the above section - web API - any browser", lang=javascript}
+~~~~~~~
+var toggleClass = function(el, className) {
+  var pattern = new RegExp('(^|\\s)' + className + '(\\s|$)');
+  if (pattern.test(el.className)) {
+    el.className = el.className.replace(pattern, ' ');
+  }
+  else {
+    el.className += className;
+  }
+};
+
+// removes "hide" class
+toggleClass(sectionEl, 'hide');
+
+// re-adds "hide" class
+toggleClass(sectionEl, 'hide');
+~~~~~~~
+
 
 ### Data attributes {#data-attributes}
 
