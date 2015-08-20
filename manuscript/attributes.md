@@ -469,7 +469,7 @@ var removeClass = function(el, className) {
       el.className.replace(new RegExp('(^|\\s)' + className + '(\\s|$)'), ' ');
 };
 removeClass(el, 'red');
-pEl.className += 'blue';
+pEl.className += ' blue';
 ~~~~~~~
 
 That _is_ quite a bit harder than `addClass(...)` and `removeClass(...)`. Luckily, `classList` is standardized and a suitable replacement for jQuery's class manipulation going forward.
@@ -518,7 +518,7 @@ var toggleClass = function(el, className) {
     el.className = el.className.replace(pattern, ' ');
   }
   else {
-    el.className += className;
+    el.className += ' ' + className;
   }
 };
 
