@@ -532,7 +532,7 @@ toggleClass(sectionEl, 'hide');
 
 ### Data attributes {#data-attributes}
 
-%%- data attributes (more about this in the html-data.txt chapter)
+%%- Brief mention - more about this in the html-data.txt chapter
 
 
 ### Other standard and custom attributes

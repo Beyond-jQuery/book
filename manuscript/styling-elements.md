@@ -3,10 +3,10 @@
 Coming soon!
 
 
-## There are two Ways to style elements
+## There are two ways to style elements
 
 
-## Changing and reading you element's CSS rules
+## Changing and reading your element's CSS rules
 
 
 ## Determining width, height, and position of any element
