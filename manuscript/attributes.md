@@ -53,7 +53,8 @@ A second type of attribute is described as "unquoted". A little known fact is th
 </form>
 ~~~~~~~
 
-The final two types of HTML element attributes are very similar: single-quoted and double-quoted. Both are similar in that they largely have the same restrictions, and are much more common than unquoted attributes. Though, double-quoted attributes are arguably the _most_ common of all types. In contrast to unquoted attribute values, those that are surrounded by either single or double quotation marks _may_ contain spaces, equal signs, angle brackets, or an empty string. The portion of the latest W3C specification that describes attributes only may never contain any ambiguous ampersand characters, that is, an `&` sign followed by ASCII characters and terminated with a semicolon (`;`) where the character code does _not_ match any character codes defined in the [named character references][html5-named-character-references] portion of the spec.
+{#valid-attribute-values}
+The final two types of HTML element attributes are very similar: single-quoted and double-quoted. Both are similar in that they largely have the same restrictions, and are much more common than unquoted attributes. Though, double-quoted attributes are arguably the _most_ common of all types. In contrast to unquoted attribute values, those that are surrounded by either single or double quotation marks _may_ contain spaces, equal signs, angle brackets, or an empty string. The portion of the latest W3C specification that describes attribute values mentions only that they may never contain any ambiguous ampersand characters. An "ampersand character" is an `&` sign followed by a standardized ASCII character code and terminated with a semicolon (`;`). An "ambiguous ampersand character" is one where this ASCII character code does _not_ match any of the character codes defined in the [named character references][html5-named-character-references] portion of the spec.
 
 
 ### How do attributes differ from properties? {#attributes-vs-properties}
@@ -122,7 +123,7 @@ Building upon the [class](#selecting-classes) and [ID](#selecting-ids) selector 
 For the sake of consistency and reference, jQuery examples will be provided throughout this section. But attributes can be selected in a number of ways without jQuery, simply by using either `querySelector` or `querySelectorAll`. Since attribute selectors were first introduced as [part of the W3C CSS 2 specification][css2-attributes] **all of the simple web API examples here are supported all the way back to Internet Explorer 8**! You truly don't need jQuery to write simple but powerful attribute selectors.
 
 
-### Finding elements using attribute names
+### Finding elements using attribute names {#find-by-attribute-name}
 
 We'll cover values in quite a bit of detail shortly, but let's first focus on attribute names. Why might you want to only focus on an attribute name? Perhaps for many reasons, including:
 
@@ -532,12 +533,65 @@ toggleClass(sectionEl, 'hide');
 
 ### Data attributes {#data-attributes}
 
-%%- Brief mention - more about this in the html-data.txt chapter
+While CSS class attributes are typically used for styling elements, data attributes are, as you might expect, used to attach data to elements. Data attributes must be prefixed with "data-", and can contain stringified data associated with a particular element. Any [valid attribute value](#valid-attribute-values) is acceptable. While it is possible to construct and use non-standard element attributes, the W3C HTML5 specification [declares that custom attributes should in fact be data attributes][html5-data].
+
+There are other ways to attach more complex data to elements. I'll cover data attributes, the HTML5 `dataset` object, the history of element data along with jQuery's role in solving this problem, and much, much more related to element data in [the next chapter](#html-data).
 
 
-### Other standard and custom attributes
+### Working with other standard & custom attributes
 
-%%- reading attributes ("hasAttribute", "getAttribute")
+As you have already seen, [`class` attributes](#class-attributes) are special attributes that require a more specific approach to properly manipulate and read them. In fact, `class` attributes are among three types of "special" attributes, with [`data-`](#data-attributes) and [`style`](#style-attributes) being the other two. But what about all of the other element attributes? How can we best work with them? This section will cover reading, writing, removing, and creating both standard and custom attributes. You are probably already familiar and comfortable with jQuery's support for these tasks, but you'll see just how easy it is to work with attributes using the power of the browser.
+
+
+#### Reading attributes
+
+Let's start with a simple input element that includes both a [boolean attribute](#boolean-attributes) and a standard string value attribute.
+
+{title="input element with boolean and non-boolean attributes", lang=html}
+~~~~~~~
+<input type="password" name="user-password" required>
+~~~~~~~
+
+Suppose we are given this element and we want answers to two questions:  
+1. What type of `<input>` is this element?
+2. Is this `<input>` a required field?
+
+This is one area (of many) where jQuery fails miserably to ease the burden on the developer. While reading an attribute value is simple, there is no API method dedicated to detecting the presence of an attribute on a specific element. While it is still possible to do this with jQuery, the solution is not really intuitive, and will likely require those new to the library to do a bit of googling.
+
+{title="reading an attribute value and checking if an attr exists - jQuery", lang=javascript}
+~~~~~~~
+// returns "password"
+$inputEl.attr('type');
+
+// returns "true"
+$inputEl.is('[required]');
+~~~~~~~
+
+jQuery does not define a `hasAttr` method. Instead, you must check the element using [a CSS attribute name selector](#find-by-attribute-name). The web API _does_ provide these conveniences, and has done so since Internet Explorer 8!
+
+{title="reading an attribute value and checking if an attr exists - web API - all moderns browsers + IE8", lang=javascript}
+~~~~~~~
+// returns "password"
+inputEl.getAttribute('type');
+
+// returns "true"
+$inputEl.hasAttribute('required');
+~~~~~~~
+
+The `getAttribute` method was first defined on the `Element` interface all the way back in 1997 [as part of the W3C DOM Level 1 Core specification][dom1core-getattribute]. And `hasAttribute` was added to the same interface 3 years later, in 2000, [in the DOM Level 2 Core spec][dom2core-hasattribute].
+
+We can make the second half of the jQuery example a bit more intuitive, simply by breaking out of the jQuery object and operating directly on the underlying `Element`:
+
+{title="alternate way to check if an attr exists - jQuery", lang=javascript}
+~~~~~~~
+// returns "true"
+$inputEl[0].hasAttribute('required');
+~~~~~~~
+
+So if you're stuck with jQuery for whatever reason, consider the above example as a more straightforward way to determine if an element contains a particular attribute. As an added bonus, you'll find that bypassing jQuery as much as possible here is, as always, [much more performant][jsperf-is-vs-hasattr] than relying on the library entirely.
+
+
+#### Modifying attributes
 
 %%- adding / removing / changing attributes
 
@@ -556,6 +610,10 @@ toggleClass(sectionEl, 'hide');
 [dom-classlist-contains]: https://dom.spec.whatwg.org/#dom-domtokenlist-contains
 
 [dom-domtokenlist]: https://dom.spec.whatwg.org/#domtokenlist
+
+[dom1core-getattribute]: http://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#ID-666EE0F9
+
+[dom2core-hasattribute]: http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-666EE0F9
 
 [dom4-classlist]: http://www.w3.org/TR/dom/#dom-element-classlist
 
@@ -577,6 +635,8 @@ toggleClass(sectionEl, 'hide');
 
 [html5-constraints]: http://www.w3.org/TR/html5/forms.html#constraints
 
+[html5-data]: http://www.w3.org/TR/html5/dom.html#embedding-custom-non-visible-data-with-the-data-*-attributes
+
 [html5-form]: http://www.w3.org/TR/html5/forms.html#the-form-element
 
 [html5-input]: http://www.w3.org/TR/html5/forms.html#the-input-element
@@ -596,6 +656,8 @@ toggleClass(sectionEl, 'hide');
 [jsperf-classlist-contains]: http://jsperf.com/classlist-contains-vs-hasclass
 
 [jsperf-classlist-addremove]: http://jsperf.com/jquery-addclass-removeclass-vs-dom-classlist
+
+[jsperf-is-vs-hasattr]: http://jsperf.com/hasattribute-vs-jquery-is
 
 [whatwg-url]: https://url.spec.whatwg.org
 
