@@ -593,12 +593,38 @@ So if you're stuck with jQuery for whatever reason, consider the above example a
 
 #### Modifying attributes
 
-%%- adding / removing / changing attributes
+We have a handle on a specific `<input>` element in our document, it looks like this:
 
+{title="input element for modifying attributes demo", lang=html}
+~~~~~~~
+<input name="temp" required>
+~~~~~~~
 
-### The `style` attribute {#style-attribute}
+We want to modify this `HTMLInputElement` in three ways:
+1. Make it an "email" input field.
+2. Ensure it is _not_ required.
+3. Rename it to "userEmail".
 
-%%- normally shouldn't use this - more about styling in the styling-elements.txt chapter)
+jQuery requires we solve this problem using `attr()` to add and change attributes and `removeAttr()` to remove them.
+
+{title="modifying attributes - jQuery", lang=javascript}
+~~~~~~~
+$inputEl
+  .attr('type', 'email') // #1
+  .removeAttr('required') // #2
+  .attr('name', 'userEmail'); // #3
+~~~~~~~
+
+Without jQuery, our solution looks almost identical, and has the same wide browser support. The `Element` interface was defined to have a `setAttribute` method [since W3C's DOM Level 1 Core specification][dom1core-setattribute]. With this method, we can change and add element attribute, just like jQuery's `attr()` method. To remove attributes, we have `removeAttribute`, another method [also defined on the `Element` interface in DOM Level 1 Core][dom1core-removeattribute]. With these two methods, we can modify our input element as described above quite easily.
+
+{title="modifying attributes - web API - any browser", lang=javascript}
+~~~~~~~
+inputEl.setAttribute('type', 'email'); // #1
+inputEl.removeAttribute('required'); // #2
+inputEl.setAttribute('name', 'userEmail'); // #3
+~~~~~~~
+
+Apart from the lack of chaining support, the native approach is just as intuitive as the route that relies on jQuery. This is one area in which web standards have _always_ been adequate, and jQuery has never provided more than a minor convenience advantage. As you have seen throughout this section, working with attributes in general is surprisingly easy without any assistance from a library.
 
 
 [css2-attributes]: http://www.w3.org/TR/CSS2/selector.html#attribute-selectors
@@ -612,6 +638,10 @@ So if you're stuck with jQuery for whatever reason, consider the above example a
 [dom-domtokenlist]: https://dom.spec.whatwg.org/#domtokenlist
 
 [dom1core-getattribute]: http://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#ID-666EE0F9
+
+[dom1core-removeattribute]: http://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#method-removeAttribute
+
+[dom1core-setattribute]: http://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#method-setAttribute
 
 [dom2core-hasattribute]: http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-666EE0F9
 
