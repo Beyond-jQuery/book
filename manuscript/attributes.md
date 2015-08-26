@@ -1,8 +1,8 @@
 # Using and Understanding HTML Element Attributes {#element-attributes}
 
-Here in chapter five, prepare yourself for a full-scale, in-depth, no-holds-barred discussion on everything related to element attributes. All that you learned in the ["finding elements" chapter](#finding-elements) will prove to be useful as I will need to build on some of this knowledge in an effort to help you discover attributes. Here, I'll be sure you have a [proper understanding of attributes](#what-are-attributes), as well [how they came about and became part of HTML, and how they fit into the web API](#attribute-history). Additionally, you'll learn how to [use attributes to locate DOM elements](#finding-elements-with-attributes). While this was covered a bit in the ["finding elements" chapter](#finding-elements), you'll find that the coverage _here_ is comprehensive. And finally, I'll dive deeper into attributes and cover how you can [read, add, and update them on any DOM element](#reading-attributes). Special sections on [`data-`](#data-attributes) and [`class`](#class-attributes) attributes will be included as well.
+Here in chapter five, prepare yourself for a full-scale, in-depth, no-holds-barred discussion on everything related to element attributes. Everything you learned in the ["finding elements" chapter](#finding-elements) will prove to be useful as you apply this knowledge during your journey through attributes. I'll make sure you have a [proper understanding of attributes](#what-are-attributes), how they came about and [became part of HTML, and how they fit into the web API](#attribute-history). Additionally, you'll learn how to [use attributes to locate DOM elements](#finding-elements-with-attributes). While this was covered a bit in the ["finding elements" chapter](#finding-elements), you'll find that the coverage here is much more comprehensive. And finally, I'll dive deeper into attributes and demonstrate how you can [read, add, and update them on any DOM element](#reading-attributes). Special sections on [`data-`](#data-attributes) and [`class`](#class-attributes) attributes will be included as well.
 
-Other than two exceptions, all of the web API code in this chapter has full support across _all_ [modern browsers](#modern-browsers) _and_ even Internet Explorer 8. And for those couple that do not have wide browser support, there is an equally elegant solution available for one, and a relatively straightforward approach for the other. After you complete this chapter, you will not only have a complete understanding of attributes, but you will also have the confidence to read, update, and use them to select elements all browsers, even those as old as Internet Explorer 8. Read on to continue your quest to move beyond jQuery.
+Other than a couple exceptions, all of the web API code in this chapter has full support across _all_ [modern browsers](#modern-browsers) _and_ even Internet Explorer 8. After you complete this chapter, you will not only have a complete understanding of attributes, but you will also have the confidence to read them, modify them, _and_ use them to select elements in all browsers, even those as old as Internet Explorer 8. Read on to continue your quest to move Beyond jQuery!
 
 
 ## What is an attribute? {#what-are-attributes}
@@ -17,31 +17,31 @@ HTML elements, declaratively speaking, are made up of three parts: name, content
 </form>
 ~~~~~~~
 
-In the above markup, you see three elements: one `<form>` and two `<input>`s. The `<form>` element has a tag name of "form". In fact, `tagName` is a property available on every object in the DOM that implements the `Element` interface. This property was [standardized as part of W3C's DOM Level 2 Core specification][element.tagname]. In my above HTML, the `<form>` element, represented as a [`HTMLFormElement` object][html5-form], has a `tagName` of "form". The two `<input>` elements are represented as [`HTMLInputElement` objects][html5-input], and unsurprisingly they have `tagName` values of "input".
+In the above markup, you see three elements tags: one `<form>` and two `<input>`s. The `<form>` element has a tag name of "form". In fact, `tagName` is a property available on every object in the DOM that implements the `Element` interface. This property was [standardized as part of W3C's DOM Level 2 Core specification][element.tagname]. In my above HTML, the `<form>` element, represented as a [`HTMLFormElement` object][html5-form], has a `tagName` property with a value of "form". The two `<input>` elements are represented as [`HTMLInputElement` objects][html5-input], and unsurprisingly they each have `tagName` values of "input".
 
-Content describes any other node that are are descendants of an element. My example `<form>` has two `<input>` elements as content, while the two `<input>` elements have _no_ content. In fact, `<input>` elements are not allowed to have any content. This restriction was likely in place since `<input>` elements were first introduced in [the HTML 2 specification][html2], but was only first [explicitly mentioned in the HTML 3 official standard document][html3].
+Content, the second part of an element, describes any other nodes that are are descendants of an element. My example `<form>` has two `<input>` elements as content, while the two `<input>` elements have _no_ content. In fact, `<input>` elements are not allowed to have any content. This restriction was likely in place since `<input>` elements were first introduced in [the HTML 2 specification][html2], but was only first [explicitly mentioned in the HTML 3 official standard document][html3-input].
 
 I> ## A note about my example form markup
 I>
-I> Normally you would want to associate each form field with a `<label>` and a text node with a display name. Also, a submit button is usually prudent, but I left all of these out of my fragment to keep it simple and focused on the discussion of attributes.
+I> Normally you would want to associate each form field with a `<label>` that contains a text node with the field's display name. Also, a submit button is usually prudent, but I left all of these out of my fragment to keep it simple and focused on the discussion of attributes.
 
-Attributes, also optional, provide a way to annotate elements directly in your markup. You may use them to provide data or state. For example, the `<form>` element above contains two such attributes: `action` and `method`, which together tell the form to send a POST request (`method`) to the "/rest/login.php" server endpoint (`action`) when the form is submitted. The first input has a `name` attribute of "username" and the second has a `name` of "password". This information is used to construct the request and tie these elements to their values when the server parses the form submit. This is not evident in the above HTML, but you can even create your own proprietary attributes and reference them in your code for the purposes of associating state or data with elements in your markup. Though not strictly required, the more standard way to do this is with `data-` attributes, which [will be discussed later on in this chapter](#data-attributes).
+Attributes, the third and final part of an element, also optional, provide a way to annotate elements directly in your markup. You may use them to provide data or state. For example, the `<form>` element above contains two such attributes: `action` and `method`, which together tell the form to send a POST request (`method`) to the "/rest/login.php" server endpoint (`action`) when the form is submitted. The first input has a `name` attribute of "username" and the second has a `name` of "password". This information is used to construct the request and tie these elements to their values when the server parses the form submit. While not evident in the above HTML, you can even create your own proprietary attributes and reference them in your code for the purposes of associating state or data with elements in your markup. Though not strictly required, the more standard way to do this is with `data-` attributes, which [will be mentioned later on in this chapter](#data-attributes).
 
-In addition to providing data or state, some attributes are used to define specific behaviors for a more general element. Take a look at the `type` attribute on the second input in the above fragment, as an example of this. This `type` attribute defines the second input to be a password input, which signals the browser to mask any characters entered into this field by the user. The first input _could_ include a `type` attribute with a value of "text", but this is not necessary as all `<input>` elements are, by default, text inputs. This default has been in place since the inception of HTML, and [is visible in one of the earliest drafts of the specification][html1-input]. Another example of a behavior imposed by an attribute can be seen on both of the inputs above. Notice the `required` attributes on each of the inputs - this is a signal to any browser that supports [the `constraints API`][html5-constraints] to prevent form submission if either of these fields are left empty by the user.
+In addition to providing data or state, some attributes are used to define specific behaviors for multi-purpose elements. Take a look at the `type` attribute on the second input in the above fragment, as an example of this. This `type` attribute defines the second input to be a password input, which signals the browser to mask any characters entered into this field by the user. The first input _could_ include a `type` attribute with a value of "text", but this is not necessary as all `<input>` elements are, by default, text inputs. This default has been in place since the inception of HTML, and [is visible in one of the earliest drafts of the specification][html1-input]. Another example of a behavior imposed by an attribute can be seen on both of the inputs above. Notice the `required` attributes on each of the inputs - this is a signal to any browser that supports [the `constraints API`][html5-constraints] to prevent form submission if either of these fields are left empty by the user.
 
 
 ### History and standardization {#attribute-history}
 
-Attributes have always been a part of HTML, and were [described in the first document that details HTML tags][html-tags], written by Tim Berners-Lee in 1992. In this article, Berners-Lee describes the same two general types of attributes that are used in HTML today  - boolean, and variable - which I will elaborate on further shortly. The passage that calls out attributes is near the start of the document:
+Attributes have always been a part of HTML, and were [described in the first document that details HTML tags][html-tags], written by Tim Berners-Lee in 1992. In this article, Berners-Lee describes the same two general types of attributes that are used in HTML today  - boolean, and variable - both of which I will elaborate on further shortly. The passage that calls out attributes is near the start of the document:
 
 > Some tags take parameters, called attributes. The attributes are given after the tag, separated by spaces. Certain attributes have an effect simply by their presence, others are followed by an equals sign and a value.
 
 Berners-Lee went on to mention a few such attributes, using the `href`, `type`, and `name` attributes of anchor tags as an example. Note though that the `name` attribute on `<a>` elements is no longer available as [it was removed in the HTML5 specification][html5-anchor]. Since this first description of HTML, the number and importance of element attributes has increased greatly.
 
-Purely custom attributes are not, and have never been _officially_ supported in any HTML specification. But you may prefix an attribute name of your choice with "data-" as of the HTML5 spec - more on that [later](#data-attributes). However, if you would like to introduce a purely custom attribute into your markup, such as "myproject-uuid", you are certainly free to do so. The page will render without issue, and there will be no errors in your browser's developer tools console. Everything will work just fine. The only drawback is that your document will fail validation, as it will contain non-standard attributes, that is, attributes that are not mentioned in any accepted HTML standard. In fact, non-standard custom attributes are quite common, and even quite prevalent in popular JavaScript frameworks, such as AngularJS, which relies on non-standard custom attributes heavily to facilitate communication between element directives.
+Unbounded custom attributes are not, and have never been _officially_ supported in any HTML specification. But you may prefix an attribute name of your choice with "data-" as of the HTML5 spec - more on that [later](#data-attributes). However, if you would like to introduce a purely custom attribute into your markup, such as "myproject-uuid", you are certainly free to do so. The page will render without issue, and there will be no errors in your browser's developer tools console. Everything will work just fine. The only drawback is that your document will fail validation, as it will contain non-standard attributes - attributes that are not mentioned in any accepted HTML standard. Non-standard custom attributes are actually quite common, and even prevalent in popular JavaScript frameworks, such as AngularJS, which relies on non-standard custom attributes heavily to facilitate communication with element directives.
 
 {#boolean-attributes}
-The latest _completed_ HTML spec - HTML5 - defines [four different types of attributes][html5-attribute-syntax]. One type commonly known as a ["boolean attribute"][html5-boolean-attribute] is expressed as an element attribute without any value. Take the `required` attribute commonly found on `<input>` elements as one example (seen in the [previous section's](#what-are-attributes) HTML fragment). As the specification states, "The presence of a boolean attribute on an element represents the true value, and the absence of the attribute represents the false value." The HTML 5.1 standardized [`hidden` attribute][html51-hidden], which instructs the browser to _not_ render any element bearing the attribute, is another example of this first type.
+The latest _completed_ HTML spec - HTML5 - defines [four different types of attributes][html5-attribute-syntax]. One type commonly known as a ["boolean attribute"][html5-boolean-attribute] is expressed as an element attribute without any explicit value. Take the `required` attribute commonly found on `<input>` elements as one example (seen in the [previous section's](#what-are-attributes) HTML fragment). As the specification states, "The presence of a boolean attribute on an element represents the true value, and the absence of the attribute represents the false value." The HTML 5.1 standardized [`hidden` attribute][html51-hidden], which instructs the browser to _not_ render any element bearing the attribute, is another example of this first type.
 
 A second type of attribute is described as "unquoted". A little known fact is that you may omit quotes around your attribute values, provided the attribute value does not contain spaces, equal signs, or angle brackets (`<` and `>`), or an empty string (among other less notable character restrictions). So, the HTML fragment in the previous section can be re-written as follows:
 
@@ -59,7 +59,7 @@ The final two types of HTML element attributes are very similar: single-quoted a
 
 ### How do attributes differ from properties? {#attributes-vs-properties}
 
-Now that you have a solid understanding of element attributes, you may _still_ be confused regarding their relation to element "properties", _especially_ if you have been [using jQuery for a while][jquery-16]. At a very basic level, properties and attributes are entirely different from each other. While attributes are declared at the HTML level in the element's markup, properties are declared and updated on the element's object representation. For example, consider the following element:
+Now that you have a solid understanding of what element attributes are, you may _still_ be confused regarding their relation to element "properties", _especially_ if you have been [using jQuery for a while][jquery-16]. At a very basic level, properties and attributes are entirely different from each other. While attributes are declared at the HTML level in the element's markup, properties are declared and updated on the element's object representation. For example, consider the following element:
 
 {title="element for attributes vs properties explanation", lang=html}
 ~~~~~~~
@@ -77,9 +77,9 @@ The `<div>` has a `class` attribute with a value of "bold". But we can set prope
 </script>
 ~~~~~~~
 
-After executing the above fragment, our `<div>` now has a `class` attribute with a value of "bold" _and_ a property of `index` with a value of `0`. The property is set on the underlying JavaScript object, which in this case is an implementation of the [`HTMLDivElement`][htmldivelement] interface. Properties such as our `index` on element objects are also known as "expando" properties, which is just a terse way to classify non-standard element object properties. Understand that not _all_ element properties are expando properties. Don't worry if this is still not entirely clear. I'll talk more about standardized element properties before this section is complete.
+After executing the above fragment, our `<div>` now has a `class` attribute with a value of "bold" _and_ a property of `index` with a value of `0`. The property is set on the underlying JavaScript object, which in this case is an implementation of the [`HTMLDivElement`][htmldivelement] interface. Element object properties such as our `index` are also known as "expando" properties, which is just a terse way to classify non-standard element object properties. Understand that not _all_ element properties are expando properties. Don't worry if this is still not entirely clear. I'll talk more about standardized element properties before this section is complete.
 
-While properties and attributes are conceptually and syntactically different, they are very closely linked together in some cases. In fact, all standardized element attributes have corresponding properties defined in the element's object representation. For the most part, the each attribute and property pair share the same value. And in all but one case, the attribute and property share the same name as well. These standardized attributes are special in that you can update them without touching the markup. In fact, updating the corresponding element object's property value will cause the browser to update the attribute's value in the document, and updating the attribute value with in turn up the element's property value. Let's take a look at a simple example, where we define an anchor link with an initial `href`, and then update the anchor to point to a different location using JavaScript:
+While properties and attributes are conceptually and syntactically different, they are very closely linked together in some cases. In fact, all standardized element attributes have corresponding properties defined in the element's object representation. For the most part, each standard attribute and property pair share the same value. And in all but one case, the attribute and property share the same name as well. These standardized attributes are special in that you can update them without touching the markup. Updating the corresponding element object's property value will cause the browser to update the attribute's value in the document, and updating the attribute value will in turn up the element's property value. Let's take a look at a simple example, where we define an anchor link with an initial `href`, and then update the anchor to point to a different location using JavaScript:
 
 {title="standard element attributes and properties are linked", lang=html}
 ~~~~~~~
@@ -97,9 +97,9 @@ After executing the script in the above code block, the anchor now appears in th
 <a href="http://www.widen.com/blog/ray-nicholus">Read the Widen blog</a>
 ~~~~~~~
 
-In this case, the [`HTMLAnchorElement`][html51-a], which is the object representation of an `<a>`, has an `href` property defined on its prototype that is directly connected to the `href` attribute on the element tag. Note that this `href` property is actually inherited from the [`URLUtils` interface][whatwg-urlutils], which the `HTMLAnchorElement` object also implements. `URLUtils` is an interface formally defined in the [WHATWG URL Living Standard][whatwg-url] specification.
+In this case, the [`HTMLAnchorElement`][html51-a], which is the object representation of an `<a>`, has an `href` property defined on its prototype that is directly connected to the `href` attribute on the element tag. This `href` property is actually inherited from the [`URLUtils` interface][whatwg-urlutils], which the `HTMLAnchorElement` object also implements. `URLUtils` is an interface formally defined in the [WHATWG URL Living Standard][whatwg-url] specification.
 
-There are many such other element attributes with connected properties, such as `id` (all elements), `action` (form elements), and `src` (script elements), to name a few. Remember that all attributes that appear in the HTML specifications fall into this category. But there are a few special cases and points to consider. First, `class` attributes are a bit different in that the corresponding property name is not `class`, but `className`. This is due to the fact that ["class" is a reserved word in JavaScript][es6-reserved-words]. More on the `class` attribute [later on](#class-attributes). Also keep in mind that the `checked` attribute, common to radio and checkbox input elements, is only _initially_ connected to the corresponding element property value. Consider the following code to demonstrate this limitation a bit more clearly:
+There are many other element attributes with connected properties, such as `id` (all elements), `action` (form elements), and `src` (script elements), to name a few. Remember that all attributes that appear in the HTML specifications fall into this category. But there are a few special cases and points to consider. First, `class` attributes are a bit different in that the corresponding property name is not `class`, but `className`. This is due to the fact that ["class" is a reserved word in JavaScript][es6-reserved-words]. More on the `class` attribute [later on](#class-attributes). Also keep in mind that the `checked` attribute, common to radio and checkbox input elements, is only _initially_ connected to the corresponding element property value. Consider the following code to demonstrate this limitation a bit more clearly:
 
 {title="the checked boolean attribute is a bit unusual", lang=html}
 ~~~~~~~
@@ -113,12 +113,12 @@ There are many such other element attributes with connected properties, such as 
 
 After executing the above script, you may expect the `checked` attribute to be removed from the input element, since this would happen for other boolean attributes, such as `required` and `disabled`. However, the `checked` attribute remains on the element, even though the property value has been changed to `false` and the checkbox is indeed unchecked.
 
-"Custom" attributes, that is, attributes that are _not_ defined in any accepted specification, are not linked in this way to a similarly named property on the element object. Any properties you create to match non-standard attributes fall into the category of expando properties.
+"Custom" attributes, that is, attributes that are _not_ defined in any accepted specification, are not linked in any way to a similarly named property on the element object. Any properties you create to match non-standard attributes are also considered expando properties.
 
 
 ## Finding elements using attributes {#finding-elements-with-attributes}
 
-Building upon the [class](#selecting-classes) and [ID](#selecting-ids) selector examples from [the previous chapter](#finding-elements), this section is going to provide a much more comprehensive guide to selecting any and _all_ attributes using the web API. While ID and class attribute selection is commonly accomplished using a syntax specific to these two types of attributes, you are able to use the more general attribute selection approaches found in this chapter as well. In some cases, some of the generic but powerful attribute selectors demonstrated here are most appropriate when looking for multiple elements by ID or class that follow a known pattern.
+Building upon the [class](#selecting-classes) and [ID](#selecting-ids) selector examples from [the previous chapter](#finding-elements), this section is going to provide a much more comprehensive guide to selecting any and _all_ attributes using the web API. While ID and class attribute selection is commonly accomplished using a selector syntax specific to these two types of attributes, you are able to use the more general attribute selection approaches found in this chapter as well. In some cases, some of the generic but powerful attribute selectors demonstrated here are most appropriate when looking for multiple elements that follow a known ID or class pattern.
 
 For the sake of consistency and reference, jQuery examples will be provided throughout this section. But attributes can be selected in a number of ways without jQuery, simply by using either `querySelector` or `querySelectorAll`. Since attribute selectors were first introduced as [part of the W3C CSS 2 specification][css2-attributes] **all of the simple web API examples here are supported all the way back to Internet Explorer 8**! You truly don't need jQuery to write simple but powerful attribute selectors.
 
@@ -153,7 +153,7 @@ There is one way to select elements given their attributes in jQuery, and that i
 var $result = $('[required], [disabled]');
 ~~~~~~~
 
-The above code will result in a `$result` jQuery object that contains the "last-name", "email" `<input>` elements, along with the disabled submit `<button>`. In case the comma in the selector string is causing you some confusion, I covered this in [the previous chapter's multiple element selector section](#multiple-selectors). This jQuery code relies entirely on the web API.
+The above code will result in a `$result` jQuery object that contains the "last-name" and "email" `<input>` elements, along with the disabled submit `<button>`. In case the comma in the selector string is causing you some confusion, I covered this in [the previous chapter's multiple element selector section](#multiple-selectors). This jQuery code relies entirely on the web API.
 
 
 #### Web API
@@ -168,7 +168,7 @@ var result = document.querySelectorAll('[required], [disabled]');
 Similar to the jQuery example, the above code will populate the `result` variable with a `NodeList` containing the "last-name" and "email" inputs, along with the disabled submit button.
 
 {#empty-class-attribute}
-While `disabled` and `required` are [boolean attributes](#boolean-attributes), the above code will yield the same results even if we assigned them values. The attribute selector simply matches on the attribute name - the value (or lack of one) is irrelevant. This means you can easily locate all elements in a document that have CSS classes assigned to them. For example, look at the following simple attribute selector:
+While `disabled` and `required` are [boolean attributes](#boolean-attributes), the above code will yield the same results even if we assigned them values. The attribute selector simply matches on the attribute name - the value (or lack of one) is irrelevant. This means you can easily locate all elements in a document that have _any_ CSS classes assigned to them. For example, look at the following simple attribute selector:
 
 {title="selecting all elements with a class attribute - modern browsers + IE8", lang=javascript}
 ~~~~~~~
@@ -196,7 +196,7 @@ Even though the `<span>` does not have any CSS classes assigned to it, the mere 
 
 ### Finding elements using attribute names _and_ values {#attribute-names-and-values}
 
-Sometimes locating an element or group of elements by attribute name alone is not sufficient. You may want to, for example, locate all password input fields, in which case you would need to find all `<input>` elements with a `type` attribute of "password". Or perhaps you need to located all anchor elements that link to a specific endpoint, in which case you'd need to key on the desired value of the `href` attribute of all `<a>` elements.
+Sometimes locating an element or group of elements by attribute name alone is not sufficient. You may want to, for example, locate all password input fields, in which case you would need to find all `<input>` elements with a `type` attribute of "password". Or perhaps you need to locate all anchor elements that link to a specific endpoint, in which case you'd need to key on the desired value of the `href` attribute of all `<a>` elements.
 
 To setup our jQuery and web API examples, let's use the following HTML and state that our goal is to locate all anchors that link to the ajax-form web component documentation page.
 
@@ -249,7 +249,7 @@ var result =
     document.querySelectorAll('A[href="http://ajax-form.raynicholus.com/"]');
 ~~~~~~~
 
-The `result` variable is a `NodeList` containing both ajax-form anchors from our example HTML at the start of this section. Support for this simple but effective selector is part of the [W3C CSS 2 selector specification][css2-attributes], so even Internet Explorer 8 is supported. Note that I'm combining the attribute name/value selector with a [tag name selector](#tag-selector). This ensures that any other elements that may include a non-standard `href` attribute are ignored (along with any `<link>` elements), since we are only concerned with anchor links.
+The `result` variable is a `NodeList` containing both ajax-form anchors from our example HTML at the start of this section. Notice that I'm combining the attribute name/value selector with a [tag name selector](#tag-selector). This ensures that any other elements that may include a non-standard `href` attribute are ignored (along with any `<link>` elements), since we are only concerned with anchor links.
 
 Remember the [empty class attribute example](#empty-class-attribute) from the selecting by attribute name section? During our search for all elements with CSS classes, we were unable to ignore empty `class` attributes with a simple attribute name selector. But if we pair an attribute name/value selector with the [exclusion selector from the "finding elements chapter"](#excluding-elements), we can effectively filter out empty `class` attributes:
 
@@ -263,14 +263,14 @@ Using the sample HTML from the initial [empty class attribute example](#empty-cl
 
 ### The power of wildcard and fuzzy attribute selectors
 
-This last part of the attribute selectors section focuses on more advanced use cases. Below, I'll demonstrate four very powerful attribute selector tricks that are also easy to understand _and_ supported in all modern browsers as well as Internet Explorer 8. Also, the pattern you have already seen (many times) between the jQuery and the web API selector code continues in this last set of examples. So, let's just forgo the jQuery vs. web API code snippets, as they are mostly redundant when discussing element selectors. If you really want to run the following examples "the jQuery way" just replace `document.querySelectorAll()` with `$()` and be prepared for your code to run a bit slower.
+This last part of the attribute selectors section focuses on more advanced use cases. Below, I'll demonstrate four very powerful attribute selector tricks that are also easy to understand _and_ supported in all modern browsers as well as Internet Explorer 8. The pattern you have already seen (many times) between the jQuery and the web API selector code continues in this last set of examples. So, let's just forgo the jQuery vs. web API code snippets, as they are mostly redundant when discussing element selectors. If you really want to run the following examples "the jQuery way" just replace `document.querySelectorAll()` with `$()` and be prepared for your code to run a bit slower.
 
 
 #### Looking for specific characters {#substring-attribute-selector}
 
-Remember the example from the section on [attribute names and values](#attribute-names-and-values)? We wanted to locate any anchor links in a document that pointed to a very specific endpoint. But what if we don't care about the entire URL, but just the domain? Consider the following HTML fragment:
+Remember the example from the section on [attribute names and values](#attribute-names-and-values)? We wanted to locate any anchor links in a document that pointed to a very specific endpoint. But what if we don't care about the entire URL? What if we are only concerned with the domain? Consider the following HTML fragment:
 
-{title="multiple anchors to different domains and varying paths", lang=html}
+{title="multiple anchors to different domains with varying paths", lang=html}
 ~~~~~~~
 <a href="http://fineuploader.com/">home page</a>
 <a href="http://fineuploader.com/demos">demos</a>
@@ -278,7 +278,7 @@ Remember the example from the section on [attribute names and values](#attribute
 <a href="http://fineuploader.com/purchase">purchase</a>
 ~~~~~~~
 
-What if we want to locate all anchor links at http://fineuploader.com? The instance substring attribute selector, [first standardized in the W3C CSS 3 specification][css3-attribute-substrings], allows us to do this.
+If we want to locate all anchor links at http://fineuploader.com, the instance substring attribute selector, [first standardized in the W3C CSS 3 specification][css3-attribute-substrings], allows us to do this.
 
 {title="selecting all anchors pointing to http://fineuploader.com", lang=javascript}
 ~~~~~~~
@@ -333,7 +333,7 @@ The `result` variable is a `NodeList` containing one entry - the first `<div>` i
     Locates all iframes inside of a given iframe</a>
 ~~~~~~~
 
-Imagine the two links and one image, all obviously related to the frame-grab library, exist among a number of other unrelated links and images in a large document. But we want to find only those resources that directly relate to the frame-grab library. We can't key on "frame-grab.js" using [the substring attribute selector](#substring-attribute-selector) since not all of the elements contain an `href` or `src` attribute with "frame-grab.js". We also don't want to key on the phrase "frame-grab", as this would include the last link, which does _not_ relate to the frame-grab library.  Instead we need to select all elements with a `title` attribute that contains the specific word "frame-grab".
+Imagine the two links and one image, all obviously related to the frame-grab library, exist among a number of other unrelated links and images in a large document. But we want to find only those resources that directly relate to the frame-grab library. We can't key on "frame-grab.js" using [the substring attribute selector](#substring-attribute-selector) since not all of the elements contain an `href` or `src` attribute with "frame-grab.js". We also don't want to key on the phrase "frame-grab", as this would include the last link, which does _not_ relate to the frame-grab library.  Instead we need to select all elements with a `title` attribute that contains the specific phrase "frame-grab".
 
 {title="locate all title attrs with 'frame-grab' word", lang=javascript}
 ~~~~~~~
@@ -373,7 +373,7 @@ The above selector combines a "starts with" and an "ends with" attribute value s
 
 ## Reading and modifying element attributes {#reading-attributes}
 
-So now you know exactly what attributes are (and what they are _not_), and you are well-versed in selecting elements by their attribute names and values. The final aspect of attributes for me to discuss involves reading and updating an element's attributes, as well as creating new attributes. You'll discover that appropriate approach for parsing, adding, removing, and changing attributes may depend on the type of attribute. In this final section, I will go over three distinct types of attributes: class attributes, data attributes, and all other generic native and custom attributes.
+So now you know exactly what attributes are (and what they are _not_), and you are well-versed in selecting elements by their attribute names and values. The final aspect of attributes for me to discuss involves reading and updating an element's attributes, as well as creating new attributes. You'll discover that the appropriate approach for parsing, adding, removing, and changing attributes may depend on the type of attribute. In this final section, I will go over three distinct types of attributes: class attributes, data attributes, and all other generic native and custom attributes.
 
 
 ### Class attributes {#class-attributes}
@@ -409,9 +409,9 @@ The `inStock` boolean variable will be set to a value of `false` since the eleme
 
 But we don't want to use jQuery! So, how do we do all of this without it? Luckily, the modern web API offers an equally elegant solution, thanks to the [`classList` property on the `Element` interface][dom-classlist]. The WHATWG web standards organization initially drafted the specification for `classList`, and the W3C has [included it in its DOM4 document][dom4-classlist] as well.
 
-Note that the `classList` property is set to a value of type [`DomTokenList`][dom-domtokenlist]. The `DomTokenList` interface contains four notable methods, each of which I will demonstrate throughout this section. You'll see how `classList` can be used to perform all sorts of operations on an element's `class` attribute soon, but first I'm going to focus one such method - [`contains`][dom-classlist-contains].
+Note that the `classList` property is a [`DomTokenList`][dom-domtokenlist]. The `DomTokenList` interface contains four notable methods, each of which I will demonstrate throughout this section. You'll see how `classList` can be used to perform all sorts of operations on an element's `class` attribute soon, but first I'm going to focus one such method - [`contains`][dom-classlist-contains].
 
-To determine if a specific element contains a specific CSS class, the DOM API provides an intuitive property on the `classList` object: `contains`. The above jQuery solution looks equally elegant when using a native web solution.
+To determine if a specific element contains a specific CSS class, the DOM API provides an intuitive property on the `classList` object: `contains`.
 
 {title="reading classes using the DOM API - all modern browsers except for IE9", lang=javascript}
 ~~~~~~~
@@ -459,9 +459,9 @@ pEl.classList.remove('red');
 pEl.classList.add('blue');
 ~~~~~~~
 
-Once again, `classList` to the rescue! Perhaps you are saying to yourself, "The native solution makes me type a few more characters! This will greatly affect my productivity!" Really? If you're adding and removing classes via JavaScript so often that a few more characters will have a profoundly negative impact on agility, then perhaps it is time to instead re-evaluate your application design!
+Once again, `classList` to the rescue! Perhaps you are saying to yourself, "The native solution makes me type a few more characters! This will greatly affect my productivity!" Really? If you are adding and removing classes via JavaScript so often that a few more characters will have a profoundly negative impact on agility, then perhaps it is time to instead re-evaluate your application design!
 
-Stuck supporting IE9 and older, a solution that covers every browser under the sun is similar to the fallback for `contains` from the previous section.
+Stuck supporting IE9 and older? A solution that covers every browser under the sun is similar to the fallback for `contains` from the previous section.
 
 {title="remove a class and add another - web API - any browser", lang=javascript}
 ~~~~~~~
@@ -506,7 +506,7 @@ This is _just as easy_ without jQuery, provided you are using a modern browser (
 sectionEl.classList.toggle('hide');
 
 // re-adds "hide" class
-$sectionEl.classList.toggle('hide');
+sectionEl.classList.toggle('hide');
 ~~~~~~~
 
 The solution for IE9 and older is a bit hairier, but still possible. It involves checking if the class exists, and then either adding, or removing it, depending on the current state.
@@ -553,10 +553,11 @@ Let's start with a simple input element that includes both a [boolean attribute]
 ~~~~~~~
 
 Suppose we are given this element and we want answers to two questions:  
+
 1. What type of `<input>` is this element?
 2. Is this `<input>` a required field?
 
-This is one area (of many) where jQuery fails miserably to ease the burden on the developer. While reading an attribute value is simple, there is no API method dedicated to detecting the presence of an attribute on a specific element. While it is still possible to do this with jQuery, the solution is not really intuitive, and will likely require those new to the library to do a bit of googling.
+This is one area (of many) where jQuery fails miserably to ease the burden on the developer. While reading an attribute value is simple, there is no API method dedicated to detecting the presence of an attribute on a specific element. While it is still possible to do this with jQuery, the solution is not very intuitive, and will likely require those new to the library to do a bit of googling.
 
 {title="reading an attribute value and checking if an attr exists - jQuery", lang=javascript}
 ~~~~~~~
@@ -575,7 +576,7 @@ jQuery does not define a `hasAttr` method. Instead, you must check the element u
 inputEl.getAttribute('type');
 
 // returns "true"
-$inputEl.hasAttribute('required');
+inputEl.hasAttribute('required');
 ~~~~~~~
 
 The `getAttribute` method was first defined on the `Element` interface all the way back in 1997 [as part of the W3C DOM Level 1 Core specification][dom1core-getattribute]. And `hasAttribute` was added to the same interface 3 years later, in 2000, [in the DOM Level 2 Core spec][dom2core-hasattribute].
@@ -588,12 +589,12 @@ We can make the second half of the jQuery example a bit more intuitive, simply b
 $inputEl[0].hasAttribute('required');
 ~~~~~~~
 
-So if you're stuck with jQuery for whatever reason, consider the above example as a more straightforward way to determine if an element contains a particular attribute. As an added bonus, you'll find that bypassing jQuery as much as possible here is, as always, [much more performant][jsperf-is-vs-hasattr] than relying on the library entirely.
+So if you're stuck with jQuery for whatever reason, consider the above example as a more straightforward way to determine if an element contains a particular attribute. As an added bonus, you'll find that bypassing jQuery as much as possible here is, as always, [much more performant][jsperf-is-vs-hasattr] than relying on the library wholesale.
 
 
 #### Modifying attributes
 
-We have a handle on a specific `<input>` element in our document, it looks like this:
+We have a handle on a specific `<input>` element in our document, and the element looks like this:
 
 {title="input element for modifying attributes demo", lang=html}
 ~~~~~~~
@@ -601,9 +602,10 @@ We have a handle on a specific `<input>` element in our document, it looks like 
 ~~~~~~~
 
 We want to modify this `HTMLInputElement` in three ways:
+
 1. Make it an "email" input field.
 2. Ensure it is _not_ required.
-3. Rename it to "userEmail".
+3. Rename it to "userEmail".   
 
 jQuery requires we solve this problem using `attr()` to add and change attributes and `removeAttr()` to remove them.
 
