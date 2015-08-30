@@ -13,7 +13,7 @@ understanding-web-js.md
 
 finding-html-elements.md
 attributes.md
-html-data.md
+data.md
 styling-elements.md
 dom-manipulation.md
 ajax.md
