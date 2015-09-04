@@ -66,6 +66,8 @@ You may want to associate some common properties with each of these user element
 
 ## Common pitfalls of pairing data with elements
 
+It' becoming easier to pair data with your elements, thanks to rapidly evolving web and JavaScript specifications. Don't worry, I'll cover specifics very soon. But life is not simple even with these advancements. There is still potential for trouble, provided this new power is not used responsibly. Of course, life _before_ the modern web and JavaScript was much more difficult. Attaching trivial data to elements was done so using primitive means. Storing complex data, such as other `Node`s, could result in memory leaks. I'll cover all of that in this section.
+
 ### Memory leaks
 
 ### Managing the data
