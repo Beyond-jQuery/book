@@ -7,7 +7,7 @@ As you continue through this chapter, expect to understand why connecting data t
 
 ## Why would you want to attach data to elements?
 
-Especially in modern web applications, there is a real need to tie data to the elements on a page. In this section, we will explore common reasons for attaching custom data to your markup, and how this is commonly accomplished at a high level. You will see that there are at least four reasons why you may find it useful to track data alongside your elements.
+Especially in modern web applications, there is a real need to tie data to the elements on a page. In this section, we will explore common reasons for attaching custom data to your markup, and how this is commonly accomplished at a high level. You will see that there are many reasons why you may find it useful to track data alongside your elements.
 
 
 ### Tracking state
@@ -36,14 +36,19 @@ Perhaps you are maintaining a page for a realtor that contains a table of proper
 </table>
 ~~~~~~~
 
-After a row is moved, or perhaps even as part of the initial markup, you may want to annotate each row with its original index in the table. This could potentially be used to revert any changes without calling the server. A `data-` or custom attribute, `data-original-idx` or `original-index` respectively, is most appropriate here.
+After a row is moved, or perhaps even as part of the initial markup, you may want to annotate each row with its original index in the table. This could potentially be used to revert any changes without calling the server. A `data-` or custom attribute (`data-original-idx` or `original-index` respectively) is most appropriate here.
+
+You may also want to track initial style information for an element, such as dimensions. If you allow user to dynamically adjust the width and height of an element, you will likely want a simple way to reset these dimensions should your user have a change of heart.
 
 
 ### Connecting elements
 
-### The need for proprietary attributes
+Seemingly disparate elements may very well need to be aware of each other. For example, two elements whose visibility is determined by the visibility of the other. In other words, if one element is visible, the other is not. How can these elements coexist in this way? Answer: by maintaining references to each other.
 
-### Connecting data models directly to elements
+This scenario has a number of possible solutions. One would be to embed CSS selectors for each element's partner element inside of a `data-` or custom attribute. Assuming this is reasonable and a unique selector is available, this is probably the best choice. If this is not possible, then you will need to resort to maintaining a map of the `Node` objects. This can be done a couple of different ways with the help of JavaScript objects. More on that later on.
+
+
+### Storing models directly in your elements
 
 Pretend you have a list of users on a page:
 
