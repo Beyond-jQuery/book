@@ -70,9 +70,65 @@ It' becoming easier to pair data with your elements, thanks to rapidly evolving 
 
 ### Memory leaks
 
-### Managing the data
+When connecting two (or more) elements together, the natural instinct is to simply store a reference to the other elements in some common JavaScript object. For example, consider the following markup:
 
-### Noisy markup
+{title="a list of cars - for memory leak example", lang=html}
+~~~~~~~
+<ul>
+  <li>Ford</li>
+  <li>Chevy</li>
+  <li>Mercedes</li>
+</ul>
+~~~~~~~
+
+Each of these car types responds to click events, and when one of the cars is clicked, the clicked car must be prominently styled, while all other cars must become less prominent. One way to accomplish this is to store references to all elements in a JavaScript array, and iterate over all elements in the array when one of the list items is clicked. The clicked item must be colored red, while the others should be set to their default color. Our JavaScript might look something like this:
+
+{title="ensure clicked car type stands out - memory leaks example", lang=javascript}
+~~~~~~~
+var standOutOnClick = function(el) {
+    el.onclick = function() {
+      for (var i = 0; i < el.typeEls.length; i++) {
+        var currentEl = el.typeEls[i];
+        if (el === currentEl) {
+          currentEl.style.color = 'red';
+        }
+        else {
+          currentEl.style.color = '';
+        }
+      }
+    };
+  },
+  setupCarTypeEls = function() {
+    var carTypes = [],
+      carTypeEls = document.getElementsByTagName('LI');
+
+      for (var i = 0; i < carTypeEls.length; i++) {
+        var thisCarType = carTypeEls[i];
+        thisCarType.typeEls = carTypes;
+        carTypes.push(thisCarType);
+        standOutOnClick(thisCarType);
+      }
+  };
+
+setupCarTypeEls();
+~~~~~~~
+
+W> ## Don't use inline event handlers
+W>
+W> In the above example, I am assigning a click handler to an element via the element's `onclick` property. This is known as an inline event handler, and you should avoid doing this. Since I haven't covered events yet, I took this shortcut to keep the code example as simple as possible, but you should _never_ use inline event handler assignments in your code. To learn more about how to properly deal with events without jQuery, take a look at [the upcoming events chapter](#browser-events).
+
+W> ## Avoid inline style assignment
+W>
+W> In the above example, I change the color of a `<li>` by altering the `color` value of the element's `style` property. While I took this shortcut to keep the example as simple as possible, you should almost always avoid these types of inline style assignments in _your_ code. The proper approach involves removing or adding CSS classes for each element, with the proper styles/colors defined in a stylsheet for these specific classes. For more information on how to properly manipulate element CSS classes without jQuery, see [the class attributes section in the previous chapter](#class-attributes).
+
+The above code works in every browser available, including Internet Explorer 6, though a large hidden issue exists. The above code demonstrates a circular reference involving a DOM object (the JavaScript representation of the `<li>` elements) and a "plain" JavaScript object (the `carTypeEls` array). Each `<li>` references the `carTypeEls` array, which in turn references the `<li>` element. This is a good example of a well documented memory leak present in Internet Explorer 6 and 7. The leak is so severe that the memory may be unclaimed even after a page refresh. Luckily, Microsoft [fixed this issue in Internet Explorer 8][ie8-circular-refs-fix], but this demonstrates some early challenges with storing data alongside HTML elements.
+
+
+### Managing data
+
+For trivial amounts of data, you can make use of `data-` attributes, or other custom attributes. But what if you need to store a _lot_ of data? You could perhaps attach the data to a custom property on the element. This is known as an ["expando" property][(#expando-properties)]. This is was illustrated in the previous example. To avoid potential memory leaks, you may instead elect to store the data in a JavaScript object along with a selector string for the associated element(s). This ensures the reference to the element is a "weak" one. Unfortunately, neither of these approaches is particularly intuitive, and you get the feeling that you are either reinventing the wheel or writing kludgey, brittle code along the way. Surely there must be an easier way.
+
+Then again, what _is_ a "trivial" amount of data, when do attribute become a less feasible storage and retrieval mechanism? To developers who have not come across this problem before, the large array of approaches may be a bit overwhelming. Can you simply make use of expando properties for all instances? What are the drawbacks and advantages to one approach over the others? Don't worry, you'll not only understand how and when to use a specific approach when storing element data, but you'll also learn how to do it easily and effectively in the final two sections of this chapter.
 
 
 ## Using a solution for all browsers
@@ -95,3 +151,6 @@ It' becoming easier to pair data with your elements, thanks to rapidly evolving 
 ### The HTML5 `dataset` property
 
 ### Leveraging ES6 `WeakMap` collections
+
+
+[ie8-circular-refs-fix]: https://msdn.microsoft.com/en-us/library/dd361842(VS.85).aspx
