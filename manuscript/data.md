@@ -133,7 +133,39 @@ Then again, what _is_ a "trivial" amount of data, when do attribute become a les
 
 ## Using a solution for all browsers
 
+While there exists some pretty nifty ways to read and track element data in new specifications, such as ECMAScript 6 and HTML 5.1, I realize that the browser support for some of the APIs is not yet comprehensive. In a relatively short amount of time, [these new tools](#data-futures) will be implemented in the vast majority of all browsers in use. But until then, you should understand how to accomplish these same tasks with the most commonly available APIs. In many cases, the approaches described in this section are likely to withstand the test of time and remain most appropriate and simple even as web standards continue to evolve.
+
+
 ### Storing small bits of data using `data-` attributes
+
+Data attributes, which first appeared in [the W3C HTML5 specification][html5-data], in one example of an existing standard that is simple enough to be usable in all current browsers. It's intuitiveness is such that it may be leveraged in future incarnations of web specifications. In fact, data attributes already are a lot more powerful due to a still [narrowly supported Element interface property defined in the HTML5 spec](#element-dataset).
+
+The HTML5 specification declares `data-` attributes to be custom attributes. The two are one in the same. The only valid custom attribute is a `data-` attribute. The specification describes `data-` attributes as follows:
+
+>A custom data attribute is an attribute in no namespace whose name starts with the string "data-", has at least one character after the hyphen
+
+The spec also gives `data-` attributes a specific purpose. They are "intended to store custom data private to the page or application, for which there are no more appropriate attributes or elements." So, if you need to describe a title for an anchor link, use [the `title` attribute][html4-title]. If you must define a language for a paragraph that differs from the language defined on the `<html>` element for the rest of the document, you should use [the `lang` attribute][html4-lang].
+
+But what if you need to store an alternate URL for an `<img>`, one that is used when the image either receives focus via the keyboard or if the user hovers over it using a pointing device, such as a mouse. In this instance, there is no standard attribute to store this information. So, we must make use of a `data-` attribute.
+
+{title="storing an alternate image url", lang=html}
+~~~~~~~
+<img src="default.png"
+  data-zoom-url="default-zoomed.png"
+  alt="default image">
+~~~~~~~
+
+The image to display on focus/hover is stored in the `data-zoom-url` attribute. We may follow the same approach if we wish to annotate a `<video>` with the offsets at which the scenes change:
+
+{title="storing an alternate image url", lang=html}
+~~~~~~~
+<video src="my-video.mp4" data-scene-offsets="9,22,38">
+~~~~~~~
+
+The above video changes scenes at the 9, 22, and 38 second marks, according to the `data-scene-offsets` custom attribute we've tied to the element.
+
+There are no drastic consequences for defining a custom element that does not confirm to the `data-` convention defined as part of HTML5. The browser will not complain or fail to render your document. But you _will_ lose the ability to utilize any future portions of the API that build on this convention, including the `dataset` property. More on this shortly.
+
 
 #### Reading and updating `data-` attributes with jQuery
 
@@ -146,11 +178,17 @@ Then again, what _is_ a "trivial" amount of data, when do attribute become a les
 ### Using a more natural approach
 
 
-## The future of element data
+## The future of element data {#data-futures}
 
-### The HTML5 `dataset` property
+### The HTML5 `dataset` property {#element-dataset}
 
 ### Leveraging ES6 `WeakMap` collections
 
+
+[html4-lang]: http://www.w3.org/TR/html4/struct/dirlang.html#adef-lang
+
+[html4-title]: http://www.w3.org/TR/html4/struct/global.html#edef-TITLE
+
+[html5-data]: http://www.w3.org/TR/html5/dom.html#embedding-custom-non-visible-data-with-the-data-*-attributes
 
 [ie8-circular-refs-fix]: https://msdn.microsoft.com/en-us/library/dd361842(VS.85).aspx
