@@ -544,7 +544,7 @@ There are other ways to attach more complex data to elements. I'll cover data at
 As you have already seen, [`class` attributes](#class-attributes) are special attributes that require a more specific approach to properly manipulate and read them. In fact, `class` attributes are among two types of "special" attributes, with [`data-`](#data-attributes) being the other. But what about all of the other element attributes? How can we best work with them? This section will cover reading, writing, removing, and creating both standard and custom attributes. You are probably already familiar and comfortable with jQuery's support for these tasks, but you'll see just how easy it is to work with attributes using the power of the browser.
 
 
-#### Reading attributes
+#### Reading attributes {#getattributes}
 
 Let's start with a simple input element that includes both a [boolean attribute](#boolean-attributes) and a standard string value attribute.
 
@@ -606,7 +606,7 @@ We want to modify this `HTMLInputElement` in three ways:
 
 1. Make it an "email" input field.
 2. Ensure it is _not_ required.
-3. Rename it to "userEmail".   
+3. Rename it to "userEmail".
 
 jQuery requires we solve this problem using `attr()` to add and change attributes and `removeAttr()` to remove them.
 

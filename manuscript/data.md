@@ -169,7 +169,74 @@ There are no drastic consequences for defining a custom element that does not co
 
 #### Reading and updating `data-` attributes with jQuery
 
+Now that we have a way to annotate our elements with a bit of data via the markup, how can we actually _read_ this data in our code? If you are familiar with jQuery, you probably already know about the `data()` API method. Just in case the details are a little fuzzy, take a look at the following example.
+
+{title="accessing element data - jQuery", lang=html}
+~~~~~~~
+<video src="my-video.mp4" data-scene-offsets="9,22,38">
+
+<script>
+// offsets value will be "9,22,38"
+var offsets = $('VIDEO').data('sceneOffsets');
+</script>
+~~~~~~~
+
+Notice that we must access the value of the `data-` attribute by referencing the unique portion of the attribute name as a camel-case string. Changing the value of the data attribute is very similar:
+
+{title="changing element data - jQuery", lang=html}
+~~~~~~~
+<video src="my-video.mp4" data-scene-offsets="9,22,38">
+
+<script>
+// Does NOT update the attribute. Updates jQuery
+// internal data store instead.
+$('VIDEO').data('sceneOffsets', '1,2,3');
+</script>
+~~~~~~~
+
+Notice that there is something peculiar and unexpected about jQuery's `data()` method. When attempting to update the `data-` attribute via this method, nothing appears to happen. That is, the `data-scene-offsets` attribute value remains unchanged in the document. Instead, jQuery stores this value, and all subsequent values, in a JavaScript data store. There are a couple downsides to this implementation:  
+
+1. Our markup is now out-of-sync with the element's data.
+2. Any changes we make to the element's data are _only_ accessible to jQuery.
+
+While there are some good reasons for this implementation, it seems unfortunate in this situation.
+
+
 #### Using the web API to read and update `data-` attributes
+
+Later, I'll describe [a more modern way to read and update `data-` attributes using JavaScript](#element-dataset) with the same elegance as jQuery's `data()` method but _without_ the drawbacks. In the meantime, let's explore a solution that will work with _any_ browser.
+
+{title="accessing element data - web API - all browsers", lang=html}
+~~~~~~~
+<video src="my-video.mp4" data-scene-offsets="9,22,38">
+
+<script>
+// offsets value will be "9,22,38"
+var offsets = document.getElementsByTagName('VIDEO')[0]
+  .getAttribute('data-scene-offsets');
+</script>
+~~~~~~~
+
+We've already seen this before back in the [reading attributes section of the previous chapter](#getattributes). The `data-` attribute is, of course, just an element attribute, so we can easily read it in any browser using `getAttribute`.
+
+As you might expect, updating `data-` attributes without jQuery makes use of the `setAttribute` method of the web API's `Element` interface:
+
+{title="updating element data - web API - all browsers", lang=html}
+~~~~~~~
+<video src="my-video.mp4" data-scene-offsets="9,22,38">
+
+<script>
+// updates the element's data attribute value to "1,2,3"
+document.getElementsByTagName('VIDEO')[0]
+  .setAttribute('data-scene-offsets', '1,2,3');
+</script>
+~~~~~~~
+
+This primitive yet effective approach yields two benefits over jQuery's `data()` method in this situation:
+
+1. Our markup is always in-sync with the element's data.
+2. Any changes we make to the element's data are accessible to _any_ JavaScript.
+
 
 ### Complex element data storage and retrieval {#complex-data}
 
