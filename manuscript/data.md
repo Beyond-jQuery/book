@@ -68,7 +68,7 @@ You may want to associate some common properties with each of these user element
 
 It' becoming easier to pair data with your elements, thanks to rapidly evolving web and JavaScript specifications. Don't worry, I'll cover specifics very soon. But life is not simple even with these advancements. There is still potential for trouble, provided this new power is not used responsibly. Of course, life _before_ the modern web and JavaScript was much more difficult. Attaching trivial data to elements was done so using primitive means. Storing complex data, such as other `Node`s, could result in memory leaks. I'll cover all of that in this section.
 
-### Memory leaks
+### Memory leaks {#data-memory-leaks}
 
 When connecting two (or more) elements together, the natural instinct is to simply store a reference to the other elements in some common JavaScript object. For example, consider the following markup:
 
@@ -202,7 +202,7 @@ Notice that there is something peculiar and unexpected about jQuery's `data()` m
 While there are some good reasons for this implementation, it seems unfortunate in this situation.
 
 
-#### Using the web API to read and update `data-` attributes
+#### Using the web API to read and update `data-` attributes {#reading-updating-data}
 
 Later, I'll describe [a more modern way to read and update `data-` attributes using JavaScript](#element-dataset) with the same elegance as jQuery's `data()` method but _without_ the drawbacks. In the meantime, let's explore a solution that will work with _any_ browser.
 
@@ -237,10 +237,58 @@ This primitive yet effective approach yields two benefits over jQuery's `data()`
 1. Our markup is always in-sync with the element's data.
 2. Any changes we make to the element's data are accessible to _any_ JavaScript.
 
+So, in this instance, the native solution is arguably the best route.
+
 
 ### Complex element data storage and retrieval {#complex-data}
 
+Simple element data consists of a short string, such as a phrase, word, or short sequence of characters or numbers. Perhaps even a small JSON object or array can be considered simple. But what about complex data? And what _exactly_ is complex data?
+
+Remember the list of cars from the [memory leaks](#data-memory-leaks) section earlier in this chapter? I demonstrated a way to link the individual list item elements such that we could easily highlight the clicked item while making the other items in the last less prominent. In this case, we are associating JavaScript representations of HTML elements with other elements. This can certainly be considered "complex" data.
+
+If we expand upon the previous example with the `<video>` tag, another example of complex element data can be demonstrated. In addition to scene offsets, we also need to record a short description of each scene, along with a title, and a location. What we are describing here is something that must be represented by a proper JavaScript object, instead of a single string of text stored as an attribute value.
+
+The solution I proposed in the memory leaks section involved use of expando properties, which was, in part, responsible for a memory leak in older browsers. Even though this leak has been patched in all modern browsers, expando properties are discouraged, as is modifying JavaScript representations of elements in any non-standard way. The video data scenario I detailed above is far too much data to store in a `data-` attribute. And of course, we shouldn't resort to expando properties here either. So the proper way to associate these types of complex data with elements is to maintain a JavaScript object that is linked to one or more elements via a `data-` attribute. This is the approach jQuery takes, and we can do the same without jQuery fairly easily.
+
+
 ### The familiar jQuery approach
+
+The jQuery solution to our problem involves, as you might have already surmised, the `data()` method:
+
+{title="connect scene data to a video element - jQuery", lang=javascript}
+~~~~~~~
+$('VIDEO').data('scenes', [
+  {
+    offset: 9,
+    title: 'intro',
+    description: 'introducing the characters',
+    location: 'living room'
+  },
+  {
+    offset: 22,
+    title: 'the problem',
+    description: 'characters have some issues',
+    location: 'the park'
+  },
+  {
+    offset: 38,
+    title: 'the resolution',
+    description: 'characters resolve their issues',
+    location: 'the cemetery'
+  }
+])
+~~~~~~~
+
+Now, if we want to lookup the title of the second scene:
+
+{title="connect scene data to a video element - jQuery", lang=javascript}
+~~~~~~~
+// variable will have a value of 'the problem'
+var sceneTwoTitle = $('VIDEO').data('scenes')[1].title
+~~~~~~~
+
+jQuery maintains the array we supplied inside of an internal cache object. Each cache object is given an "index", and this index is stored as the value of an expando property jQuery creates on the  `HTMLVideoElement` object, which is the JavaScript representation of the `<video>` element.
+
 
 ### Using a more natural approach
 
