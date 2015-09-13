@@ -251,7 +251,7 @@ If we expand upon the previous example with the `<video>` tag, another example o
 The solution I proposed in the memory leaks section involved use of expando properties, which was, in part, responsible for a memory leak in older browsers. Even though this leak has been patched in all modern browsers, expando properties are discouraged, as is modifying JavaScript representations of elements in any non-standard way. The video data scenario I detailed above is far too much data to store in a `data-` attribute. And of course, we shouldn't resort to expando properties here either. So the proper way to associate these types of complex data with elements is to maintain a JavaScript object that is linked to one or more elements via a `data-` attribute. This is the approach jQuery takes, and we can do the same without jQuery fairly easily.
 
 
-### The familiar jQuery approach
+#### The familiar jQuery approach
 
 The jQuery solution to our problem involves, as you might have already surmised, the `data()` method:
 
@@ -290,7 +290,7 @@ var sceneTwoTitle = $('VIDEO').data('scenes')[1].title
 jQuery maintains the array we supplied inside of an internal cache object. Each cache object is given an "index", and this index is stored as the value of an expando property jQuery creates on the  `HTMLVideoElement` object, which is the JavaScript representation of the `<video>` element.
 
 
-### Using a more natural approach
+#### Using a more natural approach
 
 
 ## The future of element data {#data-futures}
