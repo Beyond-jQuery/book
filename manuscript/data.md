@@ -276,7 +276,7 @@ $('VIDEO').data('scenes', [
     description: 'characters resolve their issues',
     location: 'the cemetery'
   }
-])
+]);
 ~~~~~~~
 
 Now, if we want to lookup the title of the second scene:
@@ -284,13 +284,73 @@ Now, if we want to lookup the title of the second scene:
 {title="connect scene data to a video element - jQuery", lang=javascript}
 ~~~~~~~
 // variable will have a value of 'the problem'
-var sceneTwoTitle = $('VIDEO').data('scenes')[1].title
+var sceneTwoTitle = $('VIDEO').data('scenes')[1].title;
 ~~~~~~~
 
 jQuery maintains the array we supplied inside of an internal cache object. Each cache object is given an "index", and this index is stored as the value of an expando property jQuery creates on the  `HTMLVideoElement` object, which is the JavaScript representation of the `<video>` element.
 
 
 #### Using a more natural approach
+
+When deciding how to tie complex data to an element in this section, we must be aware of our three goals:
+
+1. No jQuery.
+2. Must work in all browsers.
+3. No expando properties.
+
+And we can respect the first two goals by mimicking jQuery's approach to storing element data. To respect the third, we must make some adjustments to jQuery's approach. In other words, we will have to tie out elements to the underlying JavaScript object via a simple `data-` attribute instead of an expando property.
+
+{title="connect scene data to a video element - web API - all browsers", lang=javascript}
+~~~~~~~
+var cache = [],
+  setData = function(el, key, data) {
+    var cacheIdx = el.getAttribute('data-cache-idx'),
+      cacheEntry = cache[cacheIdx] || {};
+
+    cacheEntry[key] = data;
+    if (cacheIdx == null) {
+      cacheIdx = cache.push(cacheEntry) - 1;
+      el.setAttribute('data-cache-idx', cacheIdx);
+    }
+  };
+
+setData(document.getElementsByTagName('VIDEO')[0],
+  'scenes', [
+  {
+    offset: 9,
+    title: 'intro',
+    description: 'introducing the characters',
+    location: 'living room'
+  },
+  {
+    offset: 22,
+    title: 'the problem',
+    description: 'characters have some issues',
+    location: 'the park'
+  },
+  {
+    offset: 38,
+    title: 'the resolution',
+    description: 'characters resolve their issues',
+    location: 'the cemetery'
+  }
+]);
+~~~~~~~
+
+Notice that all of our data is ultimately stored in the `cache` array. When we want to attach data to an element, a `setData` function has been setup to accept an element, data key, and data object. When handling a call, we first check to see if the element is already tied to data in our `cache`. If it is, we lookup the existing data object in `cache` using the array index stored in the `data-cache-idx` attribute on the element and add a new property to this object that contains the passed data. Otherwise, we create a new object initialized to contain the passed data with the passed key. If this element does not yet have an entry in `cache`, a `data-cache-idx` attribute with the index of the new object in `cache` must be created as well.
+
+As with the jQuery solution, we want to lookup the title of second scene, and we can do that with just a bit more code:
+
+{title="connect scene data to a video element - web API - all browsers", lang=javascript}
+~~~~~~~
+var cacheIdx = document.getElementsByTagName('VIDEO')[0]
+  .getAttribute('data-cache-idx');
+
+// variable will have a value of 'the problem'
+var sceneTwoTitle = cache[cacheIdx].scenes[1].title;
+~~~~~~~
+
+We could easily create a `getData` function to accompany our `setData` that makes storing and looking up our element data a bit more intuitive. But this all-browser non-jQuery solution is surprisingly simple. For an even more elegant non-jQuery approach that targets more modern browsers, check out the next section, where I will demonstrate the `dataset` element property _and_ the `WeakMap` API.
 
 
 ## The future of element data {#data-futures}
