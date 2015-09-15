@@ -337,7 +337,9 @@ setData(document.getElementsByTagName('VIDEO')[0],
 ]);
 ~~~~~~~
 
-Notice that all of our data is ultimately stored in the `cache` array. When we want to attach data to an element, a `setData` function has been setup to accept an element, data key, and data object. When handling a call, we first check to see if the element is already tied to data in our `cache`. If it is, we lookup the existing data object in `cache` using the array index stored in the `data-cache-idx` attribute on the element and add a new property to this object that contains the passed data. Otherwise, we create a new object initialized to contain the passed data with the passed key. If this element does not yet have an entry in `cache`, a `data-cache-idx` attribute with the index of the new object in `cache` must be created as well.
+What's going on here? First, I've created a convenience method to handle association of data with a specific element - `setData` - along with an array used to hold data for _all_ of my elements - `cache`. The `setData` function has been setup to accept an element, data key, and data object, while the `cache` array holds one JavaScript object per element with data attached to (potentially) multiple key properties.
+
+When handling a call, we first check to see if the element is already tied to data in our `cache`. If it is, we lookup the existing data object in `cache` using the array index stored in the `data-cache-idx` attribute on the element and add a new property to this object that contains the passed data. Otherwise, we create a new object initialized to contain the passed data with the passed key. If this element does not yet have an entry in `cache`, a `data-cache-idx` attribute with the index of the new object in `cache` must be created as well.
 
 As with the jQuery solution, we want to lookup the title of second scene, and we can do that with just a bit more code:
 
