@@ -62,6 +62,7 @@ var result = document.getElementById('my-element-id');
 result.id === 'my-element-id'; // returns true
 ~~~~~~~
 
+{#queryselector-example}
 A second approach makes use of the `querySelector` method, which was [first defined on both the `Document` and `Element` interfaces in the W3C Selectors API Level 1 specification][selectors1-queryselector]. Remember that the `HTMLElement` interface, on which the `id` attribute is defined, inherits from the `Element` interface, so `Element`s have an `id` property as well. The `querySelector` method is available in all [modern browsers](#modern-browsers), as well as Internet Explorer 8. In the following example, you will start to notice some stark similarities between the native approach and the jQuery shortcut.
 
 {title="select by ID - web API - modern browsers & Internet Explorer 8", lang=javascript}

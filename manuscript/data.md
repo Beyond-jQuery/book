@@ -357,9 +357,43 @@ We could easily create a `getData` function to accompany our `setData` that make
 
 ## The future of element data {#data-futures}
 
+Storing trivial or complex data without jQuery in _all_ browsers is not particularly difficult, but it's also not very elegant. Luckily for us, the web is evolving quickly, and two new APIs exist that should make our code more beautiful, and maybe even a bit more performant. I'll show you how to manage trivial element data with the [HTML5 `dataset` property](#element-dataset), and complex data using the [ECMAScript 6 `WeakMap` API](#es6-weakmap). Keep in mind that everything in this section is meant for the latest browsers only. In each case, nothing older than Internet Explorer 11 is an option. This may seem like an unpleasant restriction in 2015, but in a short amount of time all common browsers will be supported.
+
+
 ### The HTML5 `dataset` property {#element-dataset}
 
-### Leveraging ES6 `WeakMap` collections
+The HTML5 specification, completed in October of 2014, defined a new property on the `HTMLElement` interface - `dataset`. Think of this new property as a JavaScript object available on any element object. Any property you add to the `dataset` object is reflected as `data-` attribute on the element's tag in your document. You can also _read_ any `data-` attribute defined on the element's tag in your document by checking the corresponding attribute's property on the element's `dataset` object. In this respect, `HTMLElement.dataset` provides all of the behaviors you have come to love about jQuery's `data()` method - an intuitive way to read & write data to an element, without the drawbacks. Since changes to the properties on the `dataset` object are always synced to the element's markup, and vice-versa, this new standard property is a perfect way to deal with trivial element data.
+
+`Element.dataset` is currently available on a subset of ["modern" browsers](#modern-browsers) - Internet Explorer 9 and 10 are _not_ supported. Please keep that in mind when viewing the following code examples. And for our first demonstration, let's re-write the first code block first displayed in the [earlier section on reading and updating `data-` attributes using the web API](#reading-updating-data).
+
+{title="accessing element data - web API - modern browsers except IE9 & 10", lang=html}
+~~~~~~~
+<video src="my-video.mp4" data-scene-offsets="9,22,38">
+
+<script>
+// offsets value will be "9,22,38"
+var offsets = document.querySelector('VIDEO').dataset.sceneOffsets;
+</script>
+~~~~~~~
+
+Above, we've simplified the earlier example quite a bit. Notice how we must use the camel-case form of the `data-` attribute. Arguably, the `dataset` model is more intuitive to use than jQuery's `data()` method. We treat all of our data as properties on an object, which is exactly how jQuery represents this data internally. But when using jQuery's API, we have to call a function passing the key as a string argument. Notice how we are also making use of [`querySelector`](#queryselector-example) to grab our `<video>` element. We can do this in any modern browser, as well as Internet Explorer 8.
+
+Let's take a look at a more modern version of the second code example, which illustrates how to change or add data to an element:
+
+{title="updating element data - web API - modern browsers except IE9 & 10", lang=html}
+~~~~~~~
+<video src="my-video.mp4" data-scene-offsets="9,22,38">
+
+<script>
+// updates the element's data attribute value to "1,2,3"
+document.querySelector('VIDEO').dataset.sceneOffsets = '1,2,3';
+</script>
+~~~~~~~
+
+Above, the element data has been updated along with the associated `data-` attribute, all with one simple and elegant line of code.
+
+
+### Leveraging ES6 `WeakMap` collections {#es6-weakmap}
 
 
 [html4-lang]: http://www.w3.org/TR/html4/struct/dirlang.html#adef-lang
@@ -367,5 +401,7 @@ We could easily create a `getData` function to accompany our `setData` that make
 [html4-title]: http://www.w3.org/TR/html4/struct/global.html#edef-TITLE
 
 [html5-data]: http://www.w3.org/TR/html5/dom.html#embedding-custom-non-visible-data-with-the-data-*-attributes
+
+[html5-dataset]: http://www.w3.org/TR/html5/dom.html#dom-dataset
 
 [ie8-circular-refs-fix]: https://msdn.microsoft.com/en-us/library/dd361842(VS.85).aspx
