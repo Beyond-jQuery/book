@@ -362,7 +362,7 @@ Storing trivial or complex data without jQuery in _all_ browsers is not particul
 
 ### The HTML5 `dataset` property {#element-dataset}
 
-The HTML5 specification, completed in October of 2014, defined a new property on the `HTMLElement` interface - `dataset`. Think of this new property as a JavaScript object available on any element object. Any property you add to the `dataset` object is reflected as `data-` attribute on the element's tag in your document. You can also _read_ any `data-` attribute defined on the element's tag in your document by checking the corresponding attribute's property on the element's `dataset` object. In this respect, `HTMLElement.dataset` provides all of the behaviors you have come to love about jQuery's `data()` method - an intuitive way to read & write data to an element, without the drawbacks. Since changes to the properties on the `dataset` object are always synced to the element's markup, and vice-versa, this new standard property is a perfect way to deal with trivial element data.
+The HTML5 specification, completed in October of 2014, defined a new property on the `HTMLElement` interface - `dataset`. Think of this new property as a JavaScript object available on any element object. In fact, it is an object, more specifically a [`DOMStringMap` object][html5-domstringmap], which is also defined in the HTML5 spec.  Any property you add to the `dataset` object is reflected as `data-` attribute on the element's tag in your document. You can also _read_ any `data-` attribute defined on the element's tag in your document by checking the corresponding attribute's property on the element's `dataset` object. In this respect, `HTMLElement.dataset` provides all of the behaviors you have come to love about jQuery's `data()` method - an intuitive way to read & write data to an element, without the drawbacks. Since changes to the properties on the `dataset` object are always synced to the element's markup, and vice-versa, this new standard property is a perfect way to deal with trivial element data.
 
 `Element.dataset` is currently available on a subset of ["modern" browsers](#modern-browsers) - Internet Explorer 9 and 10 are _not_ supported. Please keep that in mind when viewing the following code examples. And for our first demonstration, let's re-write the first code block first displayed in the [earlier section on reading and updating `data-` attributes using the web API](#reading-updating-data).
 
@@ -390,7 +390,19 @@ document.querySelector('VIDEO').dataset.sceneOffsets = '1,2,3';
 </script>
 ~~~~~~~
 
-Above, the element data has been updated along with the associated `data-` attribute, all with one simple and elegant line of code.
+Above, the element data has been updated along with the associated `data-` attribute, all with one simple and elegant line of code. But we can do more! Since `dataset` is a JavaScript object, we can easily remove data from our element, just as we would remove a property from any other JavaScript object:
+
+{title="removing element data - web API - modern browsers except IE9 & 10", lang=html}
+~~~~~~~
+<video src="my-video.mp4" data-scene-offsets="9,22,38">
+
+<script>
+// removes the element's data-scene-offsets attribute
+delete document.querySelector('VIDEO').dataset.sceneOffsets;
+</script>
+~~~~~~~
+
+You can now see how `dataset` actually exceeds the convenience of jQuery's `data()` method.
 
 
 ### Leveraging ES6 `WeakMap` collections {#es6-weakmap}
@@ -403,5 +415,7 @@ Above, the element data has been updated along with the associated `data-` attri
 [html5-data]: http://www.w3.org/TR/html5/dom.html#embedding-custom-non-visible-data-with-the-data-*-attributes
 
 [html5-dataset]: http://www.w3.org/TR/html5/dom.html#dom-dataset
+
+[html5-domstringmap]: http://www.w3.org/TR/html5/infrastructure.html#domstringmap-0
 
 [ie8-circular-refs-fix]: https://msdn.microsoft.com/en-us/library/dd361842(VS.85).aspx
