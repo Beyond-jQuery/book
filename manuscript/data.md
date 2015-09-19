@@ -251,7 +251,7 @@ If we expand upon the previous example with the `<video>` tag, another example o
 The solution I proposed in the memory leaks section involved use of expando properties, which was, in part, responsible for a memory leak in older browsers. Even though this leak has been patched in all modern browsers, expando properties are discouraged, as is modifying JavaScript representations of elements in any non-standard way. The video data scenario I detailed above is far too much data to store in a `data-` attribute. And of course, we shouldn't resort to expando properties here either. So the proper way to associate these types of complex data with elements is to maintain a JavaScript object that is linked to one or more elements via a `data-` attribute. This is the approach jQuery takes, and we can do the same without jQuery fairly easily.
 
 
-#### The familiar jQuery approach
+#### The familiar jQuery approach {#html-data-jquery}
 
 The jQuery solution to our problem involves, as you might have already surmised, the `data()` method:
 
@@ -290,7 +290,7 @@ var sceneTwoTitle = $('VIDEO').data('scenes')[1].title;
 jQuery maintains the array we supplied inside of an internal cache object. Each cache object is given an "index", and this index is stored as the value of an expando property jQuery creates on the  `HTMLVideoElement` object, which is the JavaScript representation of the `<video>` element.
 
 
-#### Using a more natural approach
+#### Using a more natural approach {#html-data-natural}
 
 When deciding how to tie complex data to an element in this section, we must be aware of our three goals:
 
@@ -407,6 +407,55 @@ You can now see how `dataset` actually exceeds the convenience of jQuery's `data
 
 ### Leveraging ES6 `WeakMap` collections {#es6-weakmap}
 
+You already know how to leverage the latest web technology to connect trivial data to elements. But what about complex data? We _could_ make use of our [previous example](#html-data-natural), but maybe the latest and greatest web specifications bring us a more elegant solution, maybe something more intuitive that is a perfect fit for this type of problem.
+
+ECMAScript 6 brings a new collection called [a `WeakMap`][es6-weakmap]. A `WeakMap` can contain keys that are objects, and values that are _anything_ - elements, objects, primitives, etc. In this new collection, keys are "weakly" held. This means that they are eligible for garbage collection by the browser if nothing else references them. This allows us to safely use the reference elements as keys!
+
+While WeakMap is only supported in the latest and greatest browsers (Inernet Explorer 11+, Chrome 36+, Safari 7.1+) along with Firefox 6+, it provides an exceptionally simple way to associated HTML elements with data. Remember the [all-browser code examples](#html-data-natural) demonstrated earlier? Let's rewrite it using `WeakMap`:
+
+{title="connect scene data to a video element - web API - modern browsers except IE9 & 10", lang=javascript}
+~~~~~~~
+var cache = new WeakMap();
+cache.set(document.querySelector('VIDEO'), {scenes: [
+  {
+    offset: 9,
+    title: 'intro',
+    description: 'introducing the characters',
+    location: 'living room'
+  },
+  {
+    offset: 22,
+    title: 'the problem',
+    description: 'characters have some issues',
+    location: 'the park'
+  },
+  {
+    offset: 38,
+    title: 'the resolution',
+    description: 'characters resolve their issues',
+    location: 'the cemetery'
+  }
+]});
+~~~~~~~
+
+Thanks to `WeakMap`, we've managed to eliminate _all_ of the boilerplate from our earlier non-jQuery example. The elegancy of this approach equals that of jQuery's `data()` method, which I also [demonstrated earlier](#html-data-jquery).  Looking up data is just as easy:
+
+{title="connect scene data to a video element - web API - modern browsers except IE9 & 10", lang=javascript}
+~~~~~~~
+// variable will have a value of 'the problem'
+var sceneTwoTitle = cache.get(document.querySelector('VIDEO')).scenes[1].title;
+~~~~~~~
+
+And finally, we can clean up after ourselves by removing elements we no longer want to track with a simple API call:
+
+{title="removing element data - web API - modern browsers except IE9 & 10", lang=html}
+~~~~~~~
+cache.delete(document.querySelector('VIDEO'));
+~~~~~~~
+
+The web without jQuery is looking pretty powerful.
+
+[es6-weakmap]: http://www.ecma-international.org/ecma-262/6.0/#sec-weakmap-objects
 
 [html4-lang]: http://www.w3.org/TR/html4/struct/dirlang.html#adef-lang
 
