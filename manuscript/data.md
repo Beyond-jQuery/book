@@ -1,4 +1,4 @@
-# Associating Data With HTML Elements {#html-data}
+# HTML Element Data Storage and Retrieval {#html-data}
 
 Previously, in the [chapter dedicated to attributes](#element-attributes), I [mentioned data attributes](#data-attributes) when going over the three types of HTML element attributes. Look no further for complete coverage of anything and everything related to connecting data of any kind to your document elements. All the details are in _this_ chapter, which will also build on the general attribute and element properties from the previous chapter. JavaScript objects will be introduced briefly as well, during a demonstration on connecting non-trivial data structures to tags.
 
