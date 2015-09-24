@@ -31,19 +31,43 @@ Writing current in progress. Check back soon!
 
 ### Using the web API
 
-#### Using the `style` attribute
+#### The `style` attribute
 
-#### Using the `Element.style` property
+#### The `Element.style` property
 
-#### Using CSS classes & stylesheets
+#### CSS classes & stylesheets
 
 
-## Determining width, height, and position of any element
+## Determining width and height of any element
 
+%% Discuss the box model
+%% Different ways to measure width and height: w/ and w/out border
+
+### Examining an element using jQuery
+
+
+### Options natively provided by the browser
+
+#### Client vs offset dimensions
+
+#### Modern browsers
+
+#### All browsers
+
+#### Scroll width & height
 
 
 ## Reading and updating scroll positions
 
+### jQuery
+
+### The web API
+
+%% scrollIntoView(), scroll() / scrollTo(), scrollTop / scrollLeft, scrollY / scrollX
+
+#### Absolute scrolling
+
+#### Relative scrolling
 
 
 [css1-style]: http://www.w3.org/TR/REC-CSS1/#containment-in-html
