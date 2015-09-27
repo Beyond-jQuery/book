@@ -11,6 +11,9 @@ You may continue to rely on jQuery, or get rid of it entirely in favor of a more
 
 ## There are three ways to style elements
 
+Before I dive into examples and details related to actually adjusting and reading back style information from elements in your document, it's important to get a few key concepts out of the way first. In this chapter, I'll show you three distinct routes you may take when working with element styles. The first covers managing styles in your markup - something that is not recommended by still possible. Another method involves making changes to standardized properties on `Element` objects - one approach you may elect to take if you intend to read or update styles on-demand. Finally, I'll go over using CSS inside of stylesheets as a third option.
+
+
 ### Inlining styles using markup
 
 %% ----TALKING ABOUT THE ATTR-----
