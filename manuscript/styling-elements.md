@@ -74,15 +74,12 @@ I strongly suggest avoiding the use of `style` attributes. There are other much 
 
 ## Changing and reading your element's styles
 
+%% Describe a simple styling exercise, implement it using jQuery, and then again using stylesheets and element.style calls where appropriate.
+
+
 ### The familiar jQuery approach
 
 ### Using the web API
-
-#### The `style` attribute
-
-#### The `Element.style` property
-
-#### CSS classes & stylesheets
 
 
 ## Determining width and height of any element
