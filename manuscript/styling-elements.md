@@ -54,6 +54,8 @@ Styling your document using the `style` attribute, also known as "inline styling
 
 In addition to cluttering up the document, defining styles directly on each element in your markup precludes you from easily re-skinning your page. Suppose a designer took a look at the above code and informed you that the "green" and "blue" color values are a bit too "generic"-looking, and should be substituted for slightly different colors. The designed supplies you with hex codes for the new colors, and this adjustment requires changing `style` attribute for _all_ `<h2>` and `<h3>` elements in your document. This is a common consequence of not following [the "Don't Repeat Yourself" principal][dry] of software development. Overuse of the `style` attribute can result in a maintenance nightmare.
 
+Defining styles in your document via the `style` attribute is _also_ a potential security risk. If you intend to implement a [Content Security Policy][csp-mdn], styling elements using attributes is strictly prohibited in the most basic (and safest) policy definition. A strong Content Security Policy, also known as a CSP, is becoming more commonplace now that all [modern browsers](#modern-browsers) (with the exception of IE9) include support for at least [the initial version of the specification][csp-w3c].
+
 Finally, peppering your page with `style` attributes - or `<style>` elements, which can contain various a set of CSS rules - can result in more overhead. If a single style needs to be changed, now the entire document has to be re-fetched by the browser the next time a user loads the page. If your styles were defined in a more specific location, outside of your markup, style changes could be introduced while still allowing a portion of your page to be fetched from the browser's cache, avoiding an unnecessary round-trip to the server.
 
 I strongly suggest avoiding the use of `style` attributes. There are other much more appropriate options. The initially visible benefits are shadowed by the hardships that will become apparent further down the road.
@@ -61,25 +63,41 @@ I strongly suggest avoiding the use of `style` attributes. There are other much 
 
 ### Working with styles directly on the `Element` object {#element.style}
 
-%% ------TALKING ABOUT THE PROPERTY-----
-%% A property on the object representation of an element was first introduced in the year 2000 as [part of DOM Level 2][dom2-style]. This `style` property was defined as the lone property of a new `ElementCSSInlineStyle` interface. For the most part, the `Element` interface implements `ElementCSSInlineStyle`, which allows elements to be styled programmatically using JavaScript. All CSS properties, such as `opacity` and `color` are accessible as properties on the associated [CSSStyleDeclaration][dom2-cssstyledeclaration] instance, where they can be read or updated.
-%% -----TODO: DISCUSS THE PROP MORE....------
+The `style` property on the object representation of an element was first introduced in the year 2000 as [part of DOM Level 2][dom2-style]. It was property was defined as the lone property of a new `ElementCSSInlineStyle` interface. The `Element` interface implements `ElementCSSInlineStyle`, which allows elements to be styled programmatically using JavaScript. All CSS properties, such as `opacity` and `color` are accessible as properties on the associated [CSSStyleDeclaration][dom2-cssstyledeclaration] instance, where they can be read or updated.
 
-%% While jQuery relies heavily on the `style` attribute...
+%% - Previous example rewritten to modify style via props
+%% - multiple styles easily using `style.cssText`
+
+%% - why might you use this approach
+%%  - library that does dynamic style adjustments
+%%  - very specific one-off style adjustments in your app
+%%  - programmatically override a style set via stylesheet
+
+%% - be careful about overuse
+%%  - these styles are difficult to override via stylesheet
+%%    - same problem as style attr though
+%%  - very difficult to track down style changes
+%%  - messy JS
+
+%% - jQuery relies heavily on the `style` property
 
 
 ### Stylesheets
 
+%% - insertRule/addRule methods too
+
+## Getting and setting generalized styles
+
+### Using jQuery
+
+### Without jQuery
 
 
-## Changing and reading your element's styles
+## Setting and determining element visibility
 
-%% Describe a simple styling exercise, implement it using jQuery, and then again using stylesheets and element.style calls where appropriate.
+### The idiomatic jQuery approach
 
-
-### The familiar jQuery approach
-
-### Using the web API
+### The native web approach
 
 
 ## Determining width and height of any element
@@ -113,6 +131,10 @@ I strongly suggest avoiding the use of `style` attributes. There are other much 
 
 #### Relative scrolling
 
+
+[csp-mdn]: https://developer.mozilla.org/en-US/docs/Web/Security/CSP/Introducing_Content_Security_Policy
+
+[csp-w3c]: http://www.w3.org/TR/2012/CR-CSP-20121115/
 
 [css1-style]: http://www.w3.org/TR/REC-CSS1/#containment-in-html
 
