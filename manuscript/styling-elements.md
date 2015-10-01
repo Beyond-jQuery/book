@@ -61,13 +61,13 @@ Finally, peppering your page with `style` attributes - or `<style>` elements, wh
 I strongly suggest avoiding the use of `style` attributes. There are other much more appropriate options. The initially visible benefits are shadowed by the hardships that will become apparent further down the road.
 
 
-### Working with styles directly on the `Element` object {#element.style}
+### Working with styles directly on the `Element` object {#element-style}
 
 The `style` property on the object representation of an element was first introduced in the year 2000 as [part of DOM Level 2][dom2-style]. It was defined as the lone property of a new `ElementCSSInlineStyle` interface. The `Element` interface implements `ElementCSSInlineStyle`, which allows elements to be styled programmatically using JavaScript. And all CSS properties, such as `opacity` and `color` are accessible as properties on the associated [CSSStyleDeclaration][dom2-cssstyledeclaration] instance, where they can be read or updated.
 
 In case all of this talk of style properties isn't clear, let's take another look at the code example from the previous [inline styles](#inline-styles) section. I'll rewrite it by taking advantage of the `style` property that is available on all `Element` objects.
 
-title="setting styles using the `style` property - all modern browsers + IE8", lang=html}
+{title="setting styles using the `style` property - all modern browsers + IE8", lang=html}
 ~~~~~~~
 <h1>Fake News</h1>
 <div>Welcome to fakenews.com. All of the news that's unfit to print.</div>
