@@ -14,7 +14,7 @@ You may continue to rely on jQuery, or get rid of it entirely in favor of a more
 Before I dive into examples and details related to actually adjusting and reading back style information from elements in your document, it's important to get a few key concepts out of the way first. In this chapter, I'll show you three distinct routes you may take when working with element styles. The first covers managing styles in your markup - something that is not recommended by still possible. Another method involves making changes to standardized properties on `Element` objects - one approach you may elect to take if you intend to read or update styles on-demand. Finally, I'll go over using CSS inside of stylesheets as a third option.
 
 
-### Inline styles
+### Inline styles {#inline-styles}
 
 A couple chapters back, I introduced you to [the `class` element attribute](#class-attributes). While this attribute is _often_ used for styling elements, it is also used for selecting and classifying them. In this section, I am going to introduce the `style` attribute, which is used _exclusively_ for adjusting the appearance of an element. This attribute is not new; it was first introduced in 1996 [as part of the first formal W3C CSS specification][css1-style].
 
@@ -63,23 +63,86 @@ I strongly suggest avoiding the use of `style` attributes. There are other much 
 
 ### Working with styles directly on the `Element` object {#element.style}
 
-The `style` property on the object representation of an element was first introduced in the year 2000 as [part of DOM Level 2][dom2-style]. It was property was defined as the lone property of a new `ElementCSSInlineStyle` interface. The `Element` interface implements `ElementCSSInlineStyle`, which allows elements to be styled programmatically using JavaScript. All CSS properties, such as `opacity` and `color` are accessible as properties on the associated [CSSStyleDeclaration][dom2-cssstyledeclaration] instance, where they can be read or updated.
+The `style` property on the object representation of an element was first introduced in the year 2000 as [part of DOM Level 2][dom2-style]. It was defined as the lone property of a new `ElementCSSInlineStyle` interface. The `Element` interface implements `ElementCSSInlineStyle`, which allows elements to be styled programmatically using JavaScript. And all CSS properties, such as `opacity` and `color` are accessible as properties on the associated [CSSStyleDeclaration][dom2-cssstyledeclaration] instance, where they can be read or updated.
 
-%% - Previous example rewritten to modify style via props
-%% - multiple styles easily using `style.cssText`
+In case all of this talk of style properties isn't clear, let's take another look at the code example from the previous [inline styles](#inline-styles) section. I'll rewrite it by taking advantage of the `style` property that is available on all `Element` objects.
 
-%% - why might you use this approach
-%%  - library that does dynamic style adjustments
-%%  - very specific one-off style adjustments in your app
-%%  - programmatically override a style set via stylesheet
+title="setting styles using the `style` property - all modern browsers + IE8", lang=html}
+~~~~~~~
+<h1>Fake News</h1>
+<div>Welcome to fakenews.com. All of the news that's unfit to print.</div>
 
-%% - be careful about overuse
-%%  - these styles are difficult to override via stylesheet
-%%    - same problem as style attr though
-%%  - very difficult to track down style changes
-%%  - messy JS
+<h2>World</h2>
 
-%% - jQuery relies heavily on the `style` property
+<h3>Valdimir Putin takes up knitting</h3>
+<div>The infamous leader of Russia appears to be mellowing with age as he reportedly joined a local knitting group in Moscow.</div>
+
+
+<h2>Science</h2>
+
+<h3>Sun goes on vacation, moon fills in</h3>
+<div>Fed up after over 4 billion years without a day off, the sun headed off to the Andromeda galaxy for a few weeks of rest and relaxation.</div>
+
+<script>
+var headings = document.querySelectorAll('h2, h3');
+
+for (var i = 0; i < headings.length; i++) {
+  if (headings[i].tagName === 'H2') {
+    headings[i].style.color = 'blue';
+  }
+  else {
+    headings[i].style.color = 'green';
+  }
+}
+</script>
+~~~~~~~
+
+This seems a bit clumsy, but it illustrates how we can programmatically update styles using the web API. The use of `querySelectorAll` restricts us to IE8 and up, but this really doesn't seem like much of a problem, due to the almost non-existent market share associated with IE7.
+
+In the [inline styles](#inline-styles) section, I built up the initial code fragment to illustrate how to define multiple styles on a single element. Let's see how we can do this with the `style` property.
+
+{title="setting multiple styles using the `style` property - all modern browsers + IE8", lang=html}
+~~~~~~~
+<h2 style="color: blue; font-weight: bold">World</h2>
+
+...
+
+<h2 style="color: blue; font-weight: bold">Science</h2>
+
+<script>
+var headings = document.querySelectorAll('h2');
+
+for (var i = 0; i < headings.length; i++) {
+  headings[i].style.color = 'blue';
+  headings[i].style.fontWeight = 'bold';
+}
+</script>
+~~~~~~~
+
+Notice that the `font-weight` style name has been converted to camel case, which is perfectly legal, but we can _still_ change this style using the dashed name, if we really want to: `headings[i].style['font-weight'] = 'bold'`.
+
+But we're not done just yet; there is _another_ way to set multiple styles on a single HTML element using the `style` property. The `CSSStyleDeclaration` interface defines a special property - `cssText`. This allows you to read _and_ write multiple styles to the associated element. The value string looks exactly like a collection of semicolon-separated CSS rules, as you can see below.
+
+{title="setting multiple styles using the `style.cssText` property - all modern browsers + IE8", lang=html}
+~~~~~~~
+<h2 style="color: blue; font-weight: bold">World</h2>
+
+...
+
+<h2 style="color: blue; font-weight: bold">Science</h2>
+
+<script>
+var headings = document.querySelectorAll('h2');
+
+for (var i = 0; i < headings.length; i++) {
+  headings[i].style.cssText = 'color: blue; font-weight: bold';
+}
+</script>
+~~~~~~~
+
+Why might you want to make use of the `style` property on an element (or elements)? Maybe you are writing a JavaScript library that need to make a few quick adjustments to some elements based on environmental or user input. It may be inconvenient to create and depend on a library-specific stylesheet for these styles as well. Also, styles set using this method will _usually_ override any other styles previously set on the element, which may be your intent.
+
+But be careful about overusing this power. Styles set in this manner are difficult to override via stylesheet rules. This _may_ be your intent, but it also may not. If it is not, and you _want_ to allow stylesheets to easily make adjustments to styles, you will likely want to avoid changing styles using the `style` property. Finally, using the `style` property can make it very difficult to track down style changes, and can clutter up your JavaScript. It seems unnatural for your code to be focused on setting specific element styles, unless this is a rare practice. As you'll see in the next section, this job is better suited for stylesheets.
 
 
 ### Stylesheets
@@ -89,6 +152,9 @@ The `style` property on the object representation of an element was first introd
 ## Getting and setting generalized styles
 
 ### Using jQuery
+
+%% - jQuery relies heavily on the `style` property
+
 
 ### Without jQuery
 
