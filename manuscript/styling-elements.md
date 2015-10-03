@@ -147,7 +147,96 @@ But be careful about overusing this power. Styles set in this manner are difficu
 
 ### Stylesheets
 
-%% - insertRule/addRule methods too
+JavaScript isn't the only way to attack styling challenges in the browser. It probably isn't even the _best_ way to deal change the appearance of your elements. The browser provides a dedicated mechanism for styling your document - stylesheets. Stylesheets, which you may use to define all CSS styles for your web document, may be defined in dedicated files, encapsulated in a specific HTML element, or even added to the document via JavaScript on-demand. I'll demonstrate each of these three methods for working with styles in this section.
+
+The `<style>` element, first defined in the [W3C CSS 1 specification][css1], allows us to group all of our styles for an entire document in one convenience location. Take a look at the previous code fragment, this time with style added courtesy of the `HTMLStyleElement`.
+
+{title="setting styles using the `<style>` element - all browsers", lang=html}
+~~~~~~~
+<style>
+h2 { color: blue; }
+h3 { color: green; }
+</style>
+
+<h1>Fake News</h1>
+<div>Welcome to fakenews.com. All of the news that's unfit to print.</div>
+
+<h2>World</h2>
+
+<h3>Valdimir Putin takes up knitting</h3>
+<div>The infamous leader of Russia appears to be mellowing with age as he reportedly joined a local knitting group in Moscow.</div>
+
+
+<h2>Science</h2>
+
+<h3>Sun goes on vacation, moon fills in</h3>
+<div>Fed up after over 4 billion years without a day off, the sun headed off to the Andromeda galaxy for a few weeks of rest and relaxation.</div>
+~~~~~~~
+
+As you can see, all of the JavaScript code used to style these elements in [the previous section](#element-style) is completely replaced by two lines of CSS. Not only is this a more efficient solution, but it's also much more elegant and straightforward. And if we want to add additional styles, we can easily do so by including them among the existing styles, semicolon-separated.
+
+{title="setting multiple styles using the `<style>` element - all browsers", lang=html}
+~~~~~~~
+<style>
+h2 {
+  color: blue;
+  font-weight: bold;
+}
+h3 {
+  color: green;
+  font-weight: bold;
+}
+</style>
+...
+~~~~~~~
+
+The above styles could even be improved a bit, using the power of the multiple selector, which [you learned about earlier](#multiple-selectors).
+
+{title="setting styles using the `<style>` element w/ the multiple selector - modern browsers + IE8", lang=html}
+~~~~~~~
+<style>
+h2, h3 { font-weight: bold; }
+h2 { color: blue; }
+h3 { color: green; }
+</style>
+...
+~~~~~~~
+
+Jamming your styles into a `<style>` element may be fine for a small set of rules, but this is probably not ideal for a non-trivial document. Perhaps you even want styles to be shared across documents/pages. Duplicating these styles in each HTML document doesn't seem like a reasonable approach. Luckily, there is a better way - stylesheets.
+
+
+{title="styles.css - external stylesheet - all browsers", lang=html}
+~~~~~~~
+h2 { color: blue; }
+h3 { color: green; }
+~~~~~~~
+
+{title="index.html - setting styles using an external CSS stylesheet file - all browsers", lang=html}
+~~~~~~~
+<link href="styles.css" rel="stylesheet">
+
+<h1>Fake News</h1>
+<div>Welcome to fakenews.com. All of the news that's unfit to print.</div>
+
+<h2>World</h2>
+...
+~~~~~~~
+
+We've defined two files above: styles.css and index.html. The first houses our stylesheet, the second our markup. In our index file, we can pull in all of these styles simply by referencing the styles.css file via the `<link>` element, which [can be seen as early as the HTML 2.0 specification][html2-link]. This may not be new knowledge for many of you, but it's easy to lose sight of the entire picture when you are so used to a tool, such as jQuery, that bills itself as a solution to all of your browser problems.
+
+It is rarely appropriate to rely exclusively on JavaScript in any form (including through jQuery's API) to style your markup. Cascading Style Sheets exist for this purpose. But that does not mean that there is _never_ an occasion where it is appropriate to dynamically change styles directly through JavaScript. Perhaps you have constructed a web application that allows your users to create their own web custom landing page. Your user desires to to display all secondary headings in italics. To easily do this, you can programmatically add a CSS rule to the document using the `insertRule` method on the `CSSStyleSheet` interface.
+
+{title="adding a style to the document - modern browsers", lang=javascript}
+~~~~~~~
+stylesheet.insertRule(
+  'h2 { font-weight: italic; }', stylesheet.cssRules.length - 1
+);
+~~~~~~~
+
+The above example will create a new style that will display all `<h2>` elements in italics. The rule will be appended to the end of a stylesheet. The `stylesheet` variable can refer to a `<style>` element we've created on-demand for these sorts of dynamic styles, or even an existing stylesheet imported using a `<link>` tag. If you need to support Internet Explorer 8, you'll have to use `addRule` instead, if it is defined in the browser's implementation of the DOM API.
+
+Using stylesheets or `<style>` elements is almost always the preferred approach over a JavaScript-only solution. Even so, it is often acceptable to take a holistic approach, incorporating JavaScript, HTML, and stylesheets into your solution as the situation dictates. Now that you have a more complete understanding of the possibilities, you are in a better position to make these kinds of decisions correctly in your own projects. The rest of this chapter is dedicated to more specific styling situations. As is customary in Beyond jQuery, I'll use the familiar jQuery approach as a reference, followed by copious web API examples.
+
 
 ## Getting and setting generalized styles
 
@@ -202,6 +291,8 @@ But be careful about overusing this power. Styles set in this manner are difficu
 
 [csp-w3c]: http://www.w3.org/TR/2012/CR-CSP-20121115/
 
+[css1]: http://www.w3.org/TR/REC-CSS1/
+
 [css1-style]: http://www.w3.org/TR/REC-CSS1/#containment-in-html
 
 [css2]: http://www.w3.org/TR/CSS2/
@@ -211,3 +302,5 @@ But be careful about overusing this power. Styles set in this manner are difficu
 [dom2-style]: http://www.w3.org/TR/DOM-Level-2-Style/css.html#CSS-ElementCSSInlineStyle
 
 [dry]: http://www.artima.com/intv/dry.html
+
+[html2-link]: http://www.w3.org/MarkUp/html-spec/html-spec_toc.html#SEC5.2.4
