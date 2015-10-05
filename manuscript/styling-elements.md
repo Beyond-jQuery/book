@@ -9,7 +9,7 @@ You may continue to rely on jQuery, or get rid of it entirely in favor of a more
 "Beyond jQuery" aims to provide you with a better understanding of the options provided natively by your browser, with each chapter building on your newfound knowledge. In this chapter, you'll learn some new things about working with element styles both with and without JavaScript. You'll learn enough from this chapter to understand when to target elements using CSS rules in stylesheets instead of resorting to JavaScript 100% of the time. Your strong knowledge of [selectors](#finding-elements) and [attributes](#element-attributes), courtesy of the last few chapters, will make this much easier.
 
 
-## There are three ways to style elements
+## There are three ways to style elements {#three-ways-to-style}
 
 Before I dive into examples and details related to actually adjusting and reading back style information from elements in your document, it's important to get a few key concepts out of the way first. In this chapter, I'll show you three distinct routes you may take when working with element styles. The first covers managing styles in your markup - something that is not recommended by still possible. Another method involves making changes to standardized properties on `Element` objects - one approach you may elect to take if you intend to read or update styles on-demand. Finally, I'll go over using CSS inside of stylesheets as a third option.
 
@@ -240,12 +240,56 @@ Using stylesheets or `<style>` elements is almost always the preferred approach 
 
 ## Getting and setting generalized styles
 
+After describing (and demonstrating) several distinct ways to add style to your HTML elements, it's time to examine working with CSS a bit closer. If you are familiar with jQuery (and if you are reading this book, you probably are) then you already know that there is typically one narrow path to adjusting document look and feel when using jQuery. I'll provide a demonstration, for the purposes of reference. But the native route encouraged by the native browser stack is much richer. In this section, you'll see how to _properly_ get styles, and set them dynamically without any assistance from jQuery.
+
+To setup the jQuery and non-jQuery demonstrations below, let's start with a simple HTML fragment:
+
+{title="markup for generalized style demos", lang=html}
+~~~~~~~
+<button>cookies</button>
+<button>ice cream</button>
+<button>candy</button>
+~~~~~~~
+
+Suppose you would like to style any of the buttons a bit differently after they are clicked (or selected via the keyboard). These buttons should be styled in some way to indicate that they have been selected. I haven't covered event handlers yet (though I will [in a later chapter](#browser-events)) so just assume you a function already exists with the associated button element passed in as a parameter whenever the button is selected. Your job is to fill in the implementation of this function by changing the background and border color of the selected button to blue, and the button text to white.
+
+To demonstrate reading styles (and further demonstrate setting them), consider an element that has already been styled as a box. Whenever this box is clicked, it becomes slightly more opaque, until it disappears entirely. Again, assume you are passed a function whenever the box is clicked. Your job is to make the box 10% more opaque whenever this function is called.
+
+
 ### Using jQuery
 
-%% - jQuery relies heavily on the `style` property
+jQuery, being a very popular JavaScript library relied upon by far too many developers, has a duty (in my humble opinion) to teach these developers the proper way to adjust element styles. Unfortunately, it fails to do so. Even the [jQuery Learning Center article on styling][jquery-learning-styling] only briefly touches on how to properly style elements, without any real demonstration of this technique at all. The reason for this is simple - idiomatic jQuery is often at odds with best practices. This fact was one of several inspirations for "Beyond jQuery". But, I digress. Let's see how most jQuery-centric developers would solve the problem described above.
+
+{title="adjusting selected button style - jQuery", lang=javascript}
+~~~~~~~
+function($selectedButton) {
+  $selectedButton.css('color', 'white')
+    .css('background-color', 'blue')
+    .css('border-color', 'blue');
+}
+~~~~~~~
+
+When writing styles to elements, the `css` method acts as a wrapper around the `style` property on the `HTMLElement` interface. This is elegant no doubt, but is it really the proper approach? The answer, of course, is no. I covered this in [the previous section](#three-ways-to-style). Granted, the above is not the _only_ solution to this problem using jQuery, but it is the most common one among jQuery developers.
+
+Now, let's examine how one would typically solve the second problem using jQuery:
+
+{title="10% increase in opacity per click of box - jQuery", lang=javascript}
+~~~~~~~
+function($clickedBox) {
+  var currentOpacity = $clickedBox.css('opacity');
+
+  if (opacity > 0) {
+    $clickedBox.css('opacity', currentOpacity - .1);    
+  }
+}
+~~~~~~~
+
+Unfortunately, jQuery's `css` API method is horribly inefficient. Each call to this method to lookup a style requires jQuery to utilize the `getComputedStyle` method on the `window` object, which is completely unnecessary in this case and adds a notable amount of processing overhead to these calls.
 
 
 ### Without jQuery
+
+%% - stylesheet + JS (setting class or attr)
 
 
 ## Setting and determining element visibility
@@ -304,3 +348,5 @@ Using stylesheets or `<style>` elements is almost always the preferred approach 
 [dry]: http://www.artima.com/intv/dry.html
 
 [html2-link]: http://www.w3.org/MarkUp/html-spec/html-spec_toc.html#SEC5.2.4
+
+[jquery-learning-styling]: https://learn.jquery.com/using-jquery-core/css-styling-dimensions/
