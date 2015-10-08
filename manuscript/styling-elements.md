@@ -205,7 +205,7 @@ h3 { color: green; }
 Jamming your styles into a `<style>` element may be fine for a small set of rules, but this is probably not ideal for a non-trivial document. Perhaps you even want styles to be shared across documents/pages. Duplicating these styles in each HTML document doesn't seem like a reasonable approach. Luckily, there is a better way - stylesheets.
 
 
-{title="styles.css - external stylesheet - all browsers", lang=html}
+{title="styles.css - external stylesheet - all browsers", lang=css}
 ~~~~~~~
 h2 { color: blue; }
 h3 { color: green; }
@@ -262,7 +262,7 @@ jQuery, being a very popular JavaScript library relied upon by far too many deve
 
 {title="adjusting selected button style - jQuery", lang=javascript}
 ~~~~~~~
-function($selectedButton) {
+function onSelected($selectedButton) {
   $selectedButton.css('color', 'white')
     .css('background-color', 'blue')
     .css('border-color', 'blue');
@@ -275,21 +275,70 @@ Now, let's examine how one would typically solve the second problem using jQuery
 
 {title="10% increase in opacity per click of box - jQuery", lang=javascript}
 ~~~~~~~
-function($clickedBox) {
+function onClicked($clickedBox) {
   var currentOpacity = $clickedBox.css('opacity');
 
-  if (opacity > 0) {
+  if (currentOpacity > 0) {
     $clickedBox.css('opacity', currentOpacity - .1);    
   }
 }
 ~~~~~~~
 
-Unfortunately, jQuery's `css` API method is horribly inefficient. Each call to this method to lookup a style requires jQuery to utilize the `getComputedStyle` method on the `window` object, which is completely unnecessary in this case and adds a notable amount of processing overhead to these calls.
+Unfortunately, jQuery's `css` API method is horribly inefficient. Each call to this method to lookup a style requires jQuery to utilize the `getComputedStyle` method on the `window` object, which is completely unnecessary after the first call and adds a notable amount of processing overhead to this solution.
 
 
 ### Without jQuery
 
-%% - stylesheet + JS (setting class or attr)
+The proper way to solve the first problem is to include the CSS rules in an external stylesheet, and trigger these rules using minimal JavaScript. Remember, we are looking to style a button, when it is selected/pressed, to stand out. We can expect a function to be called, with the element passed as a parameter, when the button is pressed.
+
+Let's start by defining our styles for the pressed button in a stylesheet:
+
+{title="styles.css - pressed button styles - all browsers", lang=css}
+~~~~~~~
+button.selected {
+  color: white;
+  background-color: blue;
+  border-color: blue;
+}
+~~~~~~~
+
+When the button is pressed, all we need to do is add a CSS class to the element to trigger the styles defined in the styles.css file. Now, we need to implement the function that adds the "selected" class to this button in order to trigger the style rules defined in the stylesheet.
+
+{title="button-handler.js - add class to pressed button - all browsers", lang=javascript}
+~~~~~~~~
+function onSelected(selectedButton) {
+  selectedButton.className += ' selected';
+}
+~~~~~~~~
+
+What follows is a line to import the CSS file, our button element, _and_ the function that, when called, triggers the style rules on the button.
+
+{title="index.html - define the button, pull in styles and JS - all browsers", lang=html}
+~~~~~~~
+<link rel="stylesheet" href="styles.css">
+<script src="button-handler.js"></script>
+<button>demo button</button>
+~~~~~~~
+
+This approach has a few advantages. First, it demonstrates a separation of concerns. In other words, styling belongs in stylesheets, JavaScript in JavaScript files, and HTML in HTML files. This separation makes maintenance simpler and potentially less risky. It also ensures that if, for example, the styles are adjusted, the HTML and JavaScript files continue to be cached by the browser. If all of this logic was jammed into a single HTML file, the entire file would have to be re-downloaded by the browser, regardless of the scope of the change.
+
+Another advantage of tying these styles to a CSS class and defining this in an external stylesheet means that these can be easily re-used for other purposes elsewhere in this document, or any other document. The idiomatic jQuery approach leaves us copying and pasting the same styles over and over again, since we are defining them inline.
+
+And the second scenario? Remember, we want to increase the opacity of a box by 10% each time it is clicked. Again, we are given a function that will be called with the box element whenever it is clicked.
+
+{title="10% increase in opacity per click of box - modern browsers", lang=javascript}
+~~~~~~~
+function onClicked(clickedBox) {
+  var currentOpacity = clickedBox.style.opacity ||    
+    getComputedStyle(clickedBox, null).getPropertyValue('opacity');
+
+  if (currentOpacity > 0) {
+    clickedBox.style.opacity = currentOpacity - 0.1;    
+  }
+}
+~~~~~~~
+
+Our optimized non-jQuery approach is a _little_ more code, but it is [_much_ faster than the idiomatic jQuery solution][jsperf-css]. Here, we are only utilizing the expensive call to [`getComputedStyle`][getcomputedstyle-w3c] when there is no style defined on the element's `style` property. `getComputedStyle` is determines an element's actual style by examining not only the element's `style` property, but also by looking at the document's stylesheets. As a result, this operation can be very intensive, so we avoid it unless absolutely necessary.
 
 
 ## Setting and determining element visibility
@@ -347,6 +396,10 @@ Unfortunately, jQuery's `css` API method is horribly inefficient. Each call to t
 
 [dry]: http://www.artima.com/intv/dry.html
 
+[getcomputedstyle-w3c]: http://www.w3.org/TR/DOM-Level-2-Style/css.html#CSS-CSSview-getComputedStyle
+
 [html2-link]: http://www.w3.org/MarkUp/html-spec/html-spec_toc.html#SEC5.2.4
 
 [jquery-learning-styling]: https://learn.jquery.com/using-jquery-core/css-styling-dimensions/
+
+[jsperf-css]: http://jsperf.com/jquery-css-vs-optimized-non-jquery-approach3
