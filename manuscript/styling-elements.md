@@ -343,9 +343,41 @@ Our optimized non-jQuery approach is a _little_ more code, but it is [_much_ fas
 
 ## Setting and determining element visibility
 
-### The idiomatic jQuery approach
+%% common problem in web development
+
+%% two ways to do this: the way you've always done it ($), and the correct way
+
+%% you'll see how the $ way is shockingly inefficient. this illustrates why blind faith is dangerous
+
+
+### The typical jQuery approach
+
+%% hide()
+
+%% show()
+
+%% is(':visible') or is(':hidden')
+
 
 ### The native web approach
+
+%% display: none (inline)
+%% visibility: hidden (may not be appropriate in many cases)
+%% some custom class that points to display:none
+%% [hidden]
+%% [aria-hidden] {display: none}, setAttribute('aria-hidden')
+
+
+%% display: '' (inline), or previous display value
+%% visibility: visible
+%% remove [hidden] or [aria-hidden] attributes, or custom hidden class
+
+%% is display: none?
+%% is visibility: hidden?
+%% does [hidden] or related hidden attr or class exist?
+
+The correct approach involves sane and reasonably methods for hiding elements. [hidden] gives us a chance to do this even more, since it is part of a spec
+
 
 
 ## Determining width and height of any element
