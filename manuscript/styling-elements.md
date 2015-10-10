@@ -343,20 +343,38 @@ Our optimized non-jQuery approach is a _little_ more code, but it is [_much_ fas
 
 ## Setting and determining element visibility
 
-%% common problem in web development
-
-%% two ways to do this: the way you've always done it ($), and the correct way
-
-%% you'll see how the $ way is shockingly inefficient. this illustrates why blind faith is dangerous
+Showing and hiding elements is a common problem in web development. These tasks may not be straightforward, but it's often even more complicated to determine, programmatically, if an element is visible or not. Traditionally, element visibility is a confounding problem for developers to deal with. It doesn't _have_ to be this way. There are two ways to do handle element visibility - the way you've always done it (using jQuery), and the correct way (without jQuery). You'll see how shockingly inefficient jQuery is in this context, and how this illustrates why blind faith in this type of software library is dangerous.
 
 
 ### The typical jQuery approach
 
-%% hide()
+The upside of using jQuery to show, hide, and determine the visibility of an element, is simplicity. As you'll find out soon, this is, by far, the _only_ upside. But for now, let's focus on this simplicity.
 
-%% show()
+Hiding an showing elements with jQuery is almost always accomplished using the `show` and `hide` API methods, respectively. There's no real need to a fragment of HTML to demonstrate these methods, so let's just dive into a couple examples.
 
-%% is(':visible') or is(':hidden')
+{title="showing and hiding elements - jQuery", lang=javascript}
+~~~~~~~
+// hide an element
+$element.hide();
+
+// show it again
+$element.show();
+~~~~~~~
+
+None of the above code demands further description or elaboration. But what _does_ need further examination is the underlying code that actually carries out these operations. Unfortunately, both of these methods make use of `window.getComputedStyle`, a method I discussed in the last section. In some cases, particularly with `hide`, `getComputedStyle` may be called multiple times. This has serious performance consequences. Why all is all of this processing power needed simply to hide or show a single DOM element? For the most part, all of the clever and generally unnecessary code underneath these two commonly used API methods is in place solely to handle styling edge cases where it is otherwise difficult to show or hide a targeted element. As I said before, element visibility doesn't _have_ to be a complex problem. We can avoid all of the CPU cycles required by jQuery to hide and show elements simply by adopting a more simplistic approach. More on that in the upcoming "native web approach" section.
+
+What if we need to figure out if a specific element is hidden, or not? Well, jQuery makes this really easy too!
+
+{title="determining element visibility - jQuery", lang=javascript}
+~~~~~~~
+// is the element visible?
+$element.is(':visible');
+
+// conversely, is the element hidden?
+$element.is(':hidden');
+~~~~~~~
+
+jQuery has decided to invent a new pseudo-class to represent element visibility. How nice. Even the creator of jQuery, John Resig, went on at length about [the amazingness of this new innovative jQuery concoction][resig-selectors]. But just like `show`, `hide`, and the `css` API methods, these two non-standard pseudo-classes are horrifically slow. Again, they delegate to `window.getComputedStyle`, again, sometimes multiple times per invocation. In the next section, I'll outline several non-jQuery methods of showing and hiding elements, as well as determining the visibility of an element. The performance differences between the native and the jQuery methods will be included as well, and the differences will be notable, to say the least.
 
 
 ### The native web approach
@@ -377,8 +395,6 @@ Our optimized non-jQuery approach is a _little_ more code, but it is [_much_ fas
 %% does [hidden] or related hidden attr or class exist?
 
 The correct approach involves sane and reasonably methods for hiding elements. [hidden] gives us a chance to do this even more, since it is part of a spec
-
-
 
 ## Determining width and height of any element
 
@@ -435,3 +451,5 @@ The correct approach involves sane and reasonably methods for hiding elements. [
 [jquery-learning-styling]: https://learn.jquery.com/using-jquery-core/css-styling-dimensions/
 
 [jsperf-css]: http://jsperf.com/jquery-css-vs-optimized-non-jquery-approach3
+
+[resig-selectors]: http://ejohn.org/blog/selectors-that-people-actually-use/
