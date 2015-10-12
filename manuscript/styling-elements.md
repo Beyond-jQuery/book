@@ -381,16 +381,13 @@ jQuery has decided to invent a new pseudo-class to represent element visibility.
 
 The simplicity of hiding, showing, and evaluating the visibility of an element in jQuery is compelling. Though there are serious performance consequences that come with this simplicity. This is the part where you may expect me to say something like "it's a bit more difficult to do all of this without jQuery", or "there's an easy way to solve this problem without jQuery, but it requires use of bleeding edge browsers". In reality, it is _very_ easy to show, hide, and determine element visibility in any browser, without jQuery. jQuery developers may want you to believe that these are complex problems to solve, and you _need_ jQuery to solve them, but none of this is true. In this section, I'll demonstrate some simple conventions that will result in simple solutions.
 
-
-#### Hiding an element
-
 There are _many_ ways to hide an element. Some of the more unconventional methods include setting the element's `opacity` to 0, or setting the `position` to "absolute" and positioning it outside the visible page. These and other similar approaches may be effective, but they are generally considered to be "kludgey". As a result, it is generally discouraged to use these methods when attempting to hide an element. Please don't do this; there are better ways.
 
 A more reasonable approach involves setting the element's `display` style property to "none". As you have already learned, there are a number of different ways to adjust an element's style. But you have also learned that the best approach is to define this style in an external stylesheet. So, perhaps the best solution would be to define a custom CSS class or attribute in your stylesheet, include a `display: none` style for these selector, and then add the associated class or attribute to this element when it needs to be hidden.
 
-So, which should we choose - an attribute or a CSS class? Does it really matter? The W3C HTML5 specification defines a [`hidden`](#hidden-html5) [boolean attribute](#boolean-attributes), which, as you might expect, allows you to hide an element simply by adding this attribute to the element. Not only does this standardized attribute allow you to easily hide an element, it also enhances the semantics of your markup and [provides a useful cue to _all_ screen readers][hidden-accessiblity]. Yes, it even makes your elements more accessible.
+So, which should we choose - an attribute or a CSS class? Does it really matter? The W3C HTML5 specification defines a [`hidden`](#hidden-html5) [boolean attribute](#boolean-attributes), which, as you might expect, allows you to hide an element simply by adding this attribute to the element. Not only does this standardized attribute allow you to easily hide an element, it also enhances the semantics of your markup and [provides a useful cue to _all_ screen readers][hidden-accessiblity]. Yes, it even makes your elements more accessible. And since `hidden` is part of a formal specification, it isn't just a convention, it's represents _the_ correct way to deal with element visibility.
 
-At this point, you are probably checking to see which browsers support this attribute. Let me save you the trouble - not all of them. In fact, the `hidden` attribute wasn't first supported by Microsoft until Internet Explorer 11. Luckily, the polyfill for the standaridzed `hidden` attribute is _unbelievably simple and elegant_ - simply add the following style to your global stylesheet:
+At this point, you are probably checking to see which browsers support this attribute. Let me save you the trouble - not all of them. In fact, the `hidden` attribute wasn't first supported by Microsoft until Internet Explorer 11. Luckily, the polyfill for the standardized `hidden` attribute is _unbelievably simple and elegant_ - simply add the following style to your global stylesheet:
 
 {title="polyfill for standardized `hidden` attribute - all browsers", lang=css}
 ~~~~~~~
@@ -408,16 +405,22 @@ element.setAttribute('hidden', '');
 
 Hiding elements couldn't possibly be simpler, more elegant, or more performant. This approach is incredibly faster than jQuery's `hide()` API method. In fact, [jQuery's `hide()` method is more than 25 times slower][jquery-hide-jsperf]! There is _no_ reason to continue using jQuery to hide elements.
 
+Since the simplest and most performant method of hiding an element involves adding an attribute, you may not be surprised to learn that you can show the same element simply by _removing_ that same attribute.
 
-#### Showing a hidden element
-%% display: '' (inline), or previous display value
-%% visibility: visible
-%% remove [hidden] or [aria-hidden] attributes, or custom hidden class
+{title="showing an element that was previously hidden w/ the `hidden` attribute - all browsers", lang=javascript}
+~~~~~~~
+element.removeAttribute('hidden');
+~~~~~~~
 
-#### Determining element visibility
-%% is display: none?
-%% is visibility: hidden?
-%% does [hidden] or related hidden attr or class exist?
+Since we're following this convention - add an attribute to hide and element and remove it to show the element again - determining the visibility of the element is simple. All we need to do is check the element for the existence of this attribute, which is a trivial operation in all notable browsers.
+
+{title="determining if an element is hidden - all modern browsers + IE8", lang=javascript}
+~~~~~~~
+// the element is hidden if this returns true
+element.hasAttribute('hidden');
+~~~~~~~
+
+Yes, it's really that easy.
 
 
 ## Determining width and height of any element
