@@ -425,10 +425,20 @@ Yes, it's really that easy.
 
 ## Determining width and height of any element
 
-%% Discuss the box model
-%% Different ways to measure width and height: w/ and w/out border
+Before I review how jQuery allows you to check the width and height of an element, _and_ how you can easily do this _without_ using a DOM abstraction, you'll need to understand some basic concepts. The most critical specification required to intelligently calculate the width and height of any element is [the box model][boxmodel-w3c].
+
+Every element is a box. One more time: _every element is a box_. This is simple, yet very surprising for many web developers to hear. Once you get over the initial shock of this realization, the next step is to understand how an element's box is divided up. This is called the box model. Let's start by looking at a drawing of the box model from the World Wide Web Consortium's CSS 2.1 specification:
+
+![A diagram of the box model. Copyright 2015 W3C. License available at http://www.w3.org/Consortium/Legal/2015/copyright-software-and-document](images/boxdim.png)
+
+As you can see, an element, which again is a _box_, is made up of four "layers" - content, padding, border, and margin. Simply put, an element's content, padding, and border are used to determine its height and width. Margins are not considered to be part of an element's "dimensions" - they simply push other elements away instead of influencing the element's height and width. How you measure width and height largely depends on which of the first three layers you care about. Generally speaking, an element's dimensions can take into account a subset of these three layers - content and padding - or all three layers. jQuery takes a different approach and only considers the content dimensions. More on that next.
 
 ### Examining an element using jQuery
+
+%% width()/height()
+%% content only
+%% other stuff? outerWidth()/outerHeight() and innerWidth()/innerHeight()
+%% horrific performance https://jsperf.com/offsetwidth-vs-jquery-width
 
 
 ### Options natively provided by the browser
@@ -454,6 +464,8 @@ Yes, it's really that easy.
 
 #### Relative scrolling
 
+
+[box-model-w3c]: http://www.w3.org/TR/CSS21/box.html
 
 [csp-mdn]: https://developer.mozilla.org/en-US/docs/Web/Security/CSP/Introducing_Content_Security_Policy
 
