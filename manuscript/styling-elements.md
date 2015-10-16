@@ -429,27 +429,45 @@ Before I review how jQuery allows you to check the width and height of an elemen
 
 Every element is a box. One more time: _every element is a box_. This is simple, yet very surprising for many web developers to hear. Once you get over the initial shock of this realization, the next step is to understand how an element's box is divided up. This is called the box model. Let's start by looking at a drawing of the box model from the World Wide Web Consortium's CSS 2.1 specification:
 
+{#box-model}
 ![A diagram of the box model. Copyright 2015 W3C. License available at http://www.w3.org/Consortium/Legal/2015/copyright-software-and-document](images/boxdim.png)
 
 As you can see, an element, which again is a _box_, is made up of four "layers" - content, padding, border, and margin. Simply put, an element's content, padding, and border are used to determine its height and width. Margins are not considered to be part of an element's "dimensions" - they simply push other elements away instead of influencing the element's height and width. How you measure width and height largely depends on which of the first three layers you care about. Generally speaking, an element's dimensions can take into account a subset of these three layers - content and padding - or all three layers. jQuery takes a different approach and only considers the content dimensions. More on that next.
 
 ### Examining an element using jQuery
 
-%% width()/height()
-%% content only
-%% other stuff? outerWidth()/outerHeight() and innerWidth()/innerHeight()
-%% horrific performance https://jsperf.com/offsetwidth-vs-jquery-width
+Just as with the web API - which I will describe in the following section - there are _many_ ways to discover the dimensions of an element using jQuery's API. You may already be aware of some, or even all of these methods. What you may _not_ be aware of is the horrific performance associated with _all_ of jQuery's built-in element dimension methods - most developers are not. And why should you? The methods are so simple and elegant, the possibility that you are paying a substantial penalty in terms of performance is not often a concern. You probably trust that this critical library is not degrading the efficiency of your application in any noticeable way, but you would be _wrong_.
+
+The most visible API methods are `width()` and `height()`. Remember the [box model diagram](#box-model)? These two jQuery methods only measure the "content" portion of an element's box. This _sounds_ like a reasonable behavior, but it is arguably bizarre, since content only represents a portion of an element's actual width and height. Remember that margin is the only element of the box model that does not directly affect the width and height of an element. Also remember that jQuery isn't magic - it must delegate to the web API for _all_ of it's API methods. And the web API does not provide a simple way to determine the dimensions of an element's content. So, jQuery must perform some unpleasant operations in order to determine these values, sacrificing performance as a result. When I demonstrate how to calculate the width and height of an element using the web API in the next section, I'll show you just how relatively inefficient jQuery's `width()` and `height()` are.
+
+So we already know that `width()` and `height()` only report the dimensions of an element's content. What if you want to include the padding and border segments of the box as well? jQuery has `outerWidth()` and `outerHeight()` methods that include content, padding, _and_ border when reporting the width/height. To include only content and padding, `innerWidth()` and `innerHeight()` methods are provided as well. While all of these API methods have close matches in the web API, jQuery's implementation is substantially slower, as you will see in the next section.
 
 
 ### Options natively provided by the browser
 
-#### Client vs offset dimensions
+While jQuery's `width` and `height` are popular methods, there is no similar pair of methods or properties to be found in any web specification. The appeal of these methods is likely tied to their suggestive names. After demonstrating some of the standard properties offered by the web API to check element dimensions, I'll show you how you can replicate jQuery's `width()` and `height()` methods without the huge performance penalty.
 
-#### Modern browsers
+To better illustrate the code in this section, I'll start open with a simple element that takes up space in all four segments of [the box model](#box-model):
 
-#### All browsers
+{title="element for us to use when discussing web API width/height", lang=html}
+~~~~~~~
+<style>
+  .box {
+    padding: 10px;
+    margin: 5px;
+    border: 3px solid;
+  }
+</style>
+<span class="box">a box</span>
+~~~~~~~
 
-#### Scroll width & height
+In order to obtain the width or height of the above box, only considering the content and padding values, we can use
+
+%% clientWidth/height
+%% offsetWidth/height
+%% getComputedStyle + clientWidth/height for jQuery width/height
+%% getBoundingClientRect for fractional w/h
+%% horrific performance of jQuery https://jsperf.com/offsetwidth-vs-jquery-width
 
 
 ## Reading and updating scroll positions
