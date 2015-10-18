@@ -506,7 +506,7 @@ Again, the return values above may vary _slightly_ between browsers due to the w
 
 #### Width & height of content only
 
-%% getComputedStyle + clientWidth/height for jQuery width/height
+%% getComputedStyle for jQuery width/height
 %% getBoundingClientRect for fractional w/h
 
 
