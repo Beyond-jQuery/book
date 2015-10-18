@@ -456,17 +456,61 @@ To better illustrate the code in this section, I'll start open with a simple ele
     padding: 10px;
     margin: 5px;
     border: 3px solid;
+    display: inline-block;
   }
 </style>
 <span class="box">a box</span>
 ~~~~~~~
 
-In order to obtain the width or height of the above box, only considering the content and padding values, we can use
 
-%% clientWidth/height
-%% offsetWidth/height
+#### Width & height of content + padding
+
+In order to obtain the width or height of the above box, only considering the content and padding values, we can use the [`clientWidth`][cssom-clientwidth] and [`clientHeight`][cssom-clientheight] properties found on the `Element` interface.
+
+These properties were first defined in the [Cascading Style Sheet Object Model (CSSOM) View specification][cssom], drafted by the W3C. As of 2015, the CSSOM spec is not yet a recommended standard, in fact it is only a working draft. But these two `Element` properties, along with many of the other items represented in this specification, have been supported by browsers for a very long time. For example, the `Element.clientWidth` and `Element.clientHeight` properties are supported all the way back to Internet Explorer 6, yet they are only currently defined in this working draft spec. This seems a bit strange, doesn't it? Indeed it is, but the CSSOM spec is a special one. It exists mostly to codify and formally standardize longstanding CSS-related browser behaviors. `Element.clientWidth` and `Element.clientHeight` are two such examples, but you will see others in this section as well.
+
+So what do `clientWidth` and `clientHeight` return on the `<span>` in our markup above?
+
+{title="find width/height of content + padding - web API - modern browsers + IE8", lang=javascript}
+~~~~~~~
+// returns 38
+document.querySelector('.box').clientHeight;
+
+// returns 55
+document.querySelector('.box').clientWidth;
+~~~~~~~
+
+Note that the above return values may vary slightly between browsers, as default fonts and styling varies slightly between browsers, which will ultimately lead to a slight variance in size of the element's content. This is to be expected.
+
+There is something else at play here that you may not be aware of. Notice the `display: inline-block` style attached to our `<span>` element? Remove it and check the return values of `clientWidth` and `clientHeight` again. Without this style, both of these properties report a value of `0`. By default, all browsers render `<span>` elements as `display: inline`, and inline elements will _always_ report `0` as their `clientWidth` & `clientHeight`. Keep this in mind when using these properties. Note that floating a default inline element will _also_ allow you to calculate width and height this way.
+
+For comparison, jQuery's `width()` and `height()` methods return `35` and `18`, respectively. Remember that these methods _only_ consider the element's content, ignoring padding, border, and margin.
+
+
+#### Width & height of content + padding + border
+
+And what if you need to include the border when reporting the width and height of an element? That is: content, padding, and border. Simple, use [`HTMLElement.offsetWidth`][cssom-offsetwidth] and [`HTMLElement.offsetHeight`][cssom-offsetheight]. These properties have also long been implemented by browsers, but only first brought into a formal specification in the CSSOM View standard.
+
+~~~~~~~
+// returns 44
+document.querySelector('.box').offsetHeight;
+
+// returns 61
+document.querySelector('.box').offsetWidth;
+~~~~~~~
+
+As expected, these values are a bit larger than what `clientHeight` and `clientWidth` report since we are also taking border into account. In fact, each value is exactly 6 pixels larger. This is expected due to a border of 3 pixels on each side, defined in our `<style>` element.
+
+Again, the return values above may vary _slightly_ between browsers due to the way browsers style element content. Also, the `display: inline-block` is not needed for `offsetHeight` and `offsetWidth` - they will _not_ report a zero height and width for inline elements.
+
+
+#### Width & height of content only
+
 %% getComputedStyle + clientWidth/height for jQuery width/height
 %% getBoundingClientRect for fractional w/h
+
+
+#### Performance comparisons
 %% horrific performance of jQuery https://jsperf.com/offsetwidth-vs-jquery-width
 
 
@@ -494,6 +538,16 @@ In order to obtain the width or height of the above box, only considering the co
 [css1-style]: http://www.w3.org/TR/REC-CSS1/#containment-in-html
 
 [css2]: http://www.w3.org/TR/CSS2/
+
+[cssom]: http://www.w3.org/TR/cssom-view/
+
+[cssom-clientheight]: http://www.w3.org/TR/cssom-view/#dom-element-clientheight
+
+[cssom-clientwidth]: http://www.w3.org/TR/cssom-view/#dom-element-clientwidth
+
+[cssom-offsetheight]: http://www.w3.org/TR/cssom-view/#dom-htmlelement-offsetheight
+
+[cssom-offsetwidth]: http://www.w3.org/TR/cssom-view/#dom-htmlelement-offsetwidth
 
 [dom2-cssstyledeclaration]: http://www.w3.org/TR/DOM-Level-2-Style/css.html#CSS-CSSStyleDeclaration
 
