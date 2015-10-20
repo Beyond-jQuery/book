@@ -465,7 +465,7 @@ To better illustrate the code in this section, I'll start open with a simple ele
 
 #### Width & height of content + padding
 
-In order to obtain the width or height of the above box, only considering the content and padding values, we can use the [`clientWidth`][cssom-clientwidth] and [`clientHeight`][cssom-clientheight] properties found on the `Element` interface.
+In order to obtain the width or height of the above box, only considering the content and padding values, we can use the [`clientWidth`][cssom-clientwidth] and [`clientHeight`][cssom-clientheight] properties found on the `Element` interface. These are comparable to jQuery's `innerWidth()` and `innerHeight()` API methods, but the web API has [significant performance advantages over jQuery's solution][jsperf-clientheight]. The native solution is about ten times faster!
 
 These properties were first defined in the [Cascading Style Sheet Object Model (CSSOM) View specification][cssom], drafted by the W3C. As of 2015, the CSSOM spec is not yet a recommended standard, in fact it is only a working draft. But these two `Element` properties, along with many of the other items represented in this specification, have been supported by browsers for a very long time. For example, the `Element.clientWidth` and `Element.clientHeight` properties are supported all the way back to Internet Explorer 6, yet they are only currently defined in this working draft spec. This seems a bit strange, doesn't it? Indeed it is, but the CSSOM spec is a special one. It exists mostly to codify and formally standardize longstanding CSS-related browser behaviors. `Element.clientWidth` and `Element.clientHeight` are two such examples, but you will see others in this section as well.
 
@@ -489,7 +489,7 @@ For comparison, jQuery's `width()` and `height()` methods return `35` and `18`, 
 
 #### Width & height of content + padding + border
 
-And what if you need to include the border when reporting the width and height of an element? That is: content, padding, and border. Simple, use [`HTMLElement.offsetWidth`][cssom-offsetwidth] and [`HTMLElement.offsetHeight`][cssom-offsetheight]. These properties have also long been implemented by browsers, but only first brought into a formal specification in the CSSOM View standard.
+And what if you need to include the border when reporting the width and height of an element? That is: content, padding, and border. Simple, use [`HTMLElement.offsetWidth`][cssom-offsetwidth] and [`HTMLElement.offsetHeight`][cssom-offsetheight]. These properties have also long been implemented by browsers, but only first brought into a formal specification in the CSSOM View standard. Both properties are comparable to jQuery's `outerWidth()` and `outerHeight()` methods, but again, [the web API is _much_ faster][jsperf-offsetheight].
 
 ~~~~~~~
 // returns 44
@@ -567,6 +567,10 @@ Again, the return values above may vary _slightly_ between browsers due to the w
 
 [jquery-learning-styling]: https://learn.jquery.com/using-jquery-core/css-styling-dimensions/
 
+[jsperf-clientheight]: http://jsperf.com/innerheight-vs-element-clientheight
+
 [jsperf-css]: http://jsperf.com/jquery-css-vs-optimized-non-jquery-approach3
+
+[jsperf-offsetheight]: http://jsperf.com/outerheight-vs-htmlelement-offsetheight4
 
 [resig-selectors]: http://ejohn.org/blog/selectors-that-people-actually-use/
