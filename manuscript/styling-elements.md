@@ -1,24 +1,24 @@
 # Styling Elements {#styling-elements}
 
-If you're used to using jQuery's `css` method to work with styles in your document, this chapter is for you. I can certainly relate to blind dependence on this magical aspect of the API. Adjusting the dimensions, color, opacity, and any other style imaginable is _really_ easy to do with the help of jQuery. Unfortunately, this simplicity comes at a substantial cost.
+If you are used to using jQuery's `css()` method to work with styles in your document, this chapter is for you. I can certainly relate to blind dependence on this magical aspect of the API. Adjusting the dimensions, color, opacity, and any other style imaginable is _really_ easy to do with the help of jQuery. Unfortunately, this simplicity comes at a substantial cost.
 
 jQuery's internal code that backs its easy-to-use CSS API is horrendous in terms of performance. If you value efficiency at all, if you want to provide your users with an optimal experience, you should learn how to properly manipulate and read element styles using the web API. Instead of relying on a "one size fits all" approach, you should choose the leanest route possible by bypassing jQuery's abstraction.
 
-You may continue to rely on jQuery, or get rid of it entirely in favor of a more "natural" programmatic approach. But there are other concepts to be aware of other than which JavaScript method to use. Consider the possibility that JavaScript is not always the best way to adjust styles in your document. In addition to HTML and JavaScript, the browser provides a third valuable tool - stylesheets.
+You may continue to rely on jQuery, or get rid of it entirely in favor of a more "natural" programmatic approach. But there are other concepts to be aware of other than which JavaScript methods and properties to use. Consider the possibility that JavaScript is not always the best way to adjust styles in your document. In addition to HTML and JavaScript, the browser provides a third valuable tool - stylesheets.
 
 "Beyond jQuery" aims to provide you with a better understanding of the options provided natively by your browser, with each chapter building on your newfound knowledge. In this chapter, you'll learn some new things about working with element styles both with and without JavaScript. You'll learn enough from this chapter to understand when to target elements using CSS rules in stylesheets instead of resorting to JavaScript 100% of the time. Your strong knowledge of [selectors](#finding-elements) and [attributes](#element-attributes), courtesy of the last few chapters, will make this much easier.
 
 
 ## There are three ways to style elements {#three-ways-to-style}
 
-Before I dive into examples and details related to actually adjusting and reading back style information from elements in your document, it's important to get a few key concepts out of the way first. In this chapter, I'll show you three distinct routes you may take when working with element styles. The first covers managing styles in your markup - something that is not recommended by still possible. Another method involves making changes to standardized properties on `Element` objects - one approach you may elect to take if you intend to read or update styles on-demand. Finally, I'll go over using CSS inside of stylesheets as a third option.
+Before I dive into examples and details related to actually adjusting and reading back style information from elements in your document, it's important to get a few key concepts out of the way first. In this chapter, I'll show you three distinct routes you may take when working with element styles. The first covers managing styles directly in your markup - something that is _not_ recommended, but still possible. Another method involves making changes to standardized properties on `Element` objects - one approach you may elect to take if you intend to read or update styles on-demand. Finally, I'll go over writing CSS rules inside of stylesheets as a third option.
 
 
 ### Inline styles {#inline-styles}
 
 A couple chapters back, I introduced you to [the `class` element attribute](#class-attributes). While this attribute is _often_ used for styling elements, it is also used for selecting and classifying them. In this section, I am going to introduce the `style` attribute, which is used _exclusively_ for adjusting the appearance of an element. This attribute is not new; it was first introduced in 1996 [as part of the first formal W3C CSS specification][css1-style].
 
-Let's suppose you have a very simple document with a few heading elements and associated content. You've decided that each `<h2>` should be blue, and each `<h3>` should be green. As a novice web developer, or perhaps a developer without much knowledge of your styling options at all, you may set the color of these headlines using the `style` attribute.
+Let's suppose you have a very simple document with a few heading elements and associated content. You've decided that each `<h2>` should be blue, and each `<h3>` should be green. As a novice web developer, or perhaps a developer without much knowledge of your styling options, you _may_ choose to set the color of these headings using the `style` attribute, which is available on all elements.
 
 {title="setting styles using the style attribute", lang=html}
 ~~~~~~~
@@ -37,7 +37,7 @@ Let's suppose you have a very simple document with a few heading elements and as
 <div>Fed up after over 4 billion years without a day off, the sun headed off to the Andromeda galaxy for a few weeks of rest and relaxation.</div>
 ~~~~~~~
 
-Looking at the above example, you can see how the headlines have been colored as desired. You can fit multiple styles on a single element, simply by separating the styles with a semicolon. For example, suppose we want to not only color each `<h2>` blue, but also ensure they stand out a bit more by making them bold.
+Looking at the above example, you can see how the headings have been colored as desired. You can fit multiple styles on a single element, simply by separating the styles with a semicolon. For example, suppose we want to not only color each `<h2>` blue, but also ensure they stand out a bit more by making them bold.
 
 {title="setting multiple styles using the style attribute", lang=html}
 ~~~~~~~
@@ -48,24 +48,24 @@ Looking at the above example, you can see how the headlines have been colored as
 <h2 style="color: blue; font-weight: bold">Science</h2>
 ~~~~~~~
 
-_Any_ [standardized style][css2] can be applied to any element, simply by using the `style` attribute as illustrated in the above code fragments. There are other ways to style your elements, s you will learn shortly, so why would anyone choose this particular method? First, specifying your styles alongside your elements directly in the markup seems like an intuitive and reasonable approach. But using the `style` attribute is most likely done out of laziness or naivety, more often than not. It's painfully obvious how easy it is to specify styles for your elements this way.
+_Any_ [standardized style][css2] can be applied to any element, simply by using the `style` attribute as illustrated in the above code fragments. But there are other ways to style your elements, as you will learn shortly, so why would anyone choose this particular method? First, specifying your styles alongside your elements directly in the markup seems like an intuitive and reasonable approach. But using the `style` attribute is most likely done out of laziness or naivety more often than not. It's painfully obvious how easy it is to specify styles for your elements this way.
 
-Styling your document using the `style` attribute, also known as "inline styling", is something you should _almost always_ avoid. Despite its simplicity and intuitiveness, there are a number of reasons why this practice will cause you grief. First, inline styles add quite a bit of noise to your markup. In addition to content, tags, and other attributes, now you have `style` attributes - perhaps for _many_ of your elements. And these attributes could very well contain a number of semicolon-separated styles. As your document begins to grow and become more complex, this is more apparent.
+Styling your document using the `style` attribute, also known as "inline styling", is something you should _almost always_ avoid. Despite its simplicity and intuitiveness, there are a number of reasons why this practice will cause you grief. First, inline styles add quite a bit of noise to your markup. In addition to content, tags, and other attributes, now you have `style` attributes - perhaps for _many_ of your elements. And these attributes could very well contain a number of semicolon-separated styles. As your document begins to grow and become more complex, this noise becomes more apparent.
 
-In addition to cluttering up the document, defining styles directly on each element in your markup precludes you from easily re-skinning your page. Suppose a designer took a look at the above code and informed you that the "green" and "blue" color values are a bit too "generic"-looking, and should be substituted for slightly different colors. The designed supplies you with hex codes for the new colors, and this adjustment requires changing `style` attribute for _all_ `<h2>` and `<h3>` elements in your document. This is a common consequence of not following [the "Don't Repeat Yourself" principal][dry] of software development. Overuse of the `style` attribute can result in a maintenance nightmare.
+In addition to cluttering up the document, defining styles directly on each element in your markup precludes you from easily re-skinning your page. Suppose a designer took a look at the above code and informed you that the "green" and "blue" color values are a bit too "generic"-looking, and should be substituted for slightly different colors. The designer then supplies you with hex codes for the new colors, and this adjustment requires changing `style` attribute for _all_ `<h2>` and `<h3>` elements in your document. This is a common consequence of not following [the "Don't Repeat Yourself" principal][dry] of software development. Overuse of the `style` attribute can result in a maintenance nightmare.
 
 Defining styles in your document via the `style` attribute is _also_ a potential security risk. If you intend to implement a [Content Security Policy][csp-mdn], styling elements using attributes is strictly prohibited in the most basic (and safest) policy definition. A strong Content Security Policy, also known as a CSP, is becoming more commonplace now that all [modern browsers](#modern-browsers) (with the exception of IE9) include support for at least [the initial version of the specification][csp-w3c].
 
-Finally, peppering your page with `style` attributes - or `<style>` elements, which can contain various a set of CSS rules - can result in more overhead. If a single style needs to be changed, now the entire document has to be re-fetched by the browser the next time a user loads the page. If your styles were defined in a more specific location, outside of your markup, style changes could be introduced while still allowing a portion of your page to be fetched from the browser's cache, avoiding an unnecessary round-trip to the server.
+Finally, peppering your page with `style` attributes - or `<style>` elements, which can contain various sets of CSS rules - can result in more overhead. If a single style needs to be changed, now the entire document has to be re-fetched by the browser the next time a user loads the page. If your styles were defined in a more specific location, outside of your markup, style changes could be introduced while still allowing a portion of your page to be fetched from the browser's cache, avoiding an unnecessary round-trip to the server.
 
-I strongly suggest avoiding the use of `style` attributes. There are other much more appropriate options. The initially visible benefits are shadowed by the hardships that will become apparent further down the road.
+I strongly suggest avoiding the use of `style` attributes. There are other much more appropriate options. The initially visible benefits are shadowed by the hardships that will become a harsh reality further down the road.
 
 
 ### Working with styles directly on the `Element` object {#element-style}
 
-The `style` property on the object representation of an element was first introduced in the year 2000 as [part of DOM Level 2][dom2-style]. It was defined as the lone property of a new `ElementCSSInlineStyle` interface. The `Element` interface implements `ElementCSSInlineStyle`, which allows elements to be styled programmatically using JavaScript. And all CSS properties, such as `opacity` and `color` are accessible as properties on the associated [CSSStyleDeclaration][dom2-cssstyledeclaration] instance, where they can be read or updated.
+The `style` property on the object representation of an element was first introduced in the year 2000 as [part of DOM Level 2][dom2-style]. It was defined as the lone property of a new `ElementCSSInlineStyle` interface. The `Element` interface implements `ElementCSSInlineStyle`, which allows elements to be styled programmatically using JavaScript. And all CSS properties, such as `opacity` and `color`, are accessible as properties on the associated [CSSStyleDeclaration][dom2-cssstyledeclaration] instance, where they can be read or updated.
 
-In case all of this talk of style properties isn't clear, let's take another look at the code example from the previous [inline styles](#inline-styles) section. I'll rewrite it by taking advantage of the `style` property that is available on all `Element` objects.
+In case all of this talk of style properties isn't clear, take another look at the code example from the previous [inline styles](#inline-styles) section. I'll rewrite it by taking advantage of the `style` property that is available on all `Element` objects.
 
 {title="setting styles using the `style` property - all modern browsers + IE8", lang=html}
 ~~~~~~~
@@ -99,7 +99,7 @@ for (var i = 0; i < headings.length; i++) {
 
 This seems a bit clumsy, but it illustrates how we can programmatically update styles using the web API. The use of `querySelectorAll` restricts us to IE8 and up, but this really doesn't seem like much of a problem, due to the almost non-existent market share associated with IE7.
 
-In the [inline styles](#inline-styles) section, I built up the initial code fragment to illustrate how to define multiple styles on a single element. Let's see how we can do this with the `style` property.
+In the [inline styles](#inline-styles) section, I extended the initial code fragment to illustrate how to define multiple styles on a single element. Let's see how we can do this with the `style` property:
 
 {title="setting multiple styles using the `style` property - all modern browsers + IE8", lang=html}
 ~~~~~~~
@@ -119,7 +119,7 @@ for (var i = 0; i < headings.length; i++) {
 </script>
 ~~~~~~~
 
-Notice that the `font-weight` style name has been converted to camel case, which is perfectly legal, but we can _still_ change this style using the dashed name, if we really want to: `headings[i].style['font-weight'] = 'bold'`.
+Notice that the `font-weight` CSS style name has been converted to camel case, which is perfectly legal, but we can _still_ change this style using the dashed name, if we really want to, like this: `headings[i].style['font-weight'] = 'bold'`.
 
 But we're not done just yet; there is _another_ way to set multiple styles on a single HTML element using the `style` property. The `CSSStyleDeclaration` interface defines a special property - `cssText`. This allows you to read _and_ write multiple styles to the associated element. The value string looks exactly like a collection of semicolon-separated CSS rules, as you can see below.
 
@@ -140,9 +140,9 @@ for (var i = 0; i < headings.length; i++) {
 </script>
 ~~~~~~~
 
-Why might you want to make use of the `style` property on an element (or elements)? Maybe you are writing a JavaScript library that need to make a few quick adjustments to some elements based on environmental or user input. It may be inconvenient to create and depend on a library-specific stylesheet for these styles as well. Also, styles set using this method will _usually_ override any other styles previously set on the element, which may be your intent.
+Why might you want to make use of the `style` property on an element (or elements)? Maybe you are writing a JavaScript library that needs to make a few quick adjustments to some elements based on environmental or user input. It may be inconvenient to create and depend on a library-specific stylesheet for these styles. Also, styles set using this method will _usually_ override any other styles previously set on the element, which may be your intent.
 
-But be careful about overusing this power. Styles set in this manner are difficult to override via stylesheet rules. This _may_ be your intent, but it also may not. If it is not, and you _want_ to allow stylesheets to easily make adjustments to styles, you will likely want to avoid changing styles using the `style` property. Finally, using the `style` property can make it very difficult to track down style changes, and can clutter up your JavaScript. It seems unnatural for your code to be focused on setting specific element styles, unless this is a rare practice. As you'll see in the next section, this job is better suited for stylesheets.
+But be careful about overusing this power. Styles set in this manner are difficult to override via stylesheet rules. This _may_ be your intent, but it also may not. If it is not, and you _want_ to allow stylesheets to easily make adjustments to styles, you will likely want to avoid changing styles using the `style` property (or inline styles). Finally, using the `style` property can make it very difficult to track down style changes, and can clutter up your JavaScript. It seems unnatural for your code to be focused on setting specific element styles. This should be a rare practice. As you'll see in the next section, this job is better suited for stylesheets.
 
 
 ### Stylesheets
