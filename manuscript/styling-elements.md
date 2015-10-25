@@ -147,9 +147,9 @@ But be careful about overusing this power. Styles set in this manner are difficu
 
 ### Stylesheets
 
-JavaScript isn't the only way to attack styling challenges in the browser. It probably isn't even the _best_ way to deal change the appearance of your elements. The browser provides a dedicated mechanism for styling your document - stylesheets. Stylesheets, which you may use to define all CSS styles for your web document, may be defined in dedicated files, encapsulated in a specific HTML element, or even added to the document via JavaScript on-demand. I'll demonstrate each of these three methods for working with styles in this section.
+JavaScript isn't the only way to attack styling challenges in the browser. It probably isn't even the _best_ way to change the appearance of your elements. The browser provides a dedicated mechanism for styling your document - stylesheets. Through this medium you may define all CSS styles for your web document in dedicated files, encapsulated in a specific HTML element, or even add them to the document via JavaScript on demand. I'll demonstrate each of these three methods for working with styles in this section.
 
-The `<style>` element, first defined in the [W3C CSS 1 specification][css1], allows us to group all of our styles for an entire document in one convenience location. Take a look at the previous code fragment, this time with style added courtesy of the `HTMLStyleElement`.
+The `<style>` element, first defined in the [W3C CSS 1 specification][css1], allows us to group all of our styles for an entire document in one convenient location. What follows is a rewrite of the previous code fragment, this time with style added courtesy of `HTMLStyleElement`.
 
 {title="setting styles using the `<style>` element - all browsers", lang=html}
 ~~~~~~~
@@ -202,7 +202,7 @@ h3 { color: green; }
 ...
 ~~~~~~~
 
-Jamming your styles into a `<style>` element may be fine for a small set of rules, but this is probably not ideal for a non-trivial document. Perhaps you even want styles to be shared across documents/pages. Duplicating these styles in each HTML document doesn't seem like a reasonable approach. Luckily, there is a better way - stylesheets.
+Jamming your styles into a `<style>` element may be fine for a small set of rules, but this is probably not ideal for a non-trivial document. Perhaps you even want styles to be shared across documents/pages. Duplicating these styles in each HTML document doesn't seem like a scalable approach. Luckily, there is a better way - stylesheets.
 
 
 {title="styles.css - external stylesheet - all browsers", lang=css}
@@ -222,9 +222,9 @@ h3 { color: green; }
 ...
 ~~~~~~~
 
-We've defined two files above: styles.css and index.html. The first houses our stylesheet, the second our markup. In our index file, we can pull in all of these styles simply by referencing the styles.css file via the `<link>` element, which [can be seen as early as the HTML 2.0 specification][html2-link]. This may not be new knowledge for many of you, but it's easy to lose sight of the entire picture when you are so used to a tool, such as jQuery, that bills itself as a solution to all of your browser problems.
+We've defined two files above: styles.css and index.html. The first houses our stylesheet, the second contains our markup. In our index file, we can pull in all of these styles simply by referencing the styles.css file via the `<link>` element, which [can be seen as early as the HTML 2.0 specification][html2-link]. This may not be new knowledge for many of you, but it's easy to lose sight of the entire picture when you are so used to a tool, such as jQuery, that bills itself as a solution to all of your browser problems.
 
-It is rarely appropriate to rely exclusively on JavaScript in any form (including through jQuery's API) to style your markup. Cascading Style Sheets exist for this purpose. But that does not mean that there is _never_ an occasion where it is appropriate to dynamically change styles directly through JavaScript. Perhaps you have constructed a web application that allows your users to create their own web custom landing page. Your user desires to to display all secondary headings in italics. To easily do this, you can programmatically add a CSS rule to the document using the `insertRule` method on the `CSSStyleSheet` interface.
+It is rarely appropriate to rely exclusively on JavaScript in any form (including through jQuery's API) to style your markup. Cascading Style Sheets exist for this purpose. But that does not mean that there is _never_ an occasion where it is appropriate to dynamically change styles directly through JavaScript. Perhaps you have constructed a web application that allows your users to create their own custom landing page. Your user needs to display all secondary headings in italics. To easily do this, you can programmatically add a CSS rule to the document using the `insertRule` method on the `CSSStyleSheet` interface.
 
 {title="adding a style to the document - modern browsers", lang=javascript}
 ~~~~~~~
@@ -235,12 +235,12 @@ stylesheet.insertRule(
 
 The above example will create a new style that will display all `<h2>` elements in italics. The rule will be appended to the end of a stylesheet. The `stylesheet` variable can refer to a `<style>` element we've created on-demand for these sorts of dynamic styles, or even an existing stylesheet imported using a `<link>` tag. If you need to support Internet Explorer 8, you'll have to use `addRule` instead, if it is defined in the browser's implementation of the DOM API.
 
-Using stylesheets or `<style>` elements is almost always the preferred approach over a JavaScript-only solution. Even so, it is often acceptable to take a holistic approach, incorporating JavaScript, HTML, and stylesheets into your solution as the situation dictates. Now that you have a more complete understanding of the possibilities, you are in a better position to make these kinds of decisions correctly in your own projects. The rest of this chapter is dedicated to more specific styling situations. As is customary in Beyond jQuery, I'll use the familiar jQuery approach as a reference, followed by copious web API examples.
+Using stylesheets or `<style>` elements is almost always the preferred approach over a JavaScript-only solution. Even so, it is often acceptable to take a holistic approach, incorporating JavaScript, HTML, and stylesheets into your solution as the situation dictates. Now that you have a more complete understanding of the possibilities, you are in a better position to make these kinds of decisions correctly in your own projects. The rest of this chapter is dedicated to more specific styling situations. As is customary in Beyond jQuery, I'll use the familiar jQuery approach as a reference, followed by copious web API examples as part of a discussion of alternatives.
 
 
 ## Getting and setting generalized styles
 
-After describing (and demonstrating) several distinct ways to add style to your HTML elements, it's time to examine working with CSS a bit closer. If you are familiar with jQuery (and if you are reading this book, you probably are) then you already know that there is typically one narrow path to adjusting document look and feel when using jQuery. I'll provide a demonstration, for the purposes of reference. But the native route encouraged by the native browser stack is much richer. In this section, you'll see how to _properly_ get styles, and set them dynamically without any assistance from jQuery.
+After describing (and demonstrating) several distinct ways to add style to your HTML elements, it's now time to examine working with CSS a bit closer. If you are familiar with jQuery (and if you are reading this book, you probably are) then you already know that there is typically one narrow path to adjusting document look and feel when using jQuery. I'll provide a demonstration, for the purposes of reference. But the native route provided by the browser stack is much richer. In this section, you'll see how to _properly_ get styles, and set them dynamically without any assistance from jQuery.
 
 To setup the jQuery and non-jQuery demonstrations below, let's start with a simple HTML fragment:
 
@@ -251,14 +251,14 @@ To setup the jQuery and non-jQuery demonstrations below, let's start with a simp
 <button>candy</button>
 ~~~~~~~
 
-Suppose you would like to style any of the buttons a bit differently after they are clicked (or selected via the keyboard). These buttons should be styled in some way to indicate that they have been selected. I haven't covered event handlers yet (though I will [in a later chapter](#browser-events)) so just assume you a function already exists with the associated button element passed in as a parameter whenever the button is selected. Your job is to fill in the implementation of this function by changing the background and border color of the selected button to blue, and the button text to white.
+Suppose you would like to style a button a bit differently after it is clicked (or selected via the keyboard). The clicked button should be styled in some way to indicate that it has been selected. I haven't covered event handlers yet (though I will [in a later chapter](#browser-events)) so just assume that a function already exists with the associated button element passed in as a parameter whenever the button is selected. Your job is to fill in the implementation of this function by changing the background and border color of the selected button to blue, and the button text to white.
 
-To demonstrate reading styles (and further demonstrate setting them), consider an element that has already been styled as a box. Whenever this box is clicked, it becomes slightly more opaque, until it disappears entirely. Again, assume you are passed a function whenever the box is clicked. Your job is to make the box 10% more opaque whenever this function is called.
+And to demonstrate _reading_ styles (and _further_ demonstrate setting them), consider an element that has already been styled as a box. Whenever this box is clicked, it becomes slightly more opaque, until it disappears entirely. Again, assume you are passed a function whenever the box is clicked. Your job is to make the box 10% more opaque whenever this function is called. I'll walk you through both solutions below, starting with the (likely) familiar jQuery approach.
 
 
 ### Using jQuery
 
-jQuery, being a very popular JavaScript library relied upon by far too many developers, has a duty (in my humble opinion) to teach these developers the proper way to adjust element styles. Unfortunately, it fails to do so. Even the [jQuery Learning Center article on styling][jquery-learning-styling] only briefly touches on how to properly style elements, without any real demonstration of this technique at all. The reason for this is simple - idiomatic jQuery is often at odds with best practices. This fact was one of several inspirations for "Beyond jQuery". But, I digress. Let's see how most jQuery-centric developers would solve the problem described above.
+jQuery, being a very popular JavaScript library relied upon by far too many developers, has a duty (in my humble opinion) to teach these developers the proper way to adjust element styles. Unfortunately, it fails to do so. Even the [jQuery Learning Center article on styling][jquery-learning-styling] only briefly touches on how to properly style elements, without any real demonstration of this technique at all. The reason for this is simple - idiomatic jQuery is often at odds with best practices. This fact was one of several inspirations for "Beyond jQuery". But, I digress. Let's see how most jQuery-minded developers would solve the problem described above.
 
 {title="adjusting selected button style - jQuery", lang=javascript}
 ~~~~~~~
@@ -279,7 +279,7 @@ function onClicked($clickedBox) {
   var currentOpacity = $clickedBox.css('opacity');
 
   if (currentOpacity > 0) {
-    $clickedBox.css('opacity', currentOpacity - .1);    
+    $clickedBox.css('opacity', currentOpacity - 0.1);    
   }
 }
 ~~~~~~~
@@ -311,7 +311,7 @@ function onSelected(selectedButton) {
 }
 ~~~~~~~~
 
-What follows is a line to import the CSS file, our button element, _and_ the function that, when called, triggers the style rules on the button.
+What follows is a line to import the CSS file, our button element, _and_ the function that, when called, triggers the previously defined style rules on the button.
 
 {title="index.html - define the button, pull in styles and JS - all browsers", lang=html}
 ~~~~~~~
@@ -330,7 +330,7 @@ And the second scenario? Remember, we want to increase the opacity of a box by 1
 ~~~~~~~
 function onClicked(clickedBox) {
   var currentOpacity = clickedBox.style.opacity ||    
-    getComputedStyle(clickedBox, null).getPropertyValue('opacity');
+    getComputedStyle(clickedBox, null).opacity;
 
   if (currentOpacity > 0) {
     clickedBox.style.opacity = currentOpacity - 0.1;    
@@ -338,19 +338,19 @@ function onClicked(clickedBox) {
 }
 ~~~~~~~
 
-Our optimized non-jQuery approach is a _little_ more code, but it is [_much_ faster than the idiomatic jQuery solution][jsperf-css]. Here, we are only utilizing the expensive call to [`getComputedStyle`][getcomputedstyle-w3c] when there is no style defined on the element's `style` property. `getComputedStyle` is determines an element's actual style by examining not only the element's `style` property, but also by looking at the document's stylesheets. As a result, this operation can be very intensive, so we avoid it unless absolutely necessary.
+Our optimized non-jQuery approach is a _little_ more code, but it is [_much_ faster than the idiomatic jQuery solution][jsperf-css]. Here, we are only utilizing the expensive call to [`getComputedStyle`][getcomputedstyle-w3c] when there is no style defined on the element's `style` property. `getComputedStyle` determines an element's actual style by examining not only the element's `style` property, but also by looking at any available stylesheets. As a result, this operation can be a bit expensive, so we avoid it unless absolutely necessary.
 
 
 ## Setting and determining element visibility
 
-Showing and hiding elements is a common problem in web development. These tasks may not be straightforward, but it's often even more complicated to determine, programmatically, if an element is visible or not. Traditionally, element visibility is a confounding problem for developers to deal with. It doesn't _have_ to be this way. There are two ways to do handle element visibility - the way you've always done it (using jQuery), and the correct way (without jQuery). You'll see how shockingly inefficient jQuery is in this context, and how this illustrates why blind faith in this type of software library is dangerous.
+Showing and hiding elements is a common problem in web development. These tasks may not be straightforward, but it's often even more complicated to determine, programmatically, if an element is visible or not. Traditionally, element visibility is a confounding problem for developers to deal with. But it doesn't _have_ to be this way. There are two ways to do handle element visibility - the way you've always done it (using jQuery), and the correct way (without jQuery). You'll see how shockingly inefficient jQuery is in this context, and how this illustrates why blind faith in this type of software library is dangerous.
 
 
 ### The typical jQuery approach
 
-The upside of using jQuery to show, hide, and determine the visibility of an element, is simplicity. As you'll find out soon, this is, by far, the _only_ upside. But for now, let's focus on this simplicity.
+The upside of using jQuery to show, hide, and determine the visibility of an element, is simplicity. As you'll find out soon, this is, by far, the _only_ upside. But for now, let's focus on this advantage.
 
-Hiding an showing elements with jQuery is almost always accomplished using the `show` and `hide` API methods, respectively. There's no real need to a fragment of HTML to demonstrate these methods, so let's just dive into a couple examples.
+Hiding and showing elements with jQuery is almost always accomplished using the `show()` and `hide()` API methods, respectively. There's no real need to create a fragment of HTML to demonstrate these methods, so let's just dive into a couple code samples.
 
 {title="showing and hiding elements - jQuery", lang=javascript}
 ~~~~~~~
@@ -361,7 +361,7 @@ $element.hide();
 $element.show();
 ~~~~~~~
 
-None of the above code demands further description or elaboration. But what _does_ need further examination is the underlying code that actually carries out these operations. Unfortunately, both of these methods make use of `window.getComputedStyle`, a method I discussed in the last section. In some cases, particularly with `hide`, `getComputedStyle` may be called multiple times. This has serious performance consequences. Why all is all of this processing power needed simply to hide or show a single DOM element? For the most part, all of the clever and generally unnecessary code underneath these two commonly used API methods is in place solely to handle styling edge cases where it is otherwise difficult to show or hide a targeted element. As I said before, element visibility doesn't _have_ to be a complex problem. We can avoid all of the CPU cycles required by jQuery to hide and show elements simply by adopting a more simplistic approach. More on that in the upcoming "native web approach" section.
+None of the above code demands further description or elaboration. But what _does_ need further examination is the underlying code that actually carries out these operations. Unfortunately, both of these methods make use of `window.getComputedStyle`, a method I discussed in the last section. In some cases, particularly with `hide`, `getComputedStyle` may be called multiple times. This has serious performance consequences. Why all is all of this processing power needed simply to hide or show a single DOM element? For the most part, all of the clever and generally unnecessary code underneath these two commonly used API methods is in place solely to handle styling edge cases where it is otherwise difficult to show or hide a targeted element. As I said before, element visibility doesn't _have_ to be a complex problem. We can avoid all of the CPU cycles required by jQuery to hide and show elements simply by adopting a more simplistic approach. More on that in the next section, where I discuss the "native web approach" to this problem.
 
 What if we need to figure out if a specific element is hidden, or not? Well, jQuery makes this really easy too!
 
@@ -374,26 +374,24 @@ $element.is(':visible');
 $element.is(':hidden');
 ~~~~~~~
 
-jQuery has decided to invent a new pseudo-class to represent element visibility. How nice. Even the creator of jQuery, John Resig, went on at length about [the amazingness of this new innovative jQuery concoction][resig-selectors]. But just like `show`, `hide`, and the `css` API methods, these two non-standard pseudo-classes are horrifically slow. Again, they delegate to `window.getComputedStyle`, again, sometimes multiple times per invocation. In the next section, I'll outline several non-jQuery methods of showing and hiding elements, as well as determining the visibility of an element. The performance differences between the native and the jQuery methods will be included as well, and the differences will be notable, to say the least.
+jQuery has decided to invent a couple new pseudo-classes to represent element visibility. Even the creator of jQuery, John Resig, went on at length about [the amazingness of this new innovative jQuery concoction][resig-selectors]. But just like `show()`, `hide()`, and the `css()` API methods, these two non-standard pseudo-classes are horrifically slow. Again, they delegate to `window.getComputedStyle`, again, sometimes multiple times per invocation. In the next section, I'll outline several non-jQuery methods of showing and hiding elements, as well as determining the visibility of an element. The performance differences between the native and the jQuery methods will be included as well, and the differences will be notable, to say the least.
 
 
 ### The native web approach
 
-The simplicity of hiding, showing, and evaluating the visibility of an element in jQuery is compelling. Though there are serious performance consequences that come with this simplicity. This is the part where you may expect me to say something like "it's a bit more difficult to do all of this without jQuery", or "there's an easy way to solve this problem without jQuery, but it requires use of bleeding edge browsers". In reality, it is _very_ easy to show, hide, and determine element visibility in any browser, without jQuery. jQuery developers may want you to believe that these are complex problems to solve, and you _need_ jQuery to solve them, but none of this is true. In this section, I'll demonstrate some simple conventions that will result in simple solutions.
+The simplicity of hiding, showing, and evaluating the visibility of an element in jQuery is compelling. Though there are serious performance consequences that come with this simplicity. This is the part where you may expect me to say something like "it is a bit more difficult to do all of this without jQuery", or "there's an easy way to solve this problem without jQuery, but it requires use of bleeding edge browsers". In reality, it is _very_ easy to show, hide, and determine element visibility in any browser, without jQuery. jQuery developers may want you to believe that these are complex problems to solve, and you _need_ jQuery to solve them, but none of this is true. In this section, I'll demonstrate some simple conventions that will result in simple solutions.
 
-There are _many_ ways to hide an element. Some of the more unconventional methods include setting the element's `opacity` to 0, or setting the `position` to "absolute" and positioning it outside the visible page. These and other similar approaches may be effective, but they are generally considered to be "kludgey". As a result, it is generally discouraged to use these methods when attempting to hide an element. Please don't do this; there are better ways.
+There are _many_ ways to hide an element. Some of the more unconventional methods include setting the element's `opacity` to 0, or setting the `position` to "absolute" and positioning it outside the visible page. These and other similar approaches may be effective, but they are generally considered to be "kludgey". As a result, using these methods is generally discouraged when attempting to hide an element. Please don't do this; there are better ways.
 
-A more reasonable approach involves setting the element's `display` style property to "none". As you have already learned, there are a number of different ways to adjust an element's style. But you have also learned that the best approach is to define this style in an external stylesheet. So, perhaps the best solution would be to define a custom CSS class or attribute in your stylesheet, include a `display: none` style for these selector, and then add the associated class or attribute to this element when it needs to be hidden.
+A more reasonable approach involves setting the element's `display` style property to "none". As you have already learned, there are a number of different ways to adjust an element's style. But you have also learned that the best approach is to define this style in an external stylesheet. So, perhaps the best solution would be to define a custom CSS class or attribute in your stylesheet, include a `display: none` style for this selector, and then add the associated class or attribute to this element when it needs to be hidden.
 
-So, which should we choose - an attribute or a CSS class? Does it really matter? The W3C HTML5 specification defines a [`hidden`](#hidden-html5) [boolean attribute](#boolean-attributes), which, as you might expect, allows you to hide an element simply by adding this attribute to the element. Not only does this standardized attribute allow you to easily hide an element, it also enhances the semantics of your markup and [provides a useful cue to _all_ screen readers][hidden-accessiblity]. Yes, it even makes your elements more accessible. And since `hidden` is part of a formal specification, it isn't just a convention, it's represents _the_ correct way to deal with element visibility.
+So, which should we choose - an attribute or a CSS class? Does it really matter? The W3C HTML5 specification defines a [`hidden`][hidden-html5] [boolean attribute](#boolean-attributes), which, as you might expect, allows you to hide an element simply by adding this attribute to the element. Not only does this standardized attribute allow you to easily hide an element, it also enhances the semantics of your markup and [provides a useful cue to _all_ screen readers][hidden-accessiblity]. Yes, it even makes your elements more accessible. And since `hidden` is part of a formal specification, it isn't just a convention, it's represents _the_ correct way to deal with element visibility.
 
-At this point, you are probably checking to see which browsers support this attribute. Let me save you the trouble - not all of them. In fact, the `hidden` attribute wasn't first supported by Microsoft until Internet Explorer 11. Luckily, the polyfill for the standardized `hidden` attribute is _unbelievably simple and elegant_ - simply add the following style to your global stylesheet:
+At this point, you are probably checking to see which browsers support this attribute. Let me save you the trouble - not all of them. In fact, the `hidden` attribute wasn't first supported by Microsoft until Internet Explorer 11. Luckily, the polyfill for the standardized `hidden` attribute is _unbelievably simple and elegant_ - just add the following rule to your global stylesheet:
 
 {title="polyfill for standardized `hidden` attribute - all browsers", lang=css}
 ~~~~~~~
-[hidden] {
-  display: none;
-}
+[hidden] { display: none; }
 ~~~~~~~
 
 And this means you can hide _any_ element in _any_ browser with the following line of JavaScript:
@@ -425,11 +423,12 @@ Yes, it's really that easy.
 
 ## Determining width and height of any element
 
-Before I review how jQuery allows you to check the width and height of an element, _and_ how you can easily do this _without_ using a DOM abstraction, you'll need to understand some basic concepts. The most critical specification required to intelligently calculate the width and height of any element is [the box model][boxmodel-w3c].
-
-Every element is a box. One more time: _every element is a box_. This is simple, yet very surprising for many web developers to hear. Once you get over the initial shock of this realization, the next step is to understand how an element's box is divided up. This is called the box model. Let's start by looking at a drawing of the box model from the World Wide Web Consortium's CSS 2.1 specification:
+Before I review how jQuery allows you to check the width and height of an element, _and_ how you can easily do this _without_ using a DOM abstraction, you'll need to understand some basic concepts. The most critical specification required to intelligently calculate the width and height of any element is [the box model][box-model-w3c].
 
 {#box-model}
+Every element is a box. One more time: _every element is a box_. This is simple, yet very surprising for many web developers to hear. Once you get over the initial shock of this realization, the next step is to understand how an element's box is divided up. This is called the box model. Let's start by looking at a drawing of the box model from the World Wide Web Consortium's CSS 2.1 specification:
+
+
 ![A diagram of the box model. Copyright 2015 W3C. License available at http://www.w3.org/Consortium/Legal/2015/copyright-software-and-document](images/boxdim.png)
 
 As you can see, an element, which again is a _box_, is made up of four "layers" - content, padding, border, and margin. Simply put, an element's content, padding, and border are used to determine its height and width. Margins are not considered to be part of an element's "dimensions" - they simply push other elements away instead of influencing the element's height and width. How you measure width and height largely depends on which of the first three layers you care about. Generally speaking, an element's dimensions can take into account a subset of these three layers - content and padding - or all three layers. jQuery takes a different approach and only considers the content dimensions. More on that next.
@@ -438,26 +437,24 @@ As you can see, an element, which again is a _box_, is made up of four "layers" 
 
 Just as with the web API - which I will describe in the following section - there are _many_ ways to discover the dimensions of an element using jQuery's API. You may already be aware of some, or even all of these methods. What you may _not_ be aware of is the horrific performance associated with _all_ of jQuery's built-in element dimension methods - most developers are not. And why should you? The methods are so simple and elegant, the possibility that you are paying a substantial penalty in terms of performance is not often a concern. You probably trust that this critical library is not degrading the efficiency of your application in any noticeable way, but you would be _wrong_.
 
-The most visible API methods are `width()` and `height()`. Remember the [box model diagram](#box-model)? These two jQuery methods only measure the "content" portion of an element's box. This _sounds_ like a reasonable behavior, but it is not necessarily a complete representation, since content only represents a portion of an element's actual width and height. Remember that margin is the only element of the box model that does not directly affect the visible width and height of an element.
-
-The most visible API methods are `width()` and `height()`. Remember the [box model diagram](#box-model)? These two jQuery methods only measure the "content" portion of an element's box. This _sounds_ like a reasonable behavior, but it is arguably bizarre, since content only represents a portion of an element's actual width and height. Remember that margin is the only element of the box model that does not directly affect the width and height of an element. Also remember that jQuery isn't magic - it must delegate to the web API for _all_ of it's API methods. And the web API does not provide a simple way to determine the dimensions of an element's content. So, jQuery must perform some unpleasant operations in order to determine these values, sacrificing performance as a result. When I demonstrate how to calculate the width and height of an element using the web API in the next section, I'll show you just how relatively inefficient jQuery's other width and height API methods really are.
+The most visible API methods are `width()` and `height()`. Remember the [box model diagram](#box-model)? These two jQuery methods only measure the "content" portion of an element's box. This _sounds_ like a reasonable behavior, but it is not necessarily a complete representation, since content only accounts for a portion of an element's actual width and height. Remember that margin is the only element of the box model that does not directly affect the visible width and height of an element. Also remember that jQuery isn't magic - it must delegate to the web API for _all_ of its API methods. And the web API does not provide a simple way to determine the dimensions of an element's content. So, jQuery must perform some unpleasant operations in order to determine these values, sacrificing performance as a result. When I demonstrate how to calculate the width and height of an element using the web API in the next section, I'll show you just how relatively inefficient jQuery's other width and height API methods really are.
 
 
 ### Options natively provided by the browser
 
-While jQuery's `width` and `height` are popular methods, there is no similar pair of methods or properties to be found in any web specification. The appeal of these methods is likely tied to their suggestive names. After demonstrating some of the standard properties offered by the web API to check element dimensions, I'll show you how you can replicate jQuery's `width()` and `height()` methods without the huge performance penalty.
+While jQuery's `width` and `height` are popular methods, there is no similar pair of methods or properties to be found in any web specification. The appeal of these methods is likely tied to their suggestive names.
 
-To better illustrate the code in this section, I'll start open with a simple element that takes up space in all four segments of [the box model](#box-model):
+To better illustrate the code in this section, I'll start off with a simple element that takes up space in all four segments of [the box model](#box-model):
 
 {title="element for us to use when discussing web API width/height", lang=html}
 ~~~~~~~
 <style>
-  .box {
-    padding: 10px;
-    margin: 5px;
-    border: 3px solid;
-    display: inline-block;
-  }
+.box {
+  padding: 10px;
+  margin: 5px;
+  border: 3px solid;
+  display: inline-block;
+}
 </style>
 <span class="box">a box</span>
 ~~~~~~~
@@ -480,7 +477,7 @@ document.querySelector('.box').clientHeight;
 document.querySelector('.box').clientWidth;
 ~~~~~~~
 
-Note that the above return values may vary slightly between browsers, as default fonts and styling varies slightly between browsers, which will ultimately lead to a slight variance in size of the element's content. This is to be expected.
+Note that the above return values may vary slightly between browsers, as default fonts and styling may also vary slightly between browsers. This will ultimately lead to a slight variance in the size of the element's content, which is to be expected.
 
 There is something else at play here that you may not be aware of. Notice the `display: inline-block` style attached to our `<span>` element? Remove it and check the return values of `clientWidth` and `clientHeight` again. Without this style, both of these properties report a value of `0`. By default, all browsers render `<span>` elements as `display: inline`, and inline elements will _always_ report `0` as their `clientWidth` & `clientHeight`. Keep this in mind when using these properties. Note that floating a default inline element will _also_ allow you to calculate width and height this way.
 
@@ -491,6 +488,7 @@ For comparison, jQuery's `width()` and `height()` methods return `35` and `18`, 
 
 And what if you need to include the border when reporting the width and height of an element? That is: content, padding, and border. Simple, use [`HTMLElement.offsetWidth`][cssom-offsetwidth] and [`HTMLElement.offsetHeight`][cssom-offsetheight]. These properties have also long been implemented by browsers, but only first brought into a formal specification in the CSSOM View standard. Both properties are comparable to jQuery's `outerWidth()` and `outerHeight()` methods, but again, [the web API is _much_ faster][jsperf-offsetheight].
 
+{title="find width/height of content + padding + border - web API - modern browsers + IE8", lang=javascript}
 ~~~~~~~
 // returns 44
 document.querySelector('.box').offsetHeight;
@@ -502,6 +500,8 @@ document.querySelector('.box').offsetWidth;
 As expected, these values are a bit larger than what `clientHeight` and `clientWidth` report since we are also taking border into account. In fact, each value is exactly 6 pixels larger. This is expected due to a border of 3 pixels on each side, defined in our `<style>` element.
 
 Again, the return values above may vary _slightly_ between browsers due to the way browsers style element content. Also, the `display: inline-block` is not needed for `offsetHeight` and `offsetWidth` - they will _not_ report a zero height and width for inline elements.
+
+There is a _lot_ more to discuss regarding styling elements, but this book is about so much more than this. I've provided you with some of the critical concepts that will allow you to end your dependence on jQuery when facing other stying-related challenges going forward.
 
 
 [box-model-w3c]: http://www.w3.org/TR/CSS21/box.html
