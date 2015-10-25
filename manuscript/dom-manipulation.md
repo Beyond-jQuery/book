@@ -1,6 +1,6 @@
-# DOM Manipulation (coming soon)
+# DOM Manipulation (in progress)
 
-Coming soon!
+In Progress!
 
 
 ## The DOM: A central component of web development
