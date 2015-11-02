@@ -119,6 +119,9 @@ After solving the problems described above, our document should look like this:
 
 ### Creating and deleting elements
 
+%% add some new flavors and types
+%% remove some existing flavors and types
+
 %% $('<div>')
 %% document.createElement
 
@@ -130,11 +133,15 @@ After solving the problems described above, our document should look like this:
 
 ### Text content
 
+%% fix typos in flavors or types
+
 %% $.text
 %% textContent, innerText, innerHTML
 
 
 ### Rich content
+
+%% create a new section
 
 %% $.html
 %% document: outerHTML, innerHTML, write/writeln
