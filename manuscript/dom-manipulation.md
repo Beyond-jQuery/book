@@ -26,42 +26,126 @@ One of the major goals of jQuery has always been to shield developers from the D
 
 ## Moving and copying elements
 
-This chapter is all about "pure" DOM manipulation, that is, moving, copying, and creating elements. In this first part, I'm going to focus on moving and copying existing elements. You'll learn how to insert elements anywhere in the DOM, change the order of adjacent elements, as well as clone an element as many times as needed. While the final part of this chapter will deal mostly with the `Document` interface, in this part I'll mostly focus on method and properties defined on the `Element`, and `HTMLElement` interfaces.
-
-
-%% https://developer.mozilla.org/en-US/docs/Web/API/Element
-%% https://developer.mozilla.org/en-US/docs/Web/API/Document
+This chapter is all about "pure" DOM manipulation, that is, moving, copying, and creating elements. In this first part, I'm going to focus on moving and copying existing elements. You'll learn how to insert elements anywhere in the DOM, change the order of adjacent elements, as well as clone an element. I'll demonstrate methods present on the [`Document` interface][mdn-document], [`Element`][mdn-element], and [`Node`][mdn-node] interfaces, among others. You'll see how basic DOM operations have been executed with jQuery, followed by explanations and demonstrations of the same tasks utilizing the DOM API alone.
 
 
 ### Moving elements around the DOM
 
+I'm going to start this section out with one of my patented (pending) sample documents. In order to focus primarily on the functionality of the demonstrable methods, I'll keep this simple and straightforward. Admittedly, this results in a somewhat contrived example, but I feel this will easily allow us to compare and contrast jQuery with the DOM API in the context of DOM manipulation.
 
-#### Reordering sibling elements
+Our super-simple document consists of a few different categories and attributes of ice cream: flavors, types, and a section of unassigned types and flavors. This document represents some choices for customers of an ice-cream shop. Using this markup, we're going to solve several "problems", first with jQuery, and then with the plain 'ole DOM API.
+
+The first challenge involves reordering the flavors and types in descending order, based on their popularity. Chocolate is most popular flavor, followed by vanilla and strawberry. Also, custard is the most popular type, followed by frozen yogurt and Italian ice. We'll have to change the order of the list items to reflect these facts.
+
+Second, we really want to present our readers with the types of ice cream _first_, followed by the flavors. The current order, which includes _flavors_ first, is known to be less-than-ideal, as our users want to be informed of the types first before deciding on flavors.
+
+Finally, we need to take the items in the "unassigned" section, and assign them to the proper category. "Rocky road" is a flavor, which is less popular than vanilla, but more popular that strawberry. And "gelato" is a type, the least popular of the bunch.
+
+{title="moving elements demonstration document - original", lang=html}
+~~~~~~~
+<body>
+  <h2>Flavors</h2>
+  <ul class="flavors">
+    <li>chocolate</li>
+    <li>strawberry</li>
+    <li>vanilla</li>
+  </ul>
+
+  <h2>Types</h2>
+  <ul class="types">
+    <li>frozen yogurt</li>
+    <li>Italian ice</li>
+    <li>custard</li>
+  </ul>
+
+  <ul class="unassigned">
+    <li>rocky road</li>
+    <li>gelato</li>
+  </ul>
+</body>
+~~~~~~~
+
+After solving the problems described above, our document should look like this:
+
+{title="moving elements demonstration document - after reordering", lang=html}
+~~~~~~~
+<body>
+  <h2>Types</h2>
+  <ul class="types">
+    <li>frozen yogurt</li>
+    <li>Italian ice</li>
+    <li>custard</li>
+    <li>gelato</li>
+  </ul>
+
+  <h2>Flavors</h2>
+  <ul class="flavors">
+    <li>chocolate</li>
+    <li>vanilla</li>
+    <li>rocky road</li>
+    <li>strawberry</li>
+  </ul>
+
+  <ul class="unassigned">
+  </ul>
+</body>
+~~~~~~~
 
 
-#### Inserting elements before and after other elements
+#### Moving elements using jQuery
+
+%% $.append / $.prepend
 
 
-#### Adding an element as a child or parent of another
+#### The DOM API's solution to reordering elements
+
+%% insertBefore
+%% appendChild
 
 
 ### Making copies of elements
 
+%% $.clone
+%% cloneNode
+
 
 ## Creating your own elements and content
+
+%% add some new flavors and types
+%% remove some existing flavors and types
+%% fix typos in flavors or types
+%% create a new section
 
 
 ### Creating and deleting elements
 
+%% $('<div>')
+%% document.createElement
+
+%% $.remove
+%% remove
+%% removeChild
+%% replaceChild
+
 
 ### Text content
 
+%% $.text
 %% textContent, innerText, innerHTML
 
 
 ### Rich content
 
+%% $.html
 %% document: outerHTML, innerHTML, write/writeln
+%% insertAdjacentHTML
+
+
+[mdn-document]: https://developer.mozilla.org/en-US/docs/Web/API/Document
+
+[mdn-element]: https://developer.mozilla.org/en-US/docs/Web/API/Element
+
+[mdn-node]: https://developer.mozilla.org/en-US/docs/Web/API/Node
 
 [methvin-bug-dodge]: https://github.com/jquery/jquery/issues/2679#issuecomment-152289474
 
