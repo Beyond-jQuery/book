@@ -797,7 +797,7 @@ var result = document.querySelectorAll('#link-container, .my-name, OL');
 ~~~~~~~
 
 
-### Element categories and modifiers
+### Element categories and modifiers {#element-categories-and-modifiers}
 
 jQuery's API provides quite a few of their own _proprietary_ CSS pseudo-class selectors, such as `:button`, `:submit`, and `:password`. In fact, jQuery's documentation for these non-standard selectors _advises against using them_, due to the fact that there are much more performant alternatives - _standardized_ CSS selectors. For example, the jQuery API docs for the `:button` pseudo-class contain the following warning:
 

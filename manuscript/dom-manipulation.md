@@ -35,7 +35,7 @@ I'm going to start this section out with one of my patented (pending) sample doc
 
 Our super-simple document consists of a few different categories and attributes of ice cream: flavors, types, and a section of unassigned types and flavors. This document represents some choices for customers of an ice-cream shop. Using this markup, we're going to solve several "problems", first with jQuery, and then with the plain 'ole DOM API.
 
-The first challenge involves reordering the flavors and types in descending order, based on their popularity. Chocolate is most popular flavor, followed by vanilla and strawberry. Also, custard is the most popular type, followed by frozen yogurt and Italian ice. We'll have to change the order of the list items to reflect these facts.
+The first challenge involves reordering the flavors and types in descending order, based on their popularity. Chocolate is most popular flavor, followed by vanilla and strawberry. The types section is in the correct order though. We'll have to change the order of the flavors list items to reflect the popularity.
 
 Second, we really want to present our readers with the types of ice cream _first_, followed by the flavors. The current order, which includes _flavors_ first, is known to be less-than-ideal, as our users want to be informed of the types first before deciding on flavors.
 
@@ -54,8 +54,8 @@ Finally, we need to take the items in the "unassigned" section, and assign them 
   <h2>Types</h2>
   <ul class="types">
     <li>frozen yogurt</li>
-    <li>Italian ice</li>
     <li>custard</li>
+    <li>Italian ice</li>
   </ul>
 
   <ul class="unassigned">
@@ -94,13 +94,68 @@ After solving the problems described above, our document should look like this:
 
 #### Moving elements using jQuery
 
-%% $.append / $.prepend
+In order to properly order the flavors, "vanilla" must be moved after "chocolate". To accomplish this, we must make use of jQuery's `after()` API method.
+
+{title="Move an element after another element - jQuery", lang=javascript}
+~~~~~~~
+var $vanilla = $('.flavors').find('li').eq(2),
+    $chocolate = $('.flavors').find('li').eq(0);
+
+$chocolate.after($vanilla);
+~~~~~~~
+
+For our second challenge, we have to move the "types" section _and_ the heading (`<h2>`) for the "types" section before the "flavors" section. We can take advantage of the fact that this means the heading and section must by the first set of children of the `<body>` element. First, we "prepend" the "types" heading to the `<body>` using the `prependTo()` method, and then insert the "types" section after the newly moved heading, again using jQuery's `after()` method.
+
+{title="Move elements after and as the first child of another element - jQuery", lang=javascript}
+~~~~~~~
+var $typesHeading = $('h2').eq(1);
+
+$typesHeading.prependTo('body');
+$typesHeading.after($('.types'));
+~~~~~~~
+
+Finally, we need to move the unassigned "rocky road" just above "strawberry" in the flavors section, and "gelato" to the end of the "types" section. For the first move, we can again use jQuery's `after()` method. For the second move, we will use the `appendTo` method on the "gelato" element to insert it as the last child of the "types" section.
+
+{title="Move elements after and as the last child of another element - jQuery", lang=javascript}
+~~~~~~~
+var $rockyRoad = $('.unassigned').find('li').eq(0),
+    $gelato = $('.unassigned').find('li').eq(1);
+
+$vanilla.after($rockyRoad);
+$gelato.appendTo($('.types'));
+~~~~~~~
+
+None of the above solutions are particularly elegant or intuitive. It's certainly possible to come up with more attractive examples to solve these problems, but I would expect this attempt to be common among jQuery developers. We also could have made use of some of jQuery's proprietary psuedo-classes, such as `:first` and `:last`, but [we already learned how inefficient those options are](#element-categories-and-modifiers).
 
 
 #### The DOM API's solution to reordering elements
 
-%% insertBefore
-%% appendChild
+{title="Move an element after another element - DOM API - all modern browsers + IE8", lang=javascript}
+~~~~~~~
+var flavors = document.querySelector('.flavors'),
+    vanilla = flavors.children[2],
+    strawberry = flavors.children[1];
+
+flavors.insertBefore(vanilla, strawberry);
+~~~~~~~
+
+{title="Move elements after and as the first child of another element - DOM API - all modern browsers + IE8", lang=javascript}
+~~~~~~~
+var typesHeading = document.querySelectorAll('h2')[1],
+    flavorsHeading = document.querySelector('h2'),
+    typesList = document.querySelector('.types');
+
+document.body.insertBefore(typesHeading, flavorsHeading);
+document.body.insertBefore(typesList, flavorsHeading);
+~~~~~~~
+
+{title="Move elements after and as the last child of another element - DOM API - all modern browsers + IE8", lang=javascript}
+~~~~~~~
+flavors.insertBefore(document.querySelector('.unassigned > li'),
+  strawberry);
+document.querySelector('.types').appendChild(
+  document.querySelector('.unassigned > li'));
+~~~~~~~
 
 
 ### Making copies of elements
