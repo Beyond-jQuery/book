@@ -98,8 +98,9 @@ In order to properly order the flavors, "vanilla" must be moved after "chocolate
 
 {title="Move an element after another element - jQuery", lang=javascript}
 ~~~~~~~
-var $vanilla = $('.flavors').find('li').eq(2),
-    $chocolate = $('.flavors').find('li').eq(0);
+var $flavors = $('.flavors'),
+    $chocolate = $flavors.find('li').eq(0),
+    $vanilla = $flavors.find('li').eq(2);
 
 $chocolate.after($vanilla);
 ~~~~~~~
@@ -118,8 +119,9 @@ Finally, we need to move the unassigned "rocky road" just above "strawberry" in 
 
 {title="Move elements after and as the last child of another element - jQuery", lang=javascript}
 ~~~~~~~
-var $rockyRoad = $('.unassigned').find('li').eq(0),
-    $gelato = $('.unassigned').find('li').eq(1);
+var $unassigned = $('.unassigned'),
+    $rockyRoad = $unassigned.find('li').eq(0),
+    $gelato = $unassigned.find('li').eq(1);
 
 $vanilla.after($rockyRoad);
 $gelato.appendTo($('.types'));
@@ -130,32 +132,56 @@ None of the above solutions are particularly elegant or intuitive. It's certainl
 
 #### The DOM API's solution to reordering elements
 
+In order to make the proper adjustments to our ice cream store page _without_ jQuery, I'm going to have to introduce two new DOM API methods. You'll also see a number of selectors and other DOM API methods discussed in the [Finding HTML Elements chapter](#finding-elements). You'll also be pleasantly surprised to discover that _all_ of the code in this section works in all modern browsers _and_ Internet Explorer 8 as well! Before we start, the eye-rolling nature of this example ice cream store markup is not lost on me, but it allows me to succinctly demonstrate a number of DOM manipulation operations without getting bogged down in details unrelated to the problem at hand. That said, let's get started!
+
+Remember that our first task is to move the "vanilla" element before the "strawberry" element. To accomplish this, we can make use of [the `insertBefore` method][dom2core-insertbefore], which was added to the `Node` interface as part of W3C's DOM Level 2 Core specification. This method, as you might imagine, allows us to move one element just before another in the DOM. And because this is available on the `Node` interface, we have the power to move anything in the DOM, even a `Text` or `Comment` node! Take a look at how we move this element below. I'll explain what's going on immediately after the code fragment.
+
 {title="Move an element after another element - DOM API - all modern browsers + IE8", lang=javascript}
 ~~~~~~~
 var flavors = document.querySelector('.flavors'),
-    vanilla = flavors.children[2],
-    strawberry = flavors.children[1];
+    strawberry = flavors.children[1],
+    vanilla = flavors.children[2];
 
 flavors.insertBefore(vanilla, strawberry);
 ~~~~~~~
 
+At the top of the above code, I'm simply selecting elements needed by our move operation. The last line is the most important one. Since the `insertBefore` method is defined on the `Node` object's `prototype`, we must call `insertBefore` on an DOM object that implements this interface. In fact, this element _must_ be a parent element of the `Node` we are moving. Since we are moving the "vanilla" `<li>` element, we can use its parent, the "flavors" `<ul>`.
+
+The first parameter passed to `insertBefore` is the element we want to relocate - the "vanilla" list item. The _second_ parameter is the "reference node". That is, the `Node` that will become the next sibling of our target element (the "vanilla" `<li>`) _after_ the move operation. Since we want to move "vanilla" before "strawberry", the "strawberry" `<li>` is our reference node.
+
+So we've reordered our flavors, but we still need to move the flavors heading and list to the top of our document. We can easily accomplish this goal with the `insertBefore` method as well.
+
 {title="Move elements after and as the first child of another element - DOM API - all modern browsers + IE8", lang=javascript}
 ~~~~~~~
-var typesHeading = document.querySelectorAll('h2')[1],
-    flavorsHeading = document.querySelector('h2'),
+var headings = document.querySelectorAll('h2'),
+    flavorsHeading = headings[0],
+    typesHeading = headings[1],
     typesList = document.querySelector('.types');
 
 document.body.insertBefore(typesHeading, flavorsHeading);
 document.body.insertBefore(typesList, flavorsHeading);
 ~~~~~~~
 
+The meat of our logic is contained in the final two lines of the above code. First, we're moving the "types" `<h2>` to the top of our document. The parent of this heading is the `<body>` element, which we can easily select using `document.body`. Our target element is, of course, the "types" heading. We want to move this just before the "flavors" `<h2>`, so that becomes our reference element.
+
+The second `insertBefore` moves the `<ul>` of ice cream types after the recently moved heading. Again `<body>` is our parent element. Since we need to move this list before the "flavors" heading, that is again our reference node.
+
+Our final task is to move the unassigned elements into their respective lists. To accomplish this, we'll again make use of `insertBefore`, but you'll also see a new method in action. The W3C DOM Level 1 specification, which is quite an old spec, first defined an [`appendChild` method on the `Node` interface][domlevel1-appendchild]. This method will be of some use to us as we wrap up our exercise.
+
 {title="Move elements after and as the last child of another element - DOM API - all modern browsers + IE8", lang=javascript}
 ~~~~~~~
 flavors.insertBefore(document.querySelector('.unassigned > li'),
   strawberry);
+
 document.querySelector('.types').appendChild(
   document.querySelector('.unassigned > li'));
 ~~~~~~~
+
+In the first line, we're moving the "rocky road" element from the unassigned list into the flavors list. The flavors list is our parent element, as expected. The target is the first list item child of the unassigned list, which happens to be the "rocky road" `<li>`. And the reference node is the strawberry item in the flavors list, since we want to move "rocky road" before this element.
+
+We want to move the "gelato" list item to the _end_ of the types list. The simplest way to do this is to make use of `appendChild`. As the `insertBefore` method, `appendChild` also expects to be called on the parent of the node we plan to move. This parent is the types list. The `appendChild` method only takes one argument - the element to move to the last child of the parent element. At this point, the "gelato" item is the first `<li>` child in the unassigned list, so we can use the same selector as used to locate the target element in our `insertBefore` statement.
+
+That was all surprisingly easy, wasn't it? The DOM API isn't as scary as many make it out to be!
 
 
 ### Making copies of elements
@@ -202,6 +228,10 @@ document.querySelector('.types').appendChild(
 %% document: outerHTML, innerHTML, write/writeln
 %% insertAdjacentHTML
 
+
+[domlevel1-appendchild]: http://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#ID-184E7107
+
+[dom2core-insertbefore]: http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-952280727
 
 [mdn-document]: https://developer.mozilla.org/en-US/docs/Web/API/Document
 
