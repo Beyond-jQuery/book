@@ -181,13 +181,47 @@ In the first line, we're moving the "rocky road" element from the unassigned lis
 
 We want to move the "gelato" list item to the _end_ of the types list. The simplest way to do this is to make use of `appendChild`. As the `insertBefore` method, `appendChild` also expects to be called on the parent of the node we plan to move. This parent is the types list. The `appendChild` method only takes one argument - the element to move to the last child of the parent element. At this point, the "gelato" item is the first `<li>` child in the unassigned list, so we can use the same selector as used to locate the target element in our `insertBefore` statement.
 
-That was all surprisingly easy, wasn't it? The DOM API isn't as scary as many make it out to be!
+That was all surprisingly easy, wasn't it? The DOM API may not be as scary as many make it out to be!
 
 
 ### Making copies of elements
 
-%% $.clone
-%% cloneNode
+To demonstrate the various ways to clone elements using jQuery and the DOM API, consider the following markup:
+
+{title="node cloning HTML", lang=html}
+~~~~~~~
+<ol class="numbers">
+  <li>one</li>
+  </li>two</li>
+</ol>
+~~~~~~~
+
+The DOM API offers a method to clone the `<ol>` _and_ its children, as well as a way to clone _only_ `<ol>` and _not_ any of its children/content. The former is called a "deep clone", and the latter a "shallow clone". jQuery _only_ offers a way to deep clone.
+
+In jQuery-land, we must make use of `$.clone()`:
+
+{title="cloning elements - jQuery", lang=javascript}
+~~~~~~~
+// deep clone: return value is an exact copy
+$('.numbers').clone();
+~~~~~~~
+
+You can optionally pass boolean parameters to `clone()` above if you'd like jQuery to clone any data and event listeners on the element. But be warned that jQuery will only copy event listeners and data attached to the element via jQuery. Any listeners and data added outside of jQuery's API will be lost.
+
+The DOM API provides an similarly named method, `cloneNode`, available on the `Node` interface. [It was first standardized as part of DOM Level 2 Core][dom2core-clonenode], which became a W3C recommendation back in 2000. As a result, `cloneNode` is supported in _any_ browser. Our example below is limited Internet Explorer 8 and up (though this is hardly a problematic limitation) due to my use of `querySelector`.
+
+{title="cloning elements - jQuery", lang=javascript}
+~~~~~~~
+// shallow clone: return value only the empty <ol>
+document.querySelector('.numbers').cloneNode();
+
+// deep clone: return value is an exact copy
+document.querySelector('.numbers').cloneNode(true);
+~~~~~~~
+
+In both cases, the element copies will contain _everything_ defined in the markup, even the class names, and any other attributes such as inline styles. Event listeners are _not_ included with the copy, nor are any properties exclusively set on the element's JavaScript object representation. In other words, `cloneNode` copies _only_ what you see: markup.
+
+Whether you are using jQuery or the DOM API, the copy created by `cloneNode` is _not_ added to the document for you. You will need to do this yourself using one of the methods demonstrated earlier in this section.
 
 
 ## Creating your own elements and content
@@ -230,6 +264,8 @@ That was all surprisingly easy, wasn't it? The DOM API isn't as scary as many ma
 
 
 [domlevel1-appendchild]: http://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#ID-184E7107
+
+[dom2core-clonenode]: http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-3A0ED0A4
 
 [dom2core-insertbefore]: http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-952280727
 
