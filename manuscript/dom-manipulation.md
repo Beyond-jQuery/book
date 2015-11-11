@@ -41,6 +41,8 @@ Second, we really want to present our readers with the types of ice cream _first
 
 Finally, we need to take the items in the "unassigned" section, and assign them to the proper category. "Rocky road" is a flavor, which is less popular than vanilla, but more popular that strawberry. And "gelato" is a type, the least popular of the bunch.
 
+{#moving-elements-markup}
+
 {title="moving elements demonstration document - original", lang=html}
 ~~~~~~~
 <body>
@@ -210,7 +212,7 @@ You can optionally pass boolean parameters to `clone()` above if you'd like jQue
 
 The DOM API provides an similarly named method, `cloneNode`, available on the `Node` interface. [It was first standardized as part of DOM Level 2 Core][dom2core-clonenode], which became a W3C recommendation back in 2000. As a result, `cloneNode` is supported in _any_ browser. Our example below is limited Internet Explorer 8 and up (though this is hardly a problematic limitation) due to my use of `querySelector`.
 
-{title="cloning elements - jQuery", lang=javascript}
+{title="cloning elements - DOM API - all modern browsers + IE8", lang=javascript}
 ~~~~~~~
 // shallow clone: return value only the empty <ol>
 document.querySelector('.numbers').cloneNode();
@@ -224,12 +226,16 @@ In both cases, the element copies will contain _everything_ defined in the marku
 Whether you are using jQuery or the DOM API, the copy created by `cloneNode` is _not_ added to the document for you. You will need to do this yourself using one of the methods demonstrated earlier in this section.
 
 
-## Creating your own elements and content
+## Composing your own elements
 
-%% add some new flavors and types
-%% remove some existing flavors and types
-%% fix typos in flavors or types
-%% create a new section
+Now that we've explored moving and coping elements, how about creating and removing them? This section explores just that. You'll see how these common problems have been solved with jQuery, and how you can solve them just as easily with the DOM API. Just like the previous section, all DOM API code below will work in all modern browsers _and_ Internet Explorer 8. In essence, this covers all browsers in use today.
+
+To best demonstrate all of the concepts outlined in this final section, I'll build upon the [example document from the previous section](#moving-elements-markup) used to demonstrate moving elements. Using both jQuery and the bare DOM API, I'll show you how to perform various operations on our example document, such as:
+
+* Add some new ice cream flavors and types.
+* Remove some existing flavors and types.
+* Make simple text adjustments to our document.
+* Create a new section to further classify ice cream.
 
 
 ### Creating and deleting elements
