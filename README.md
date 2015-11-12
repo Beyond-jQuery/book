@@ -24,7 +24,7 @@ As for the second question, I _did_ initially hide this in a private repository,
 
 ### When do you write?
 
-Currently, a few nights a week, usually between the hours of 9pm and midnight. I have other projects and responsibilties as well, so this varies a bit. I'm also [writing other stuff][raynicholus.com].
+Currently, a few nights a week, [usually between the hours of 9pm and midnight Central time](https://github.com/rnicholus/beyond-jquery-book/graphs/punch-card). I have other projects and responsibilties as well, so this varies a bit. I'm also [writing other stuff][raynicholus.com].
 
 
 ### I found a typo or some other error
