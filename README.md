@@ -1,6 +1,4 @@
-# "Beyond jQuery"
-
-## Free yourself from the chains of jQuery by discovering the power of JavaScript and the modern web API
+<img src="manuscript/images/title_page.png" width="400">
 
 This is a book-in-progress, [currently available for purchase on Leanpub][leanpub]. It aims to educate web developers and give them the confidence to abandon their jQuery crutches and walk freely with the power of the web API and JavaScript. You will learn about the most important concepts surrounding web development as I demystify jQuery.
 
