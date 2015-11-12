@@ -346,7 +346,7 @@ var $result = $('A > *')
 ~~~~~~~
 
 
-#### Web API
+#### Web API {#parents-and-children-webapi}
 
 For the most part, locating the parent of an element/node without jQuery is simple. [DOM Level 2 Core was the first specification to define a `parentNode` property on the `Node` interface][dom2core-parentnode], which, as you might expect, is set to the parent `Node` of the reference element. Of course, this value may be an `Element` or any other type of `Node`. Later on, in [the subsequent W3C DOM4 specification, a `parentElement` property was added to the `Node` interface][dom4-node]. This property will _always_ be an `Element`. If the parent of a reference `Node` is some type of `Node` other than an `Element`, the `parentElement` will be `null`. But in most cases, `parentElement` and `parentNode` will be identical, unless the reference node is `<html>`, in which case `parentNode` will be `document`, and `parentElement` will be of course `null`. In a general sense, and especially due to wide browser support, the `parentNode` property is the best choice, but `parentElement` is nearly just as safe.
 

@@ -41,7 +41,6 @@ Second, we really want to present our readers with the types of ice cream _first
 
 Finally, we need to take the items in the "unassigned" section, and assign them to the proper category. "Rocky road" is a flavor, which is less popular than vanilla, but more popular that strawberry. And "gelato" is a type, the least popular of the bunch.
 
-{#moving-elements-markup}
 
 {title="moving elements demonstration document - original", lang=html}
 ~~~~~~~
@@ -68,6 +67,8 @@ Finally, we need to take the items in the "unassigned" section, and assign them 
 ~~~~~~~
 
 After solving the problems described above, our document should look like this:
+
+{#moving-elements-markup-result}
 
 {title="moving elements demonstration document - after reordering", lang=html}
 ~~~~~~~
@@ -230,26 +231,77 @@ Whether you are using jQuery or the DOM API, the copy created by `cloneNode` is 
 
 Now that we've explored moving and coping elements, how about creating and removing them? This section explores just that. You'll see how these common problems have been solved with jQuery, and how you can solve them just as easily with the DOM API. Just like the previous section, all DOM API code below will work in all modern browsers _and_ Internet Explorer 8. In essence, this covers all browsers in use today.
 
-To best demonstrate all of the concepts outlined in this final section, I'll build upon the [example document from the previous section](#moving-elements-markup) used to demonstrate moving elements. Using both jQuery and the bare DOM API, I'll show you how to perform various operations on our example document, such as:
+To best demonstrate all of the concepts outlined in this final section, I'll build upon the [modified example document from the previous section](#moving-elements-markup-result) used to demonstrate moving elements. Using both jQuery and the bare DOM API, I'll show you how to perform various operations on our example document, such as:
 
-* Add some new ice cream flavors and types.
-* Remove some existing flavors and types.
-* Make simple text adjustments to our document.
-* Create a new section to further classify ice cream.
+1. Add some new ice cream flavors.
+2. Remove some existing types.
+3. Make simple text adjustments to our document.
+4. Create a new section to further classify our ice cream.
 
 
 ### Creating and deleting elements
 
-%% add some new flavors and types
-%% remove some existing flavors and types
+Suppose we have a couple new flavors to add to our list: pistachio and neapolitan. These of course belong in the "flavors" section. In order to accomplish this task, we'll need to create two new `<li>` elements with `Text` `Node`s that contain the names of these two new flavors. We'll just add the flavors to the end of the list. We also want to remove the "gelato" type from the end of the list of types, since we no longer sell gelato ice cream.
 
-%% $('<div>')
-%% document.createElement
+Creating elements is pretty easy with jQuery, and due to chaining we can add both elements in two lines:
 
-%% $.remove
-%% remove
-%% removeChild
-%% replaceChild
+{title="add elements to a document - jQuery", lang=javascript}
+~~~~~~~
+var $flavors = $('.flavors');
+
+// add two new flavors
+$('<li>pistachio</li>').appendTo($flavors);
+$('<li>neapolitan</li>').appendTo($flavors);
+~~~~~~~
+
+Removing an element isn't very difficult either:
+
+{title="remove an element from a document - jQuery", lang=javascript}
+~~~~~~~
+// remove the "gelato" type
+$('.types li:last').remove();
+~~~~~~~
+
+Above, we've made use of a CSS selector, partially proprietary. We're removing for the last `<li>` underneath the element with a "types" CSS class. This happens to be our "gelato" type. The `:last` pseduo-class is specific to jQuery, and as such is not particularly performant. There _is_ a native CSS pseduo-class we could use, which you will see in a moment. But most jQuery developers likely don't know that it exists, since the jQuery API provides this alternative.
+
+How can achieve the same results with the DOM API? Depending on desired browser support, we may have several options.While newer browsers _may_ have more elegant options than older ones, this is not always the case and these operations are all relatively simple in _all_ modern browsers (and even older ones) without relying on jQuery.
+
+We can add our two new flavors to the end of the "flavors" list in one line each as well, although the lines are a _bit_ longer than the jQuery solution above. Again, our use of `querySelector` is the only reason for the Internet Explorer 8 limitation.
+
+{title="add elements to a document - DOM API - all modern browsers + IE8", lang=javascript}
+~~~~~~~
+var flavors = document.querySelector('.flavors');
+
+// add two new flavors
+flavors.insertAdjacentHTML('beforeend', '<li>pistachio</li>')
+flavors.insertAdjacentHTML('beforeend', '<li>neapolitan</li>')
+~~~~~~~
+
+Above, I'm using [the `insertAdjacentHTML` method][domparsing-insertadjacent] present on the `Element` interface prototype. While this method has likely existed in browsers for many years, it was only first standardized in the [W3C's DOM Parsing and Serialization specification][domparsing], which was drafted in 2014.
+
+What about removing "gelato" from our list of types? In the newest available browsers, we have the most elegant solution:
+
+{title="remove an element from a document - DOM API - Microsoft Edge, Chrome, Firefox, Safari 7 (desktop only)", lang=javascript}
+~~~~~~~
+// remove the "gelato" type
+document.querySelector('.types li:last-child').remove();
+~~~~~~~
+
+The above code is _very_ similar to the jQuery solution, with a couple noticeable differences. First, I am of course using `querySelector` to locate the element to remove. Second, I'm making use of [the `:last-child` CSS3 pseudo-class][css3-lastchild] selector. The `remove()` method, present on the `ChildNode` interface, is relatively new and only supported in Microsoft Edge, Chrome, Firefox, and Safari 7. It is not supported on any versions of Internet Explorer, nor is it available on Apple iOS browsers. This method was first defined by the [WHATWG](#whatwg-vs-w3c) as [part of their DOM living standard][dom-remove]. This method in particular is our limiting factor in terms of browser support.
+
+Luckily, we have a solution that covers _all_ modern browsers, which requires only a little more code:
+
+{title="remove an element from a document - DOM API - all modern browsers", lang=javascript}
+~~~~~~~
+var gelato = document.querySelector('.types li:last-child');
+
+// remove the "gelato" type
+gelato.parentNode.removeChild(gelato);
+~~~~~~~
+
+I've replaced `ChildNode.remove()` with `Node.removeChild`, which [has existed since DOM Level 1 Core][domlevel1-removechild], so it is supported in all browsers. In order to remove a child node, of course we need to access the parent first. Luckily, it's really easy to do this, as you learned in [the Finding HTML Elements chapter](#parents-and-children-webapi). In this instance, the code that limits us to modern browsers is the `:last-child` CSS3 pseudo-class, which isn't available in Internet Explorer 8.
+
+In order to support IE8, you'll have to replace the selector with something like `document.querySelectorAll('.types li')[3]`. And if you don't want to hard-code the index of the gelato element, you'll have to move the result of the `querySelectorAll` into a variable, and access the last element in the returned collection by examining its `length` property.
 
 
 ### Text content
@@ -269,11 +321,21 @@ To best demonstrate all of the concepts outlined in this final section, I'll bui
 %% insertAdjacentHTML
 
 
+[css3-lastchild]: http://www.w3.org/TR/css3-selectors/#last-child-pseudo
+
+[dom-remove]: https://dom.spec.whatwg.org/#dom-childnode-remove
+
 [domlevel1-appendchild]: http://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#ID-184E7107
+
+[domlevel1-removechild]: http://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#method-removeChild
 
 [dom2core-clonenode]: http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-3A0ED0A4
 
 [dom2core-insertbefore]: http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-952280727
+
+[domparsing]: https://w3c.github.io/DOM-Parsing/
+
+[domparsing-insertadjacent]: https://w3c.github.io/DOM-Parsing/#widl-Element-insertAdjacentHTML-void-DOMString-position-DOMString-text
 
 [mdn-document]: https://developer.mozilla.org/en-US/docs/Web/API/Document
 
