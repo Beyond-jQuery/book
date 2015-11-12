@@ -20,9 +20,14 @@ What, writing a book, or making my writing publically available instead of hidin
 As for the second question, I _did_ initially hide this in a private repository, up until 12 November 2015. I moved it to a _public_ GitHub repository as I felt a bit "dirty" trying to hide the underlying source. If someone really wants to avoid paying, they'll find a way. For example, [you can purchase the book and then "return" it for a full refund within 45 days, no questions asked][leanpub-faq]. Of course, you already have the PDF, so you can continue reading for free if you really want. But I have faith that other developers who find this potentially useful will contribute.  So, here it is...
 
 
-### When do you write?
+### How are all of the files in the manuscript folder organized?
 
-Currently, a few nights a week, [usually between the hours of 9pm and midnight Central time](https://github.com/rnicholus/beyond-jquery-book/graphs/punch-card). I have other projects and responsibilties as well, so this varies a bit. I'm also [writing other stuff][raynicholus.com].
+Everything you see in the manuscript directory is organized according to Leanpub conventions. The [book.txt](manuscript/book.txt) file is describes the order of the chapters, along with front-matter (preface, intro, etc) and end-matter (about the author, appendices, etc). Each chapter is written using Leanpub-flavored markdown. You can read all about the details of this syntax in [The Leanpub Manual][leanpub-manual].
+
+
+### When do you write? What is your process?
+
+Currently, a few nights a week, [usually between the hours of 9pm and midnight Central time](https://github.com/rnicholus/beyond-jquery-book/graphs/punch-card). I have other projects and responsibilties as well, so this varies a bit. I'm also [writing other stuff][raynicholus.com]. At the end of each night of writing, I typically push my changes up to GitHub. Using a webbook, Leanpub generates several preview files for me, including PDF and EPUB versions, and delivers them to my dropbox account. I spend a little time reviewing these before I stop for the night. I publish (make public) a new version of Beyond jQuery after a new chapter is completed. I typically spend a few days reviewing the chapter and making adjustments before I publish. I'm currently averaging about 1 new chapter per month.
 
 
 ### I found a typo or some other error
@@ -42,4 +47,5 @@ Thanks.
 [issues]: https://github.com/rnicholus/beyond-jquery-book/issues/new
 [leanpub]: https://leanpub.com/beyondjquery
 [leanpub-faq]: https://leanpub.com/help/reader_faq
+[leanpub-manual]: https://leanpub.com/help/manual
 [raynicholus.com]: http://raynicholus.com/
