@@ -68,7 +68,7 @@ Finally, we need to take the items in the "unassigned" section, and assign them 
 
 After solving the problems described above, our document should look like this:
 
-{id='moving-elements-markup-result', title="moving elements demonstration document - original", lang=html}
+{id="moving-elements-markup-result", title="moving elements demonstration document - original", lang=html}
 ~~~~~~~
 <body>
   <h2>Types</h2>
