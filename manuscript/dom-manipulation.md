@@ -304,10 +304,46 @@ In order to support IE8, you'll have to replace the selector with something like
 
 ### Text content
 
-%% fix typos in flavors or types
+There are two workflows to address in terms of element text: updating and parsing. While jQuery provides one specific method to accomplish both of these tasks, the DOM API offers two - both with different behaviors that accommodate different needs. In this section, I'll demonstrate jQuery's `text()` method, the native `textContent` property, _and_ the native `innerText` property. You'll see how each of these differ as we make changes to [our document of ice cream types and flavors](#moving-elements-markup-result) and then output the resulting document as text.
 
-%% $.text
-%% textContent, innerText, innerHTML
+First, let's examine jQuery's `text()` method, which allows us to both read and update text in a document. Notice that one of our types "Italian ice", starts with a capital letter. None of the other types or flavors share this trait. Even though "Italian" is a proper adjective and normally _should_ start with a capital "t", let's modify it to be consistent with the case of the rest of our types and flavors.
+
+{title="update text - jQuery", lang=javascript}
+~~~~~~~
+$('.types li').eq(1).text('italian ice');
+~~~~~~~
+
+As you probably already know, the text of an element can be updated simply by passing the new text as a parameter of the `text()` method. This is exactly what I have done above in order to normalize the case of this type of ice cream. What would our modified document look like if we output it using jQuery's `text()` method?
+
+{title="output document as text using $('body').text()"}
+~~~~~~~
+"
+  Types
+
+    frozen yogurt
+    italian ice
+    custard
+    gelato
+
+
+  Flavors
+
+    chocolate
+    vanilla
+    rocky road
+    strawberry
+
+
+
+
+"
+~~~~~~~
+
+The quotation marks have been added to show where the output starts and ends. They are not part of the actual text. Note that this output reflects the structure of our _markup_. This is noticeable by examining the indentation of the text as well as the line breaks at the end of the document. The series of line breaks before the output ends account for the empty "unassigned" list. You'll see in a moment how this output mirrors the output of _one_ of the two native properties that I'm going to cover next.
+
+
+
+%% textContent, innerText
 
 
 ### Rich content
