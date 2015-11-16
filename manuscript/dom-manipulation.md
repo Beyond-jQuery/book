@@ -315,7 +315,7 @@ $('.types li').eq(1).text('italian ice');
 
 As you probably already know, the text of an element can be updated simply by passing the new text as a parameter of the `text()` method. This is exactly what I have done above in order to normalize the case of this type of ice cream. What would our modified document look like if we output it using jQuery's `text()` method?
 
-{id="output-text-jquery" title="output document as text using `$('body').text()`"}
+{id="output-text-jquery", title="output document as text using `$('body').text()`"}
 ~~~~~~~
 "
   Types
