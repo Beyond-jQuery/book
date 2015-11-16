@@ -315,7 +315,7 @@ $('.types li').eq(1).text('italian ice');
 
 As you probably already know, the text of an element can be updated simply by passing the new text as a parameter of the `text()` method. This is exactly what I have done above in order to normalize the case of this type of ice cream. What would our modified document look like if we output it using jQuery's `text()` method?
 
-{title="output document as text using $('body').text()"}
+{id="output-text-jquery" title="output document as text using `$('body').text()`"}
 ~~~~~~~
 "
   Types
@@ -339,11 +339,73 @@ As you probably already know, the text of an element can be updated simply by pa
 "
 ~~~~~~~
 
-The quotation marks have been added to show where the output starts and ends. They are not part of the actual text. Note that this output reflects the structure of our _markup_. This is noticeable by examining the indentation of the text as well as the line breaks at the end of the document. The series of line breaks before the output ends account for the empty "unassigned" list. You'll see in a moment how this output mirrors the output of _one_ of the two native properties that I'm going to cover next.
+The quotation marks have been added to show where the output starts and ends. They are not part of the actual text. Note that this output reflects the structure of our _markup_. This is noticeable by examining the indentation of the text as well as the line breaks at the end of the document. The series of line breaks before the output ends account for the empty "unassigned" list. You'll see how this output mirrors the output of _one_ of the two native text manipulation properties offered by the DOM API.
+
+There are two common properties available on the DOM elements used to read and update text: `textContent` and `innerText`. There are notable advantages and disadvantages of both properties, but together they provide more flexibility in dealing with text than jQuery's `text()` method. Next, I'll compare and contrast these two properties against each other and jQuery's `text()` method, and it will be clear when you should choose on over the other.
+
+Lets' first examine `textContent`, which was [added to the `Node` interface in W3C's DOM Level 3 Core][dom3core-textcontent]. This property allows element text to be read and updated in _all_ [modern browsers](#modern-browsers). Change the text of our "Italian ice" list item to "italian ice" is just as simple as jQuery's `text()` method.
+
+{title="update text - DOM API - modern browsers", lang=javascript}
+~~~~~~~
+document.querySelectorAll('.types li')[1].textContent = 'italian ice';
+~~~~~~~
+
+The `textContent` property not only matches the behavior of jQuery's `text()` method when writing text, it also functions _exactly_ like jQuery when _reading_ text as well. Take [our previous example](#output-text-jquery) where we outputted our entire ice cream document after modifying the "Italian ice" type. The output from the DOM API's `textContent` property matches that of jQuery's `text()` _exactly_:
+
+{title="output document as text using `textContent`"}
+~~~~~~~
+"
+  Types
+
+    frozen yogurt
+    italian ice
+    custard
+    gelato
+
+
+  Flavors
+
+    chocolate
+    vanilla
+    rocky road
+    strawberry
 
 
 
-%% textContent, innerText
+
+"
+~~~~~~~
+
+As you can see, `textContent` outputs the text in an element and its descendants formatted with the structure of the document markup in mind, just like jQuery's `text()`.
+
+The second available property, `innerText`, is available on the `HTMLElement` interface. Though it is a bit strange in that it is not yet part of any formal web specification. However, it is supported by all versions of all browsers, with the exception of Firefox, though this property _is_ supported in Firefox as well starting with [version 45][firefox-45]. Even though `innerText` is not yet standardized, there is [a rudimentary draft proposal][innertext-draft] is in place, created by Robert O'Callahan of Mozilla.
+
+Changing "Italian ice" to "italian ice" using `innerText` is not much different than `textContent` or jQuery's `text()`, with the exception of the addition of Internet Explorer 8 support _and_ lack of Firefox support for versions older than 45.
+
+{title="update text - DOM API - all modern browsers + IE8, except for Firefox 44 & older", lang=javascript}
+~~~~~~~
+document.querySelectorAll('.types li')[1].innerText = 'italian ice';
+~~~~~~~
+
+So what happens if we attempt to output [our document](#moving-elements-markup-result) using `innerText`? You'll see that the result looks a bit different than the result garnered from `textContent` and jQuery's `text()`:
+
+{title="output document as text using `innerText`"}
+~~~~~~~
+"Types
+
+frozen yogurt
+italian ice
+custard
+gelato
+Flavors
+
+chocolate
+vanilla
+rocky road
+strawberry"
+~~~~~~~
+
+Initially, the above output may look a bit odd, but it actually makes perfect sense if you understand what it represents. I'd like you to paste the markup from [the modified document listed earlier](#moving-elements-markup-result) into a browser, copy the rendered result your your system's clipboard, and then paste it into a text editor. You'll notice that the pasted text is formatted identically to the output listed above. As the draft specification describes, `innerText` "return(s) the 'rendered text' of an element".
 
 
 ### Rich content
@@ -367,9 +429,15 @@ The quotation marks have been added to show where the output starts and ends. Th
 
 [dom2core-insertbefore]: http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-952280727
 
+[dom3core-textcontent]: http://www.w3.org/TR/DOM-Level-3-Core/core.html#Node3-textContent
+
 [domparsing]: https://w3c.github.io/DOM-Parsing/
 
 [domparsing-insertadjacent]: https://w3c.github.io/DOM-Parsing/#widl-Element-insertAdjacentHTML-void-DOMString-position-DOMString-text
+
+[firefox-45]: https://developer.mozilla.org/en-US/Firefox/Releases/45
+
+[innertext-draft]: https://rocallahan.github.io/innerText-spec/index.html
 
 [mdn-document]: https://developer.mozilla.org/en-US/docs/Web/API/Document
 
