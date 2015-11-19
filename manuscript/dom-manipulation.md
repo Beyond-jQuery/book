@@ -410,11 +410,45 @@ Initially, the above output may look a bit odd, but it actually makes perfect se
 
 ### Rich content
 
-%% create a new section
+HTML is nothing more than text formatted per conventions defined by [a set of web specifications](#web-api). This reality is useful when we need to serialize or deserialize a document or a _portion_ of a document. Deserialization of HTML may occur when receiving server-generated markup in the response to an HTTP request. In this instance, the HTML in the response must be inserted into the DOM in an appropriate location. I'll demonstrate this specific scenario, and how this may be completed with the help of several methods available in the DOM API. And perhaps this server-generated markup must be returned to the server and persisted for later use after it is modified in some way. That, too, can be accomplished with the DOM API, and you'll see _how_ in this final section.
 
-%% $.html
-%% document: outerHTML, innerHTML, write/writeln
-%% insertAdjacentHTML
+jQuery provides a grand total of _one_ method for reading and writing HTML. This is accomplished using the aptly named `html()` function. First, let's assume we've already received a string of HTML from our server, and we need to insert it into our document. Keeping with the theme of this chapter, this markup represents an entirely new section for [our ice-cream store page](#moving-elements-markup-result). We simply need to insert it after the existing sections. The markup from our server is simple a long string of HTML, such as "<h2>Containers</h2><ul><li>cone</li><li>cup</li></ul>". This string of HTML will be stored in a variable named `containers`. Below, you can see how this should be inserted at the end of our document using jQuery.
+
+{title="add a string of HTML from server to a document - jQuery", lang=javascript}
+~~~~~~~
+$('<div>').html(container).appendTo('body');
+~~~~~~~
+
+First, we are creating a new `<div>`, which is disconnected from the DOM, then we're setting the contents of this disconnected `<div>` to the HTML from our server, and finally this element is added to the end of our ice-cream store page. After modifying our page in various ways, we now want to send the markup back to our server, which can also be accomplished using jQuery's `html()` method:
+
+{title="read a document to a string variable - jQuery", lang=javascript}
+~~~~~~~
+var contents = $('body').html();
+// ...send `contents` to server
+~~~~~~~
+
+The jQuery-less DOM API route is a bit less elegant, but still very simple and widely supported. In order to read and write the same markup, we'll use the `innerHTML` property defined on the `Element` interface. This property, while supported in every browser imaginable, has only recently achieved standardization. `innerHTML`  started as a Microsoft Internet Explorer proprietary extension, but is now [part of the W3C DOM Parsing and Serialization specification][domparsing-innerhtml].
+
+We can use `innerHTML` to add the server-generated HTML to the end of our page:
+
+{title="add a string of HTML from server to a document - DOM API - all modern browsers + IE8", lang=javascript}
+~~~~~~~
+var div = document.createElement('div');
+div.innerHTML = container;
+document.body.appendChild(div);
+~~~~~~~
+
+The `createElement` method of the `Document` interface is [courtesy of W3C's DOM Level 1 Core][dom1core-createelement] specification, which means it is supported in _any_ browser. Reading the markup of our document back for persistence server-side also uses `innerHTML`, and it's just as elegant as jQuery's `html()` method.
+
+{title="read a document to a string variable - DOM API - all modern browsers + IE8", lang=javascript}
+~~~~~~~
+var contents = document.body.innerHTML;
+// ...send `contents` to server
+~~~~~~~
+
+The DOM API is a bit more flexible than jQuery in this regard. It provides a few more options. For example the `Element.outerHTML` property will take the reference element into account when reading or updating HTML. Conversely, `innerHTML` is only concerned with the descendants of the reference element. Had we used `outerHTML` in the "add a string" demonstration above, everything in our document _including_ the `<body>` element would have been replaced with the new `<div>`-wrapped ice-cream containers section. In the second and most recent DOM API example, where we read back the contents of the document, the `<body>` element would have been included in the stringified-html had we used `outerHTML` instead. Depending on your requirements, this may be desirable.
+
+While I certainly haven't demonstrated _all_ of the properties and methods provided by the DOM API, the point I am trying to make is that the browser already provides more than enough in terms of reasonable and intuitive native support for DOM manipulation.
 
 
 [css3-lastchild]: http://www.w3.org/TR/css3-selectors/#last-child-pseudo
@@ -425,6 +459,8 @@ Initially, the above output may look a bit odd, but it actually makes perfect se
 
 [domlevel1-removechild]: http://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#method-removeChild
 
+[dom1core-createelement]: http://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#method-createElement
+
 [dom2core-clonenode]: http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-3A0ED0A4
 
 [dom2core-insertbefore]: http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-952280727
@@ -432,6 +468,8 @@ Initially, the above output may look a bit odd, but it actually makes perfect se
 [dom3core-textcontent]: http://www.w3.org/TR/DOM-Level-3-Core/core.html#Node3-textContent
 
 [domparsing]: https://w3c.github.io/DOM-Parsing/
+
+[domparsing-innerhtml]: http://www.w3.org/TR/DOM-Parsing/#widl-Element-innerHTML
 
 [domparsing-insertadjacent]: https://w3c.github.io/DOM-Parsing/#widl-Element-insertAdjacentHTML-void-DOMString-position-DOMString-text
 
