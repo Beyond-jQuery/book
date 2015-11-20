@@ -1,6 +1,6 @@
 # DOM Manipulation
 
-One of the most confusing and misunderstood aspects of the web API pertains to DOM manipulation. No doubt, you are already used to working with DOM elements using jQuery. But is it necessary to continue depending on a library in this regard? In this eight chapter of Beyond jQuery, I'll show you how to create, update, and move elements and element content _without_ any help from third-party code. You'll come to appreciate how easy it is to work with the DOM in virtually all browsers.
+One of the most confusing and misunderstood aspects of the web API pertains to DOM manipulation. I suspect you are already used to working with DOM elements through jQuery. But is it necessary to continue depending on a library in this regard? In this eighth chapter of Beyond jQuery, I'll show you how to create, update, and move elements and element content _without_ any help from third-party code. You'll come to appreciate how easy it is to work with the DOM in virtually all browsers.
 
 
 ## The DOM: A central component of web development
@@ -12,21 +12,21 @@ As stated in one of the [early W3C-maintained documents][w3c-dom-article], "The 
 
 ### jQuery exists because of the DOM API
 
-Ok, it's not the _only_ reason why jQuery was created, but certainly one of _the_ reasons. John Resig, the creator of jQuery, famously called the DOM a "mess" in [a 2009 presentation at Yahoo][resig-mess-yahoo]. So this perhaps gives us some insight into one of the problems jQuery aims to solve. A few years before Resig's talk, jQuery 1.0 was released (2006). This version of jQuery included about 25 DOM-manipulation-specific methods. This accounts for about 17% of the entire API. Many other methods abstract various DOM-related behaviors and functions as well. Even as the API has grown to handle all aspects of the web API, DOM manipulation functions still account for 15% of the API.
+Ok, it's not the _only_ reason why jQuery was created, but certainly one of _the_ reasons. John Resig, the creator of jQuery, famously called the DOM a "mess" in [a 2009 presentation at Yahoo][resig-mess-yahoo]. So this perhaps gives us some insight into one of the problems jQuery aims to solve. A few years before Resig's talk, jQuery 1.0 was released (2006), which included about 25 DOM-manipulation-specific methods. This accounted for about 17% of the entire API. Even as the API has grown to handle all aspects of the web API, DOM manipulation functions still account for 15%.
 
 Sure, jQuery provides some elegant solutions to working with the DOM. But are they really necessary? Of course not! Is the DOM still "broken"? Not in my opinion. The DOM API may have some rough edges, but it is fairly easy to use and quite reliable. You _can_ painlessly manipulate the DOM yourself without the help of jQuery.
 
 
-### The DOM API is not broken, it's just misunderstood
+### The DOM API isn't broken, it's just misunderstood
 
-In Resig's talk at Yahoo, mentioned previously, he said "Nearly every DOM method is broken in some way, in some browser." While this is a bit hyperbolic, it may have had _some_ truth to it back in 2009. The current age of browsers paints a much different picture though. While browsers still have bugs, this is true of all software, [even jQuery][jquery-issues]. The jQuery team already apparently knows that the library is no longer useful as a shield from browser bugs, as is evident in [their responses to issues that appear to be browser-specific][methvin-bug-dodge].
+In Resig's talk at Yahoo, he said "Nearly every DOM method is broken in some way, in some browser." While this is a bit hyperbolic, it may have had _some_ truth to it back in 2009. The current age of browsers paints a much different picture though. While browsers still have bugs, this is true of all software, [even jQuery][jquery-issues]. The jQuery team already apparently knows that the library is no longer useful as a shield from browser bugs, as is evident in [their responses to issues that appear to be browser-specific][methvin-bug-dodge].
 
-One of the major goals of jQuery has always been to shield developers from the DOM API. Why? Because it historically _has_ been a mess. It's also seen as a muddled path to follow when attempting to programmatically update a page's markup. This has a bit of truth to it, but only because many developers have not taken the time to learn the DOM API. As you'll see throughout this chapter, working with the DOM is surprisingly simple and well supported throughout all popular browsers. It's hard to argue with the convenience offered by jQuery API. But you can make better use of jQuery, should you continue to use it, once you have a better understanding of the underlying DOM API methods that jQuery itself makes use of.
+One of the major goals of jQuery has always been to shield developers from the DOM API. Why? Because it historically _has_ been a mess. It's also seen as a muddled path to follow when attempting to programmatically update a page's markup. This has a bit of truth to it, but only because many developers have not taken the time to learn the DOM API. As you'll see throughout this chapter, working with the DOM is surprisingly simple and well supported throughout all popular browsers. It's hard to argue with the convenience offered by jQuery's API. You can even make better use of jQuery, should you continue to use it, once you have a better understanding of the underlying DOM API methods that jQuery itself relies on.
 
 
 ## Moving and copying elements
 
-This chapter is all about "pure" DOM manipulation, that is, moving, copying, and creating elements. In this first part, I'm going to focus on moving and copying existing elements. You'll learn how to insert elements anywhere in the DOM, change the order of adjacent elements, as well as clone an element. I'll demonstrate methods present on the [`Document` interface][mdn-document], [`Element`][mdn-element], and [`Node`][mdn-node] interfaces, among others. You'll see how basic DOM operations have been executed with jQuery, followed by explanations and demonstrations of the same tasks utilizing the DOM API alone.
+This chapter is all about "pure" DOM manipulation: moving, copying, and creating elements. In this first part, I'm going to focus on moving and copying existing elements. You'll learn how to insert elements anywhere in the DOM, change the order of adjacent elements, as well as clone an element. I'll demonstrate methods present on the [`Document`][mdn-document], [`Element`][mdn-element], and [`Node`][mdn-node] interfaces, among others. You'll see how basic DOM operations have been executed with jQuery, followed by explanations and demonstrations of the same tasks utilizing the DOM API alone.
 
 
 ### Moving elements around the DOM
@@ -35,11 +35,11 @@ I'm going to start this section out with one of my patented (pending) sample doc
 
 Our super-simple document consists of a few different categories and attributes of ice cream: flavors, types, and a section of unassigned types and flavors. This document represents some choices for customers of an ice-cream shop. Using this markup, we're going to solve several "problems", first with jQuery, and then with the plain 'ole DOM API.
 
-The first challenge involves reordering the flavors and types in descending order, based on their popularity. Chocolate is most popular flavor, followed by vanilla and strawberry. The types section is in the correct order though. We'll have to change the order of the flavors list items to reflect the popularity.
+The first challenge involves reordering the flavors and types in descending order, based on their popularity. Chocolate is most popular flavor, followed by vanilla and strawberry. We'll have to change the order of the flavors list items to reflect their popularity, but the types section is in the correct order.
 
-Second, we really want to present our readers with the types of ice cream _first_, followed by the flavors. The current order, which includes _flavors_ first, is known to be less-than-ideal, as our users want to be informed of the types first before deciding on flavors.
+Second, we really want to present our readers with the types of ice cream _first_, followed by the flavors. The current order, which includes _flavors_ first, is known to be less-than-ideal, as our customers want to be informed of the types first before deciding on flavors.
 
-Finally, we need to take the items in the "unassigned" section, and assign them to the proper category. "Rocky road" is a flavor, which is less popular than vanilla, but more popular that strawberry. And "gelato" is a type, the least popular of the bunch.
+Finally, we need to take the items in the "unassigned" section, and assign them to the proper category. "Rocky road" is a flavor, which is less popular than vanilla, but more popular than strawberry. And "gelato" is a type, the least popular of the bunch.
 
 
 {title="moving elements demonstration document - original", lang=html}
@@ -106,7 +106,7 @@ var $flavors = $('.flavors'),
 $chocolate.after($vanilla);
 ~~~~~~~
 
-For our second challenge, we have to move the "types" section _and_ the heading (`<h2>`) for the "types" section before the "flavors" section. We can take advantage of the fact that this means the heading and section must by the first set of children of the `<body>` element. First, we "prepend" the "types" heading to the `<body>` using the `prependTo()` method, and then insert the "types" section after the newly moved heading, again using jQuery's `after()` method.
+For our second challenge, we have to move the "types" section _and_ the heading (`<h2>`) for the "types" section before the "flavors" section. We can take advantage of the fact that this means the heading and section must be the first set of children inside the `<body>` element. First, we prepend the "types" heading to the `<body>` using the `prependTo()` method, and then insert the "types" section after the newly moved heading, again using jQuery's `after()` method:
 
 {title="Move elements after and as the first child of another element - jQuery", lang=javascript}
 ~~~~~~~
@@ -116,9 +116,9 @@ $typesHeading.prependTo('body');
 $typesHeading.after($('.types'));
 ~~~~~~~
 
-Finally, we need to move the unassigned "rocky road" just above "strawberry" in the flavors section, and "gelato" to the end of the "types" section. For the first move, we can again use jQuery's `after()` method. For the second move, we will use the `appendTo` method on the "gelato" element to insert it as the last child of the "types" section.
+Finally, we need to move the unassigned "rocky road" just above "strawberry" in the flavors section, and "gelato" to the end of the "types" section. For the first move, we can again use jQuery's `after()` method. For the second move, we will use the `appendTo` method on the "gelato" element to insert it as the last child in the "types" section.
 
-{title="Move elements after and as the last child of another element - jQuery", lang=javascript}
+{title="Move elements after others and as the last child of another element - jQuery", lang=javascript}
 ~~~~~~~
 var $unassigned = $('.unassigned'),
     $rockyRoad = $unassigned.find('li').eq(0),
@@ -133,7 +133,7 @@ None of the above solutions are particularly elegant or intuitive. It's certainl
 
 #### The DOM API's solution to reordering elements
 
-In order to make the proper adjustments to our ice cream store page _without_ jQuery, I'm going to have to introduce two new DOM API methods. You'll also see a number of selectors and other DOM API methods discussed in the [Finding HTML Elements chapter](#finding-elements). You'll also be pleasantly surprised to discover that _all_ of the code in this section works in all modern browsers _and_ Internet Explorer 8 as well! Before we start, the eye-rolling nature of this example ice cream store markup is not lost on me, but it allows me to succinctly demonstrate a number of DOM manipulation operations without getting bogged down in details unrelated to the problem at hand. That said, let's get started!
+In order to make the proper adjustments to our ice cream store page _without_ jQuery, I'm going to introduce two new DOM API methods. You'll also see a number of selectors and other DOM API methods previously discussed in the [Finding HTML Elements chapter](#finding-elements). Surprisingly, _all_ of the code in this section works in all modern browsers _and_ Internet Explorer 8 as well! Before we start, the eye-rolling nature of this example ice cream store markup is not lost on me, but it allows me to succinctly demonstrate a number of DOM manipulation operations without getting bogged down in details unrelated to the problem at hand. That said, let's get started!
 
 Remember that our first task is to move the "vanilla" element before the "strawberry" element. To accomplish this, we can make use of [the `insertBefore` method][dom2core-insertbefore], which was added to the `Node` interface as part of W3C's DOM Level 2 Core specification. This method, as you might imagine, allows us to move one element just before another in the DOM. And because this is available on the `Node` interface, we have the power to move anything in the DOM, even a `Text` or `Comment` node! Take a look at how we move this element below. I'll explain what's going on immediately after the code fragment.
 
@@ -146,9 +146,9 @@ var flavors = document.querySelector('.flavors'),
 flavors.insertBefore(vanilla, strawberry);
 ~~~~~~~
 
-At the top of the above code, I'm simply selecting elements needed by our move operation. The last line is the most important one. Since the `insertBefore` method is defined on the `Node` object's `prototype`, we must call `insertBefore` on an DOM object that implements this interface. In fact, this element _must_ be a parent element of the `Node` we are moving. Since we are moving the "vanilla" `<li>` element, we can use its parent, the "flavors" `<ul>`.
+At the top of the above code, I'm simply selecting elements needed by our move operation. The last line is the most important one. Since the `insertBefore` method is defined on the `Node` object's `prototype`, we must call `insertBefore` on an DOM object that implements this interface. In fact, this element _must_ be a parent element of the `Node` we are moving. Since we are moving the "vanilla" `<li>` element, we can use its parent - the "flavors" `<ul>`.
 
-The first parameter passed to `insertBefore` is the element we want to relocate - the "vanilla" list item. The _second_ parameter is the "reference node". That is, the `Node` that will become the next sibling of our target element (the "vanilla" `<li>`) _after_ the move operation. Since we want to move "vanilla" before "strawberry", the "strawberry" `<li>` is our reference node.
+The first parameter passed to `insertBefore` is the element we want to relocate - the "vanilla" list item. The _second_ parameter is the "reference node". This is the `Node` that will become the next sibling of our target element (the "vanilla" `<li>`) _after_ the move operation. Since we want to move "vanilla" before "strawberry", the "strawberry" `<li>` is our reference node.
 
 So we've reordered our flavors, but we still need to move the flavors heading and list to the top of our document. We can easily accomplish this goal with the `insertBefore` method as well.
 
@@ -171,16 +171,16 @@ Our final task is to move the unassigned elements into their respective lists. T
 
 {title="Move elements after and as the last child of another element - DOM API - all modern browsers + IE8", lang=javascript}
 ~~~~~~~
-flavors.insertBefore(document.querySelector('.unassigned > li'),
-  strawberry);
+flavors.insertBefore(
+  document.querySelector('.unassigned > li'), strawberry);
 
 document.querySelector('.types').appendChild(
   document.querySelector('.unassigned > li'));
 ~~~~~~~
 
-In the first line, we're moving the "rocky road" element from the unassigned list into the flavors list. The flavors list is our parent element, as expected. The target is the first list item child of the unassigned list, which happens to be the "rocky road" `<li>`. And the reference node is the strawberry item in the flavors list, since we want to move "rocky road" before this element.
+In the first statement, we're moving the "rocky road" element from the unassigned list into the flavors list. The flavors list is our parent element, as expected. The target is the first list item child of the unassigned list, which happens to be the "rocky road" `<li>`. And the reference node is the strawberry item in the flavors list, since we want to move "rocky road" before this element.
 
-We want to move the "gelato" list item to the _end_ of the types list. The simplest way to do this is to make use of `appendChild`. As the `insertBefore` method, `appendChild` also expects to be called on the parent of the node we plan to move. This parent is the types list. The `appendChild` method only takes one argument - the element to move to the last child of the parent element. At this point, the "gelato" item is the first `<li>` child in the unassigned list, so we can use the same selector as used to locate the target element in our `insertBefore` statement.
+We also want to move the unassigned "gelato" list item to the _end_ of the types list. The simplest way to do this is to make use of `appendChild`. As with the `insertBefore` method, `appendChild` expects to be called on the parent of the node we plan to move - the "types" list. The `appendChild` method only takes one argument - the element that is to become the last child of the parent element. At this point, the "gelato" item is the first `<li>` child in the unassigned list, so we can use the same selector as used to locate the target element in our `insertBefore` statement.
 
 That was all surprisingly easy, wasn't it? The DOM API may not be as scary as many make it out to be!
 
@@ -209,14 +209,14 @@ $('.numbers').clone();
 
 You can optionally pass boolean parameters to `clone()` above if you'd like jQuery to clone any data and event listeners on the element. But be warned that jQuery will only copy event listeners and data attached to the element via jQuery. Any listeners and data added outside of jQuery's API will be lost.
 
-The DOM API provides an similarly named method, `cloneNode`, available on the `Node` interface. [It was first standardized as part of DOM Level 2 Core][dom2core-clonenode], which became a W3C recommendation back in 2000. As a result, `cloneNode` is supported in _any_ browser. Our example below is limited Internet Explorer 8 and up (though this is hardly a problematic limitation) due to my use of `querySelector`.
+The DOM API provides a similarly named method, `cloneNode`, available on the `Node` interface. [It was first standardized as part of DOM Level 2 Core][dom2core-clonenode], which became a W3C recommendation back in 2000. As a result, `cloneNode` is supported in _any_ browser. Our example below is limited to Internet Explorer 8 and up (though this is hardly a problematic limitation) due to my use of [`querySelector`](#queryselector-example).
 
 {title="cloning elements - DOM API - all modern browsers + IE8", lang=javascript}
 ~~~~~~~
-// shallow clone: return value only the empty <ol>
+// shallow clone: return value is an empty <ol class="numbers">
 document.querySelector('.numbers').cloneNode();
 
-// deep clone: return value is an exact copy
+// deep clone: return value is an exact copy of the tree
 document.querySelector('.numbers').cloneNode(true);
 ~~~~~~~
 
@@ -227,19 +227,20 @@ Whether you are using jQuery or the DOM API, the copy created by `cloneNode` is 
 
 ## Composing your own elements
 
-Now that we've explored moving and coping elements, how about creating and removing them? This section explores just that. You'll see how these common problems have been solved with jQuery, and how you can solve them just as easily with the DOM API. Just like the previous section, all DOM API code below will work in all modern browsers _and_ Internet Explorer 8. In essence, this covers all browsers in use today.
+Now that we've explored moving and coping elements, how about creating and removing them? This section explores just that. You'll see how these common problems have been solved with jQuery, and how you can solve them just as easily with the DOM API. Just like the previous section, all DOM API code below will work in all modern browsers, and most are supported in Internet Explorer 8 as well.
 
-To best demonstrate all of the concepts outlined in this final section, I'll build upon the [modified example document from the previous section](#moving-elements-markup-result) used to demonstrate moving elements. Using both jQuery and the bare DOM API, I'll show you how to perform various operations on our example document, such as:
+To best demonstrate all of the concepts outlined in this final section, I'll build upon the [modified example document from the previous section](#moving-elements-markup-result) that I used to demonstrate moving elements. Using jQuery and then the bare DOM API, I'll show you how to perform various operations on our example document, such as:
 
 1. Add some new ice cream flavors.
 2. Remove some existing types.
 3. Make simple text adjustments to our document.
-4. Create a new section to further classify our ice cream.
+4. Read parts of the document to a string to allow it to be saved.
+5. Create a new section to further classify our ice cream.
 
 
 ### Creating and deleting elements
 
-Suppose we have a couple new flavors to add to our list: pistachio and neapolitan. These of course belong in the "flavors" section. In order to accomplish this task, we'll need to create two new `<li>` elements with `Text` `Node`s that contain the names of these two new flavors. We'll just add the flavors to the end of the list. We also want to remove the "gelato" type from the end of the list of types, since we no longer sell gelato ice cream.
+Suppose we have a couple new flavors to add to our list: pistachio and neapolitan. These of course belong in the "flavors" section. In order to accomplish this task, we'll need to create two new `<li>` elements with `Text` `Node`s that contain the names of these two new flavors. It's fine to simply add these new flavors to the end of the list so that we can stay focused on creating the representative elements. We also want to remove the "gelato" type from the end of the list of types, since we no longer sell gelato ice cream.
 
 Creating elements is pretty easy with jQuery, and due to chaining we can add both elements in two lines:
 
@@ -260,11 +261,11 @@ Removing an element isn't very difficult either:
 $('.types li:last').remove();
 ~~~~~~~
 
-Above, we've made use of a CSS selector, partially proprietary. We're removing for the last `<li>` underneath the element with a "types" CSS class. This happens to be our "gelato" type. The `:last` pseduo-class is specific to jQuery, and as such is not particularly performant. There _is_ a native CSS pseduo-class we could use, which you will see in a moment. But most jQuery developers likely don't know that it exists, since the jQuery API provides this alternative.
+Above, we've made use of a CSS selector, partially proprietary. The last `<li>` beneath the element with a "types" CSS class is being removed from the document. This happens to be our "gelato" type. The `:last` pseduo-class is specific to jQuery, and as such is not particularly performant. There _is_ a native CSS pseduo-class we could use, which you will see in a moment. But most jQuery developers likely don't know that it exists, since the jQuery API provides this proprietary alternative as part of its documented API.
 
-How can achieve the same results with the DOM API? Depending on desired browser support, we may have several options.While newer browsers _may_ have more elegant options than older ones, this is not always the case and these operations are all relatively simple in _all_ modern browsers (and even older ones) without relying on jQuery.
+How can we achieve the same results with the DOM API? Depending on desired browser support, we may have several options. While newer browsers _may_ allow for more elegant options than older ones, this is not always the case and these operations are all relatively simple in _all_ modern browsers (and even older ones) without relying on jQuery.
 
-We can add our two new flavors to the end of the "flavors" list in one line each as well, although the lines are a _bit_ longer than the jQuery solution above. Again, our use of `querySelector` is the only reason for the Internet Explorer 8 limitation.
+We can add our two new flavors to the end of the "flavors" list in two total lines, just like the jQuery solution, although the lines are a _bit_ longer. Again, our use of `querySelector` is the only reason for the Internet Explorer 8 limitation.
 
 {title="add elements to a document - DOM API - all modern browsers + IE8", lang=javascript}
 ~~~~~~~
@@ -277,7 +278,7 @@ flavors.insertAdjacentHTML('beforeend', '<li>neapolitan</li>')
 
 Above, I'm using [the `insertAdjacentHTML` method][domparsing-insertadjacent] present on the `Element` interface prototype. While this method has likely existed in browsers for many years, it was only first standardized in the [W3C's DOM Parsing and Serialization specification][domparsing], which was drafted in 2014.
 
-What about removing "gelato" from our list of types? In the newest available browsers, we have the most elegant solution:
+What about removing "gelato" from our list of types? In the newest available browsers, we have the _most_ elegant solution:
 
 {title="remove an element from a document - DOM API - Microsoft Edge, Chrome, Firefox, Safari 7 (desktop only)", lang=javascript}
 ~~~~~~~
@@ -299,14 +300,14 @@ gelato.parentNode.removeChild(gelato);
 
 I've replaced `ChildNode.remove()` with `Node.removeChild`, which [has existed since DOM Level 1 Core][domlevel1-removechild], so it is supported in all browsers. In order to remove a child node, of course we need to access the parent first. Luckily, it's really easy to do this, as you learned in [the Finding HTML Elements chapter](#parents-and-children-webapi). In this instance, the code that limits us to modern browsers is the `:last-child` CSS3 pseudo-class, which isn't available in Internet Explorer 8.
 
-In order to support IE8, you'll have to replace the selector with something like `document.querySelectorAll('.types li')[3]`. And if you don't want to hard-code the index of the gelato element, you'll have to move the result of the `querySelectorAll` into a variable, and access the last element in the returned collection by examining its `length` property.
+In order to support IE8, you'll have to replace the selector with `document.querySelectorAll('.types li')[3]`. And if you don't want to hard-code the index of the gelato element, you'll have to move the result of the `querySelectorAll` into a variable, and access the last element in the returned collection by examining this variable's `length` property.
 
 
 ### Text content
 
 There are two workflows to address in terms of element text: updating and parsing. While jQuery provides one specific method to accomplish both of these tasks, the DOM API offers two - both with different behaviors that accommodate different needs. In this section, I'll demonstrate jQuery's `text()` method, the native `textContent` property, _and_ the native `innerText` property. You'll see how each of these differ as we make changes to [our document of ice cream types and flavors](#moving-elements-markup-result) and then output the resulting document as text.
 
-First, let's examine jQuery's `text()` method, which allows us to both read and update text in a document. Notice that one of our types "Italian ice", starts with a capital letter. None of the other types or flavors share this trait. Even though "Italian" is a proper adjective and normally _should_ start with a capital "t", let's modify it to be consistent with the case of the rest of our types and flavors.
+First, let's examine jQuery's `text()` method, which allows us to both read and update text in a document. Notice that one of our types - "Italian ice" - starts with a capital letter. None of the other types or flavors share this trait. Even though "Italian" is a proper adjective and normally _should_ start with a capital "t", let's modify it to be consistent with the case of the rest of our types and flavors.
 
 {title="update text - jQuery", lang=javascript}
 ~~~~~~~
@@ -339,11 +340,11 @@ As you probably already know, the text of an element can be updated simply by pa
 "
 ~~~~~~~
 
-The quotation marks have been added to show where the output starts and ends. They are not part of the actual text. Note that this output reflects the structure of our _markup_. This is noticeable by examining the indentation of the text as well as the line breaks at the end of the document. The series of line breaks before the output ends account for the empty "unassigned" list. You'll see how this output mirrors the output of _one_ of the two native text manipulation properties offered by the DOM API.
+The quotation marks have been added to show where the output starts and ends. They are not part of the actual text. Notice that this output reflects the structure of our _markup_. This can be verified by examining the indentation of the text as well as the line breaks at the end of the document. The series of line breaks before the output ends account for the empty "unassigned" list. You'll see how this output mirrors the output of _one_ of the two native text manipulation properties offered by the DOM API.
 
-There are two common properties available on the DOM elements used to read and update text: `textContent` and `innerText`. There are notable advantages and disadvantages of both properties, but together they provide more flexibility in dealing with text than jQuery's `text()` method. Next, I'll compare and contrast these two properties against each other and jQuery's `text()` method, and it will be clear when you should choose on over the other.
+There are two common properties available on the DOM elements used to read and update text: `textContent` and `innerText`. There are notable advantages and disadvantages of both properties, but together they provide more flexibility in dealing with text than jQuery's `text()` method. Next, I'll compare and contrast these two properties against each other and jQuery's `text()` method, and it will be clear when you should choose one over the other.
 
-Lets' first examine `textContent`, which was [added to the `Node` interface in W3C's DOM Level 3 Core][dom3core-textcontent]. This property allows element text to be read and updated in _all_ [modern browsers](#modern-browsers). Change the text of our "Italian ice" list item to "italian ice" is just as simple as jQuery's `text()` method.
+Let's first examine `textContent`, which was [added to the `Node` interface in W3C's DOM Level 3 Core][dom3core-textcontent]. This property allows element text to be read and updated in _all_ [modern browsers](#modern-browsers). Changing the text of our "Italian ice" list item to "italian ice" is just as simple as jQuery's `text()` method:
 
 {title="update text - DOM API - modern browsers", lang=javascript}
 ~~~~~~~
@@ -376,11 +377,11 @@ The `textContent` property not only matches the behavior of jQuery's `text()` me
 "
 ~~~~~~~
 
-As you can see, `textContent` outputs the text in an element and its descendants formatted with the structure of the document markup in mind, just like jQuery's `text()`.
+As you can see, `textContent` outputs the text inside an element _and_ its descendants formatted with the structure of the document markup in mind, just like jQuery's `text()`.
 
-The second available property, `innerText`, is available on the `HTMLElement` interface. Though it is a bit strange in that it is not yet part of any formal web specification. However, it is supported by all versions of all browsers, with the exception of Firefox, though this property _is_ supported in Firefox as well starting with [version 45][firefox-45]. Even though `innerText` is not yet standardized, there is [a rudimentary draft proposal][innertext-draft] is in place, created by Robert O'Callahan of Mozilla.
+The second available property, `innerText`, is available on the `HTMLElement` interface. Though it is a bit strange in that it is not yet part of any formal web specification. However, it is supported by all versions of all browsers, with the exception of Firefox, though this property _is_ supported in Firefox as well starting with [version 45][firefox-45]. Even though `innerText` is not yet standardized, there is [a rudimentary draft proposal][innertext-draft] in place, created by Robert O'Callahan of Mozilla.
 
-Changing "Italian ice" to "italian ice" using `innerText` is not much different than `textContent` or jQuery's `text()`, with the exception of the addition of Internet Explorer 8 support _and_ lack of Firefox support for versions older than 45.
+Changing "Italian ice" to "italian ice" using `innerText` is not much different than `textContent` or jQuery's `text()`, with the exception of the _addition_ of Internet Explorer 8 support and _lack_ of Firefox support for versions older than 45.
 
 {title="update text - DOM API - all modern browsers + IE8, except for Firefox 44 & older", lang=javascript}
 ~~~~~~~
@@ -405,14 +406,14 @@ rocky road
 strawberry"
 ~~~~~~~
 
-Initially, the above output may look a bit odd, but it actually makes perfect sense if you understand what it represents. I'd like you to paste the markup from [the modified document listed earlier](#moving-elements-markup-result) into a browser, copy the rendered result your your system's clipboard, and then paste it into a text editor. You'll notice that the pasted text is formatted identically to the output listed above. As the draft specification describes, `innerText` "return(s) the 'rendered text' of an element".
+Initially, the above output may look a bit odd, but it actually makes perfect sense if you understand what it represents. I'd like you to paste the markup from [the modified document listed earlier](#moving-elements-markup-result) into a browser, copy the rendered result to your system's clipboard, and then paste it into a text editor. You'll notice that the pasted text is formatted identically to the output listed above. As the draft specification describes, `innerText` "return(s) the 'rendered text' of an element".
 
 
 ### Rich content
 
-HTML is nothing more than text formatted per conventions defined by [a set of web specifications](#web-api). This reality is useful when we need to serialize or deserialize a document or a _portion_ of a document. Deserialization of HTML may occur when receiving server-generated markup in the response to an HTTP request. In this instance, the HTML in the response must be inserted into the DOM in an appropriate location. I'll demonstrate this specific scenario, and how this may be completed with the help of several methods available in the DOM API. And perhaps this server-generated markup must be returned to the server and persisted for later use after it is modified in some way. That, too, can be accomplished with the DOM API, and you'll see _how_ in this final section.
+HTML is nothing more than text formatted per conventions defined by [a set of web specifications](#web-api). This reality is useful when we need to serialize or deserialize a document or a _portion_ of a document. Deserialization of HTML may occur when receiving server-generated markup in response to an HTTP request. In this instance, the HTML in the response must be inserted into the DOM in an appropriate location. I'll demonstrate this specific scenario, and how this may be completed with the help of several methods available in the DOM API. And perhaps this server-generated markup must be returned to the server and persisted for later use after it is modified in some way. That, too, can be accomplished with the DOM API, and you'll see _how_ in this final section.
 
-jQuery provides a grand total of _one_ method for reading and writing HTML. This is accomplished using the aptly named `html()` function. First, let's assume we've already received a string of HTML from our server, and we need to insert it into our document. Keeping with the theme of this chapter, this markup represents an entirely new section for [our ice-cream store page](#moving-elements-markup-result). We simply need to insert it after the existing sections. The markup from our server is simple a long string of HTML, such as "<h2>Containers</h2><ul><li>cone</li><li>cup</li></ul>". This string of HTML will be stored in a variable named `containers`. Below, you can see how this should be inserted at the end of our document using jQuery.
+jQuery provides a grand total of _one_ method for reading and writing HTML. This is accomplished using the aptly named `html()` function. First, let's assume we've already received a string of HTML from our server, and we need to insert it into our document. Keeping with the theme of this chapter, this markup represents an entirely new section for [our ice-cream store page](#moving-elements-markup-result). We simply need to insert it after the existing sections. The markup from our server is simply a long string of HTML, such as "<h2>Containers</h2><ul><li>cone</li><li>cup</li></ul>". This string of HTML will be stored in a variable named `containers`. Below, you can see how this should be inserted at the end of our document using jQuery.
 
 {title="add a string of HTML from server to a document - jQuery", lang=javascript}
 ~~~~~~~
@@ -438,7 +439,7 @@ div.innerHTML = container;
 document.body.appendChild(div);
 ~~~~~~~
 
-The `createElement` method of the `Document` interface is [courtesy of W3C's DOM Level 1 Core][dom1core-createelement] specification, which means it is supported in _any_ browser. Reading the markup of our document back for persistence server-side also uses `innerHTML`, and it's just as elegant as jQuery's `html()` method.
+The `createElement` method of the `Document` interface is [courtesy of W3C's DOM Level 1 Core][dom1core-createelement] specification, which means it is supported in _any_ browser. Reading the markup of our document back for persistence server-side also uses `innerHTML`, and it's just as elegant as jQuery's `html()` method:
 
 {title="read a document to a string variable - DOM API - all modern browsers + IE8", lang=javascript}
 ~~~~~~~
@@ -446,7 +447,7 @@ var contents = document.body.innerHTML;
 // ...send `contents` to server
 ~~~~~~~
 
-The DOM API is a bit more flexible than jQuery in this regard. It provides a few more options. For example the `Element.outerHTML` property will take the reference element into account when reading or updating HTML. Conversely, `innerHTML` is only concerned with the descendants of the reference element. Had we used `outerHTML` in the "add a string" demonstration above, everything in our document _including_ the `<body>` element would have been replaced with the new `<div>`-wrapped ice-cream containers section. In the second and most recent DOM API example, where we read back the contents of the document, the `<body>` element would have been included in the stringified-html had we used `outerHTML` instead. Depending on your requirements, this may be desirable.
+The DOM API is a bit more flexible than jQuery in this instance; it provides a few more options. For example, the standardized `Element.outerHTML` property will take the reference element into account when reading or updating HTML. Conversely, `innerHTML` is only concerned with the descendants of the reference element. Had we used `outerHTML` in the "add a string" demonstration above, everything in our document _including_ the `<body>` element would have been replaced with the new `<div>`-wrapped ice-cream containers section. In the last DOM API example where we read back the contents of the document, the `<body>` element would have been included in the stringified-html had we used `outerHTML` instead. Depending on your requirements, this may be desirable.
 
 While I certainly haven't demonstrated _all_ of the properties and methods provided by the DOM API, the point I am trying to make is that the browser already provides more than enough in terms of reasonable and intuitive native support for DOM manipulation.
 
