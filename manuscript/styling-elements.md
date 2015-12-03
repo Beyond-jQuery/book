@@ -394,6 +394,17 @@ At this point, you are probably checking to see which browsers support this attr
 [hidden] { display: none; }
 ~~~~~~~
 
+T> ## Making sure your element is _always_ hidden
+T>
+T> The native `hidden` attribute marks an element as "irrelevant", which does not always mean that the element will be invisible to the eye. For example, if an element has an explicitly declared `display` style, such as `display: block`, the native `hidden` attribute will _not_ remove it from view. Furthermore, simply including the above "polyfill" for this attribute will not always ensure the element is hidden from view either. This is due to the [rules of specificity, outlined in W3C's CSS2 specification][css2-specificity]. Specificity determines which of several competing styles associated with an element "win". For example, if a `display: block` rule pointing to the same element with a higher specificity exists, the element will remain visible.
+T>
+T> If you want any element with a `hidden` attribute to _never_ be visible, you must utilize the following rule in your stylesheet:
+T>
+T> {lang="javascript"}
+T> ~~~~~~~~~~~~~~~
+T> [hidden] { display: none !important; }
+T> ~~~~~~~~~~~~~~~
+
 And this means you can hide _any_ element in _any_ browser with the following line of JavaScript:
 
 {title="hide an element - all browsers", lang=javascript}
@@ -515,6 +526,8 @@ There is a _lot_ more to discuss regarding styling elements, but this book is ab
 [css1-style]: http://www.w3.org/TR/REC-CSS1/#containment-in-html
 
 [css2]: http://www.w3.org/TR/CSS2/
+
+[css2-specificity]: http://www.w3.org/TR/CSS2/cascade.html#specificity
 
 [cssom]: http://www.w3.org/TR/cssom-view/
 

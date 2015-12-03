@@ -22,7 +22,7 @@ As for the second question, I _did_ initially hide this in a private repository,
 
 ### How are all of the files in the manuscript folder organized?
 
-Everything you see in the manuscript directory is organized according to Leanpub conventions. The [book.txt](manuscript/book.txt) file is describes the order of the chapters, along with front-matter (preface, intro, etc) and end-matter (about the author, appendices, etc). Each chapter is written using Leanpub-flavored markdown. You can read all about the details of this syntax in [The Leanpub Manual][leanpub-manual].
+Everything you see in the manuscript directory is organized according to Leanpub conventions. The [book.txt](manuscript/book.txt) file describes the order of the chapters, along with front-matter (preface, intro, etc) and end-matter (about the author, appendices, etc). Each chapter is written using Leanpub-flavored markdown. You can read all about the details of this syntax in [The Leanpub Manual][leanpub-manual].
 
 
 ### When do you write? What is your process?
@@ -39,10 +39,6 @@ Feel free to [open up an issue][issues] or, better yet, file a pull request with
 
 Please [open up a feature request][issues] and state your case. I'd be happy to discuss.
 
-
-### You suck
-
-Thanks.
 
 [issues]: https://github.com/rnicholus/beyond-jquery-book/issues/new
 [leanpub]: https://leanpub.com/beyondjquery
