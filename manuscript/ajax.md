@@ -7,14 +7,27 @@ AJAX, or **A**synchronous **J**avaScript **a**nd **X**ML, is a feature provided 
 
 ## Mastering the concepts of ajax communication
 
+It is critical to understand a few key concepts when dealing with ajax communication:
+
+1. Asynchronous operations
+2. HyperText Transfer Protocol, also know as HTTP
+3. JSON, URL encoding, and multipart form encoding
+4. The Same Origin Policy
+
+The first 2 items will be dealt with directly in this section, in addition to an introduction to web sockets (which are not as important as some other concepts, but still potentially useful). The last two in the above list` will be addressed later on in this chapter.
+
 
 ### Async is hard
 
+Based on my extensive experience with ajax communication, along with observations of other developers struggling with this piece of the web API, the most attractive attribute of this feature is also its most confusing. JavaScript does not abstract asynchronous operations nearly as well as other more traditional languages, such as Java. On top of the historical lack of intuitive native support for tasks that occur in separate threads (such as ajax requests), there are currently three different common ways to account for these types of out-of-band operations. These methods include callbacks, promises, and asynchronous functions. While native support for asynchronous operations _has_ improved over time, most developers still must explicitly deal with these types of tasks, which can be challenging due to the fact that it often requires all surrounding code to be structured accordingly. This often makes the software developer's job of accounting for these operations awkward and the resulting code complex. This of course adds risk and potentially more bugs to the underlying application.
 
-### Expected and unexpected responses
+Callbacks will be discussed in this chapter, as will promises, to a lesser degree. Promises will be covered in much more detail in the upcoming [Async Tasks](#async-tasks) chapter, along with asynchronous functions, which is a feature provided by ECMAScript 7 that aims to make dealing with asynchronous operations, such as ajax requests, surprisingly easy. However, most developers don't have the luxury of using ES7 async functions, so the reality of dealing with ajax request remains that you must embrace their asynchronous nature instead of hiding from it. This is quite mind-bending initially. Even after you have successfully grasped this concept, expect frequent frustration in less-than-trivial situations, such as when dealing with nested asynchronous requests. If this is not already clear through previous experience, you will likely come to realize this complexity as you complete this chapter.
 
 
 ### HTTP
+
+
+### Expected and unexpected responses
 
 
 ### Web Sockets

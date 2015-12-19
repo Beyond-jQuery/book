@@ -1,4 +1,4 @@
-# Controlling Asynchronous Tasks (coming soon)
+# Controlling Asynchronous Tasks (coming soon) {#async-tasks}
 
 Coming soon!
 
