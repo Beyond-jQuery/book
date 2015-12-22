@@ -14,7 +14,7 @@ It is critical to understand a few key concepts when dealing with ajax communica
 3. JSON, URL encoding, and multipart form encoding
 4. The Same Origin Policy
 
-The first 2 items will be dealt with directly in this section, in addition to an introduction to web sockets (which are not as important as some other concepts, but still potentially useful). The last two in the above list` will be addressed later on in this chapter.
+The first 2 items will be dealt with directly in this section, in addition to an introduction to web sockets (which are not as important as some other concepts, but still potentially useful). The last two in the above list will be addressed later on in this chapter.
 
 
 ### Async is hard
@@ -37,9 +37,14 @@ All ajax requests will use one of the methods described above to communicate dyn
 
 ### Expected and unexpected responses
 
+An understanding of the protocol used to communicate between client and server is a fundamentally important concept. With this comes the ability to send requests from client to server, but the _response_ to these requests is equally important. Request have headers and optionally a message-body (payload), while responses are made up of three parts - the response message-body, headers, and a status code. The status code is unique to responses, and is generally accessible when analyzing the response associated with JavaScript-initiated request. Status codes are usually three digits and can be generally classified based on the most significant digit, starting with 200. 200-level status codes are indicative of success, 300-level is used for redirects, while 400 and 500-level statuses indicate some sort of error. These are all formally [defined in great detail in RFC 2616][status-rfc2616].
+
+Just as it is important to handle code exceptions with a `try`/`catch` block, it is equally important to address exceptional responses. While 200-level responses are often expected, or at least desired, you must also account for unexpected or undesired responses, such as 400/500-level, or even responses with a status of `0` (which may happen if the request is terminated due to a network error or the server returns a completely empty response). I have observed that it appears to be common to simply ignore exceptional conditions, and this is not limited to handling of HTTP responses. In fact, I am guilty of this myself.
+
 
 ### Web Sockets
 
+Web sockets are a relatively new web API feature, compared to traditional ajax requests. They were first standardized in 2011 by the IETF (Internet Engineering Task Force) in [RFC 6455][rfc6455] and are currently supported by all [modern browsers](#modern-browsers), with the exception of Internet Explorer 9. Web sockets differ from pure HTTP requests in a number of ways, most notably their lifetime. While HTTP requests are normally very short-lived, web socket connections are meant to remain open for the life of the application instance or web page. a web socket connection starts as an HTTP request, which is required for the initial handshake. But after this handshake is complete, client and server are free to exchange data at will in whatever format they have agreed upon. This web socket protocol allows for truly real-time communicate between client and server. While web sockets will not be explored in more depth in this chapter, I felt it was useful to at least mention them, as they _do_ account for another method of JavaScript-initiated asynchronous communication between browser & server.
 
 
 ## Sending GET, POST, DELETE, PUT, and PATCH requests
@@ -100,5 +105,7 @@ All ajax requests will use one of the methods described above to communicate dyn
 [fetch-whatwg]: https://fetch.spec.whatwg.org/
 [http-w3c-91]: http://www.w3.org/Protocols/HTTP/AsImplemented.html
 [patch-rfc5789]: https://tools.ietf.org/html/rfc5789
+[rfc6455]: https://tools.ietf.org/html/rfc6455
 [rfc7540]: https://httpwg.github.io/specs/rfc7540.html
+[status-rfc2616]: http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10
 [xhr-init]: https://blogs.msdn.microsoft.com/ie/2006/01/23/native-xmlhttprequest-object/
