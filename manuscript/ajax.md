@@ -2,7 +2,7 @@
 
 AJAX, or **A**synchronous **J**avaScript **a**nd **X**ML, is a feature provided by the web API that allows data to be updated or retrieved from a server without reloading the entire page. This capability was absent from the browser initially. This time marked the infancy of the web, and with it came along a less-than-ideal user experience that resulted in a fair amount of redundant bytes circulated between client and server. The inefficiency of this model was compounded by the fact that internet bandwidth was extremely limited by today's standards. Back in 1999 when Microsoft first introduced [`XMLHTTP` as an ActiveX control in Internet Explorer 5.0][xhr-init], about [95% of internet users were limited by a 56 kbps or slower][broadband-99] dial-up connection.
 
-`XMLHTTP` was a proprietary JavaScript object implemented by Microsoft, and it represented a huge leap in both web development technology and user experience. It was the first full-featured transport for focused client/server communication without the need to update the current page. Previously, the entire page needed to be reloaded even if only a small segment of the data on the page needed to be refreshed. This all changed with the advent of AJAX communication. The initial API for this new transport matches it's modern-day cousin - `XMLHTTPRequst`. Essentially, this object allows a developer to construct a `new` transport instance, send a GET, POST, PUT, or DELETE request to any endpoint (on the same domain), and then programmatically retrieve the status and message-body of the server's response. While the aging `XMLHTTPRequest` will eventually be completely replaced by the [Fetch API][fetch-whatwg], it thrived unopposed and mostly unchanged for about 15 years.
+`XMLHTTP` was a proprietary JavaScript object implemented by Microsoft, and it represented a huge leap in both web development technology and user experience. It was the first full-featured transport for focused client/server communication without the need to update the current page. Previously, the entire page needed to be reloaded even if only a small segment of the data on the page needed to be refreshed. This all changed with the advent of AJAX communication. The initial API for this new transport matches it's modern-day cousin - `XMLHTTPRequest`. Essentially, this object allows a developer to construct a `new` transport instance, send a GET, POST, PUT, or DELETE request to any endpoint (on the same domain), and then programmatically retrieve the status and message-body of the server's response. While the aging `XMLHTTPRequest` will eventually be completely replaced by the [Fetch API][fetch-whatwg], it thrived unopposed and mostly unchanged for about 15 years.
 
 
 ## Mastering the concepts of ajax communication
@@ -48,6 +48,50 @@ Web sockets are a relatively new web API feature, compared to traditional ajax r
 
 
 ## Sending GET, POST, DELETE, PUT, and PATCH requests
+
+jQuery provides first-class support for ajax requests through the appropriately named `ajax()` method. Through this method, you can send ajax requests of any type, but jQuery also provides alias for many standardized HTTP request methods - such as `get()` and `post()` - which save you a few keystrokes. The web API provides a single object - `XMLHttpRequest` - to send asynchronous requests of any type from browser to server.
+
+A simple GET request to a server endpoint using jQuery, with a trivial response handler, looks something like this:
+
+{title="send GET request & handle the response - jQuery", lang=javascript}
+~~~~~~~
+$.get('/my/name').then(
+  function success(name) {
+    console.log('my name is ' + name);
+  }
+);
+~~~~~~~
+
+W> Note that the console object is not available in Internet Explorer 9 and older unless the developer tools are open. Also, the above example does not handle error responses, only success.
+
+Above, we are sending a GET request to the "/my/name" server endpoint, and expecting a plaintext response containing a name value, which we are then printing to the browser console. Please note that I am not handling error responses, simply to keep this example simple. You should _always_ account for exceptional situations when dealing with ajax responses in production-level applications. jQuery provides several ways to deal with responses, but I will focus specifically on the one demonstrated above, which is a very simple example of a promise. I'll talk about promises, which are a standardized part of JavaScript, in [the Async Tasks chapter](#async-tasks) coming up later.
+
+The same request, sent without jQuery and usable in all browsers, is a bit more typing, but certainly not too difficult:
+
+{title="send GET request & handle the response - web API - all browsers", lang=javascript}
+~~~~~~~
+var xhr = new XMLHttpRequest();
+xhr.open('GET', '/my/name');
+xhr.onload = function() {
+  console.log('my name is ' + xhr.responseText);
+};
+xhr.send();
+~~~~~~~
+
+The `onload` property is where we can easily set our response handler. From here, we can be sure the response has completed, and then can determine if the request was successful and get a handler on the response data. All of this is available on the instance of `XMLHTTPRequest` we created and assigned to the `xhr` variable. From the above code, you may be a bit disappointed that the web API doesn't support promises like jQuery. That _was_ true, up until [the `fetch` API][fetch-whatwg] was created by [the WHATWG](#whatwg-vs-w3c). The Fetch API provides a modern native replacement for the aging `XMLHTTPRequest` transport, and it is currently supported by Firefox and Chrome, with more browser support on the horizon. Let's look at this same example using `fetch`:
+
+{title="send GET request & handle the response - web API - Firefox and Chrome", lang=javascript}
+~~~~~~~
+fetch('/my/name').then(function(response) {
+  return response.text();
+}).then(function(name) {
+  console.log('my name is ' + name);
+});
+~~~~~~~
+
+The above code not only embraces the promises specification, but also removes a lot of the boilerplate commonly seen with `XMLHttpRequest`. You'll see more examples of `fetch` throughout this chapter.
+
+Many developers who learned web development through a jQuery lens probably think that this library is doing something magical and complex when you invoke the `$.ajax` method. That couldn't be further from the truth. All of the heavy lifting is done by the browser via the `XMLHttpRequest` object. jQuery's `ajax` is just a wrapper around `XMLHttpRequest`. Using the browser's built-in support for ajax requests isn't very difficult, as you'll see in a moment. Even cross-origin requests are not only simple without jQuery, you'll see how they are actually _easier_ without jQuery.
 
 
 ### Examples of appropriate uses of each method
