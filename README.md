@@ -27,7 +27,7 @@ Everything you see in the manuscript directory is organized according to Leanpub
 
 ### When do you write? What is your process?
 
-Currently, a few nights a week, [usually between the hours of 9pm and midnight Central time](https://github.com/rnicholus/beyond-jquery-book/graphs/punch-card). I have other projects and responsibilties as well, so this varies a bit. I'm also [writing other stuff][raynicholus.com]. At the end of each night of writing, I typically push my changes up to GitHub. Using a webbook, Leanpub generates several preview files for me, including PDF and EPUB versions, and delivers them to my dropbox account. I spend a little time reviewing these before I stop for the night. I publish (make public) a new version of Beyond jQuery after a new chapter is completed. I typically spend a few days reviewing the chapter and making adjustments before I publish. I'm currently averaging about 1 new chapter per month.
+Currently, a few nights a week, [usually between the hours of 8pm and 11pm Thailand time](https://github.com/rnicholus/beyond-jquery-book/graphs/punch-card). I have other projects and responsibilties as well, so this varies a bit. I'm also [writing other stuff][raynicholus.com]. At the end of each night of writing, I typically push my changes up to GitHub. Using a webbook, Leanpub generates several preview files for me, including PDF and EPUB versions, and delivers them to my dropbox account. I spend a little time reviewing these before I stop for the night. I publish (make public) a new version of Beyond jQuery after a new chapter is completed. I typically spend a few days reviewing the chapter and making adjustments before I publish. I'm currently averaging about 1 new chapter per month.
 
 
 ### I found a typo or some other error
