@@ -94,7 +94,53 @@ The above code not only embraces the promises specification, but also removes a 
 Many developers who learned web development through a jQuery lens probably think that this library is doing something magical and complex when you invoke the `$.ajax` method. That couldn't be further from the truth. All of the heavy lifting is done by the browser via the `XMLHttpRequest` object. jQuery's `ajax` is just a wrapper around `XMLHttpRequest`. Using the browser's built-in support for ajax requests isn't very difficult, as you'll see in a moment. Even cross-origin requests are not only simple without jQuery, you'll see how they are actually _easier_ without jQuery.
 
 
-### Examples of appropriate uses of each method
+### Sending POST requests
+
+I demonstrated above how to GET information from a server endpoint using jQuery, `XMLHttpRequest`, and `fetch`. But what about some of the other available HTTP methods? Instead of GETting a name, suppose you would like to add a new name to the server. The most appropriate method for this situation is POST. The name to add will be included in our request payload, which is a common place to include this sort of data when sending a POST. To keep this simple, we'll sending the name using a MIME type of text/plain. I'll cover more advanced encoding techniques later on in this chapter. I'll also omit response handling code here as well. You'll see more complete examples in the upcoming hands-on section. This section is meant to demonstrate the differences between the various approaches when sending requests.
+
+{title="send POST request to add a name - jQuery", lang=javascript}
+~~~~~~~
+$.ajax({
+  method: 'POST',
+  url: '/user/name',
+  contentType: 'text/plain',
+  data: 'Mr. Ed'
+});
+~~~~~~~
+
+We're using jQuery's generic `ajax` method so we can specify various parameters, such as the request's `Content-Type` header. This will send a POST request with a plaintext body containing the text "Mr. Ed". We must explicitly specify the `Content-Type` in this case since jQuery will otherwise set this header to "application/x-www-form-urlencoded", which is not what we want.
+
+The same POST request using `XMLHttpRequest` looks like this:
+
+{title="send POST request to add a name - web API - all browsers", lang=javascript}
+~~~~~~~
+var xhr = new XMLHttpRequest();
+xhr.open('POST', '/user/name');
+xhr.send('Mr. Ed');
+~~~~~~~
+
+Sending this request without jQuery is actually _less_ lines of code. By default, [the `Content-Type` is set to "text/plain" by `XMLHttpRequest` in this case][xhr-default-content-type], so we don't need to mess with any request headers. We can conveniently pass the body of our request as a parameter to the `send` method, as illustrated above.
+
+If your goal is to embrace the latest and greatest web standards, you can sending this POST using `fetch`:
+
+{title="send POST request to add a name - web API - Firefox and Chrome", lang=javascript}
+~~~~~~~
+fetch('/user/name', {
+  method: 'POST',
+  body: 'Mr. Ed'
+});
+~~~~~~~
+
+Sending this request looks similar to jQuery, but without a lot of the boilerplate. Like `XMLHTTPRequest`, [`fetch` intelligently sets the request `Content-Type` based on the request payload][fetch-default-content-type], so we do not need to specify this request header.
+
+
+### Sending PUT requests
+
+
+### Sending DELETE requests
+
+
+### Sending PATCH requests
 
 
 ### Hands-on: Maintaining a list of names
@@ -146,10 +192,12 @@ Many developers who learned web development through a jQuery lens probably think
 
 
 [broadband-99]: http://www.websiteoptimization.com/bw/0403/
+[fetch-default-content-type]: https://fetch.spec.whatwg.org/#body-mixin
 [fetch-whatwg]: https://fetch.spec.whatwg.org/
 [http-w3c-91]: http://www.w3.org/Protocols/HTTP/AsImplemented.html
 [patch-rfc5789]: https://tools.ietf.org/html/rfc5789
 [rfc6455]: https://tools.ietf.org/html/rfc6455
 [rfc7540]: https://httpwg.github.io/specs/rfc7540.html
 [status-rfc2616]: http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10
+[xhr-default-content-type]: http://www.w3.org/TR/XMLHttpRequest#dom-xmlhttprequest-send
 [xhr-init]: https://blogs.msdn.microsoft.com/ie/2006/01/23/native-xmlhttprequest-object/
