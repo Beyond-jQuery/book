@@ -136,6 +136,37 @@ Sending this request looks similar to jQuery, but without a lot of the boilerpla
 
 ### Sending PUT requests
 
+While POST requests are often used to create a new resource, PUT requests typically update an existing one. For example, PUT would be most appropriate for replacing information about an existing product. Another example involves uploading a large file in chunks. The first request, creating the resource, would be a POST. Subsequent requests that contain each piece of the file would use PUT, as each chunk is effectively be an update to the server-side representation of the file. The URI of the request identifies the resource to be updated with the new information located in the body. To simply illustrate sending a PUT request using jQuery, `XMLHttpRequest`, and `fetch`, I'll demonstrate updating a mobile phone number for an existing user record.
+
+{title="send PUT request to update a user's mobile number - jQuery", lang=javascript}
+~~~~~~~
+$.ajax({
+  method: 'PUT',
+  url: '/phone/mobile/1',
+  contentType: 'text/plain',
+  data: '+1 555-555-5555'
+});
+~~~~~~~
+
+This PUT request using jQuery looks almost identical to the previously illustrated POST, with the exception of the `method` property. This user is identified by their ID, which happens to be 1. You likely won't be surprised to see that sending a PUT with `XMLHttpRequest` is similar to the previous example as well:
+
+{title="send PUT request to update a user's mobile number - web API - all browsers", lang=javascript}
+~~~~~~~
+var xhr = new XMLHttpRequest();
+xhr.open('PUT', '/phone/mobile/1');
+xhr.send('+1 555-555-5555');
+~~~~~~~
+
+The Fetch API, as expected, provides the most concise approach:
+
+{title="send PUT request to update a user's mobile number - web API - Firefox and Chrome", lang=javascript}
+~~~~~~~
+fetch('/phone/mobile/1', {
+  method: 'PUT',
+  body: '+1 555-555-5555'
+});
+~~~~~~~
+
 
 ### Sending DELETE requests
 
