@@ -90,7 +90,7 @@ All of the above points bring to light the compromises made when developing popu
 One goal of this book is to push you to remove your dependence on jQuery. But the only alternative I have offered to a monolithic wrapper is a direct attachment to the browser's native API. This is certainly an admirable goal, and in a sense, the browser is all we need to develop all of our front-end projects. But realistically, we may need a bit more help to reduce the inevitable hand-wringing that occurs when putting together something overly complex. The assumption is that we are targeting modern browsers, and this is a reasonable one given the current state of the web. But even "modern" browsers with an evolved API may have inconsistent support for some of the powerful features that we need for our projects. If only there was some way to make consistent use of modern web and JavaScript features across all modern browsers, without wrapping the entire stack...
 
 
-### Small shims over large wrappers
+### Small shims over large wrappers {#shims-and-polyfills}
 
 There is a concept in web development that describes a very specific type of library, a "regressive library". This is a new term, one you have probably never heard of before, because I just coined the term myself. Regressive libraries are a reasonable alternative to large wrapper libraries. While they are _usually_ small (though not always), their true appeal is evident in the name – they are _regressive_. While most libraries evolve in size and feature sets over time, regressive libraries devolve. The ultimate goal of a regressive library is to disappear, to be replaced entirely by the browser's native API.
 

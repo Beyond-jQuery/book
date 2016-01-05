@@ -89,7 +89,7 @@ fetch('/my/name').then(function(response) {
 });
 ~~~~~~~
 
-The above code not only embraces the promises specification, but also removes a lot of the boilerplate commonly seen with `XMLHttpRequest`. You'll see more examples of `fetch` throughout this chapter.
+The above code not only embraces the promises specification, but also removes a lot of the boilerplate commonly seen with `XMLHttpRequest`. You'll see more examples of `fetch` throughout this chapter. Note that any of the above examples are identical for HEAD requests, with the exception of the method specifier.
 
 Many developers who learned web development through a jQuery lens probably think that this library is doing something magical and complex when you invoke the `$.ajax` method. That couldn't be further from the truth. All of the heavy lifting is done by the browser via the `XMLHttpRequest` object. jQuery's `ajax` is just a wrapper around `XMLHttpRequest`. Using the browser's built-in support for ajax requests isn't very difficult, as you'll see in a moment. Even cross-origin requests are not only simple without jQuery, you'll see how they are actually _easier_ without jQuery.
 
@@ -138,40 +138,107 @@ Sending this request looks similar to jQuery, but without a lot of the boilerpla
 
 While POST requests are often used to create a new resource, PUT requests typically update an existing one. For example, PUT would be most appropriate for replacing information about an existing product. Another example involves uploading a large file in chunks. The first request, creating the resource, would be a POST. Subsequent requests that contain each piece of the file would use PUT, as each chunk is effectively be an update to the server-side representation of the file. The URI of the request identifies the resource to be updated with the new information located in the body. To simply illustrate sending a PUT request using jQuery, `XMLHttpRequest`, and `fetch`, I'll demonstrate updating a mobile phone number for an existing user record.
 
-{title="send PUT request to update a user's mobile number - jQuery", lang=javascript}
+{title="send PUT request to update a user record - jQuery", lang=javascript}
 ~~~~~~~
 $.ajax({
   method: 'PUT',
-  url: '/phone/mobile/1',
+  url: '/user/1',
   contentType: 'text/plain',
-  data: '+1 555-555-5555'
+  data: /* complete user record including new mobile number */
 });
 ~~~~~~~
 
 This PUT request using jQuery looks almost identical to the previously illustrated POST, with the exception of the `method` property. This user is identified by their ID, which happens to be 1. You likely won't be surprised to see that sending a PUT with `XMLHttpRequest` is similar to the previous example as well:
 
-{title="send PUT request to update a user's mobile number - web API - all browsers", lang=javascript}
+{title="send PUT request to update a user record - web API - all browsers", lang=javascript}
 ~~~~~~~
 var xhr = new XMLHttpRequest();
-xhr.open('PUT', '/phone/mobile/1');
-xhr.send('+1 555-555-5555');
+xhr.open('PUT', '/user/1');
+xhr.send(/* complete user record including new mobile number */);
 ~~~~~~~
 
 The Fetch API, as expected, provides the most concise approach:
 
-{title="send PUT request to update a user's mobile number - web API - Firefox and Chrome", lang=javascript}
+{title="send PUT request to update a user record - web API - Firefox and Chrome", lang=javascript}
 ~~~~~~~
-fetch('/phone/mobile/1', {
+fetch('/user/1', {
   method: 'PUT',
-  body: '+1 555-555-5555'
+  body: /* complete user record including new mobile number */
 });
 ~~~~~~~
 
 
 ### Sending DELETE requests
 
+DELETE requests are similar to PUTs in that the resource to be acted upon is specified in the request URI. The main difference, even though this is not clearly mandated by [RFC 7231][rfc7231], DELETE requests typically do _not_ contain a message body. The [IETF document refers to the possibility that a message body may in fact cause problems for the requestor][rfc7231-delete]:
+
+>A payload within a DELETE request message has no defined semantics; sending a payload body on a DELETE request might cause some existing implementations to reject the request.
+
+This means that the only safe way to specify parameters, apart from the resource to be acted upon, is to include them as query parameters in the request URI. Other than this exceptional case, DELETE requests are sent in the same manner as PUTS. And, like a PUT request, DELETE requests are idempotent. Remember that an idempotent request is one that behaves the same regardless of the number of times it is called. It would be quite surprising if multiple calls to delete the same resource resulted in, for example, removal of a different resource depending on the request index.
+
+A request to remove a resource, using jQuery, looks like this:
+
+{title="send DELETE request to remove a user record - jQuery", lang=javascript}
+~~~~~~~
+$.ajax({
+  method: 'DELETE',
+  url: '/user/1'
+});
+~~~~~~~
+
+...and the same simple request, using `XMLHttpRequest`, can be achieved with only an extra line of code:
+
+{title="send DELETE request to remove a user record - web API - all browsers", lang=javascript}
+~~~~~~~
+var xhr = new XMLHttpRequest();
+xhr.open('DELETE', '/user/1');
+xhr.send();
+~~~~~~~
+
+Finally, we can send this DELETE request natively in Firefox and Chrome using the ever-so-elegant Fetch API (or in any browser with a [polyfill](#shims-and-polyfills) for `fetch` [maintained on GitHub][[fetch-polyfill]]):
+
+{title="send DELETE request to remove a user record - web API - Firefox and Chrome", lang=javascript}
+~~~~~~~
+fetch('/user/1', {method: 'DELETE'});
+~~~~~~~
+
+Sending this request with `fetch` is so simple that we can easily write the entire thing in one line without losing readability.
+
 
 ### Sending PATCH requests
+
+As mentioned earlier in this chapter, PATCH requests are relatively new on the HTTP scene, and they are used to update a _portion_ of an existing resource. Take our previous PUT request example, where we only want to update a user's mobile phone number, but have to include all other user data in our PUT request as well. For small records, this may be fine, but for records of substantial size, it can not only be a waste of bandwidth, but also a poor use of server processing power (determining which properties have actually changed). For this situation, we can use PATCH requests.
+
+Let's revisit the PUT example where we need to update an existing user's mobile number, this time with PATCH. A jQuery approach - using a simple plaintext-based key-value message body to indicate the property to change along with the new property value - would look like this:
+
+{title="send PATCH request to update a user's mobile number - jQuery", lang=javascript}
+~~~~~~~
+$.ajax({
+  method: 'PATCH',
+  url: '/user/1',
+  contentType: 'text/plain',
+  data: 'mobile: 555-5555'
+});
+~~~~~~~
+
+Remember that we can use any format we choose for the body of the PATCH request to specify the data to update, as long as client and server are in agreement. If we prefer to use `XMLHTTPRequest`, the same request looks like this:
+
+{title="send PATCH request to update a user's mobile number - web API - all browsers", lang=javascript}
+~~~~~~~
+var xhr = new XMLHttpRequest();
+xhr.open('PATCH', '/user/1');
+xhr.send('mobile: 555-5555');
+~~~~~~~
+
+For the sake of completeness, I'll show you how to send the exact same request using the Fetch API as well:
+
+{title="send PATCH request to update a user's mobile number - web API - Firefox and Chrome", lang=javascript}
+~~~~~~~
+fetch('/user/1', {
+  method: 'PATCH',
+  body: 'mobile: 555-5555'
+});
+~~~~~~~
 
 
 ### Hands-on: Maintaining a list of names
@@ -224,10 +291,13 @@ fetch('/phone/mobile/1', {
 
 [broadband-99]: http://www.websiteoptimization.com/bw/0403/
 [fetch-default-content-type]: https://fetch.spec.whatwg.org/#body-mixin
+[fetch-polyfill]: https://github.com/github/fetch
 [fetch-whatwg]: https://fetch.spec.whatwg.org/
 [http-w3c-91]: http://www.w3.org/Protocols/HTTP/AsImplemented.html
 [patch-rfc5789]: https://tools.ietf.org/html/rfc5789
 [rfc6455]: https://tools.ietf.org/html/rfc6455
+[rfc7231]: https://tools.ietf.org/html/rfc7231
+[rfc7231-delete]: https://tools.ietf.org/html/rfc7231#section-4.3.5
 [rfc7540]: https://httpwg.github.io/specs/rfc7540.html
 [status-rfc2616]: http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10
 [xhr-default-content-type]: http://www.w3.org/TR/XMLHttpRequest#dom-xmlhttprequest-send
