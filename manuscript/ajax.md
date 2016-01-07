@@ -241,23 +241,36 @@ fetch('/user/1', {
 ~~~~~~~
 
 
-### Hands-on: Maintaining a list of names
-
-
-
 ## Encoding requests and reading encoded responses
+
+In the previous section, I touched on the simplest of all encoding methods - text/plain - which is the Multipurpose Internet Mail Extension (better known as MIME type) for unformatted text that makes up an HTTP request or response. The simplicity of plain text is both a blessing and a curse. That is, it is easy to work with, but only appropriate for very small and simple cases. The lack of any standardized structure limits its expressiveness and usefulness. For more complex (and more common) requests, there are more appropriate encoding types. In this section, I'll discuss three other MIME types - application/x-www-form-urlencoded, application/json, and multipart/form-data. At the end of this section, you will be not only familiar with these additional encoding methods, but will also be able to understand how to encode and decode messages without jQuery, especially when sending HTTP requests and parsing responses.
 
 
 ### URL encoding
+
+URL encoding can take place in the request's URL, or in the message body of the request/response. The MIME type of this encoding scheme is application/x-www-form-urlencoded and data consists of simple key/value pairs. Each key and value is separated by an equal side (`=`), while each pair is separated by an ampersand (`&`). But the encoding algorithm is much more than this. Keys and values may be further encoded, depending on their character makeup. Non-ASCII characters, along with some reserved characters, are replaced with a percent character (`%`) followed by the character's ASCII code. This is [further defined in the HTML forms section of the W3C HTML5 specification][forms-html5]. This description is arguably a bit over-simplistic, but certainly appropriate and comprehensive enough for the purposes of this chapter. If you'd like to learn more about the encoding algorithm for this MIME type, please have a look at the spec, though it is a bit dry and may take a few reads to properly parse.
+
+For GET and DELETE requests, URL encoded data should be included at the end of the URI, since these request methods typically should not include payloads. For all other requests, the body of the message is the most appropriate place for your URL encoded data. In this case, the request or response must include a `Content-Type` header of "application/x-www-form-urlencoded" - the MIME type of the encoding scheme. URL encoded messages are expected to be relatively small, especially when dealing with GET and DELETE requests due to [real-world URI length restrictions in place on browsers and servers][uri-length-limit-stackoverflow]. While this encoding method is more elegant than text/plain, the lack of hierarchy means that these messages are also limited in their expressiveness to some degree.
+
+jQuery's API provides a function that takes an object and turns it into a URL encoded string - `$.param`. For example, if we wanted to encode a couple simple key/value pairs into a URL-encoded string, our code would look like this:
+
+{title="URL encode values - jQuery", lang=javascript}
+~~~~~~~
+$.param({
+  key1: 'some value',
+  'key 2': 'another value'
+});
+~~~~~~~
+
+The above line would produce a string of "key1=some+value&key+2=another+value". The specification for the application/x-www-form-urlencoded MIME type _does_ declare that spaces are reserved characters that should be converted to the "plus" character. However, in practice, the ASCII character code is also acceptable. So, the same couple of key/value pairs can _also_ be expressed as "key1=some%20value&key%202=another%20value". You'll see an example of this in use when I cover URL encoding with the web API.
+
+
 
 
 ### JSON encoding
 
 
 ### Multipart encoding
-
-
-### Plain text
 
 
 
@@ -293,6 +306,7 @@ fetch('/user/1', {
 [fetch-default-content-type]: https://fetch.spec.whatwg.org/#body-mixin
 [fetch-polyfill]: https://github.com/github/fetch
 [fetch-whatwg]: https://fetch.spec.whatwg.org/
+[forms-html5]: http://www.w3.org/TR/html5/forms.html#application/x-www-form-urlencoded-encoding-algorithm
 [http-w3c-91]: http://www.w3.org/Protocols/HTTP/AsImplemented.html
 [patch-rfc5789]: https://tools.ietf.org/html/rfc5789
 [rfc6455]: https://tools.ietf.org/html/rfc6455
@@ -300,5 +314,6 @@ fetch('/user/1', {
 [rfc7231-delete]: https://tools.ietf.org/html/rfc7231#section-4.3.5
 [rfc7540]: https://httpwg.github.io/specs/rfc7540.html
 [status-rfc2616]: http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10
+[uri-length-limit-stackoverflow]: http://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers
 [xhr-default-content-type]: http://www.w3.org/TR/XMLHttpRequest#dom-xmlhttprequest-send
 [xhr-init]: https://blogs.msdn.microsoft.com/ie/2006/01/23/native-xmlhttprequest-object/
