@@ -264,7 +264,47 @@ $.param({
 
 The above line would produce a string of "key1=some+value&key+2=another+value". The specification for the application/x-www-form-urlencoded MIME type _does_ declare that spaces are reserved characters that should be converted to the "plus" character. However, in practice, the ASCII character code is also acceptable. So, the same couple of key/value pairs can _also_ be expressed as "key1=some%20value&key%202=another%20value". You'll see an example of this in use when I cover URL encoding with the web API.
 
+So, if we wanted to create a new user with 3 properties - name, address, and phone - we could send a POST request to our server with a URL-encoded request body containing the information for the new user. This request would look like this with jQuery:
 
+{title="send URL-encoded POST request to add a name - jQuery", lang=javascript}
+~~~~~~~
+$.ajax({
+  method: 'POST',
+  url: '/user/name',
+  data: {
+    name: 'Mr. Ed',
+    address: '1313 Mockingbird Lane',
+    phone: '555-555-5555'
+  }
+});
+~~~~~~~
+
+jQuery does admittedly make this relatively intuitive, as it allows you to pass in a JavaScript object describing the new user. There is no need to use the `$.param` method. As I mentioned earlier, jQuery's `$.ajax` API method assumes a `Content-Type` of "application/x-www-form-urlencoded", and it encodes the value of your `data` property to automatically to match this assumption. You don't have to think about encoding or encoding types at all in this case.
+
+Even though the web API _does_ require you to be conscious of the encoding type _and_ it requires you encode your data before sending the request, these tasks are not overly complicated. I've already showed you how jQuery allows you to encode a string of text to "application/x-www-form-urlencoded" - using `$.param` - and you can accomplish the same without jQuery using the `encodeURI` and `encodeURIComponent` methods available on global namespace. These methods are defined in the ECMAScript specification, and have been available since the [ECMA-262 3rd edition specification][ecmascript3], completed in 1999.
+
+Both `encodeURI` and `encodeURIComponent` perform the same general task - URL encode a string. But they each determine _which_ parts of the string to encode a bit differently, so they are tied to specific use-cases. `encodeURI` is meant to be used for a complete URL, such as "http://raynicholus.com?first=ray&last=nicholus", _or_ a string of key-value pairs separated by an ampersand (`&`), such as "first=ray&last=nicholus". However, `encodeURIComponent` is meant to only be used on a single value that needs to be URL encoded, such as "Ray Nicholus" or "Mr. Ed". If you use `encodeURIComponent` to encode the full URL listed earlier in this paragraph then the colon, forward slashes, question mark, and ampersand will all be URL encoded, which is probably not what you want (unless the entire URL is itself a query parameter).
+
+Looking back at the simple URL-encoding example with jQuery a little while back in this section, we can encode the same data with the web API using `encodeURI`:
+
+{title="URL encode values - web API - all browsers", lang=javascript}
+~~~~~~~
+encodeURI('key1=some value&key 2=another value');
+~~~~~~~
+
+A couple things about the output of `encodeURI` above, which produces "key1=some%20value&key%202=another%20value". First, notice that, while jQuery replaced spaces with the plus sign (`+`), `encodeURI` (and `encodeURIComponent`) replaces spaces with "%20". This is perfectly valid, but a notable difference. Second, while jQuery allows you to express the data to be encoded as a JavaScript object, `encodeURI` requires you separate the keys from the values with an equals sign (`=`) and the key-value pairs with an ampersand (`&`). Taking this a bit further, we can duplicate the same POST request we sent above that adds a new name, first using `XMLHttpRequest`:
+
+{title="send URL-encoded POST request to add a name - web API - all browsers", lang=javascript}
+~~~~~~~
+var xhr = new XMLHttpRequest(),
+    data = encodeURI(
+      'name=Mr. Ed&address=1313 Mockingbird Lane&phone=555-555-5555');
+xhr.open('POST', '/user/name');
+xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+xhr.send(data);
+~~~~~~~
+
+Another notable difference between the `XMLHTTPRequest` route and jQuery's `$.ajax` is that we must set the request header's `Content-Type` header as well. jQuery sets this for us by default, and it is necessary to let the server know how to decode the request data. Luckily, `XMLHttpRequest` provides us with a method for setting request headers - the aptly named `setRequestHeader`.
 
 
 ### JSON encoding
@@ -303,6 +343,7 @@ The above line would produce a string of "key1=some+value&key+2=another+value". 
 
 
 [broadband-99]: http://www.websiteoptimization.com/bw/0403/
+[ecmascript3]: http://www.ecma-international.org/publications/files/ECMA-ST-ARCH/ECMA-262,%203rd%20edition,%20December%201999.pdf
 [fetch-default-content-type]: https://fetch.spec.whatwg.org/#body-mixin
 [fetch-polyfill]: https://github.com/github/fetch
 [fetch-whatwg]: https://fetch.spec.whatwg.org/
