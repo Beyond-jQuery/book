@@ -5,7 +5,7 @@ This is a book-in-progress, [currently available for purchase on Leanpub][leanpu
 
 ### How can I get a copy?
 
-While this book is publicly available in this GitHub repository, I ask that you purchase a copy on Leanpub as I have (and continue to) put a _lot_ of work into writing and editing this manuscript. A good portion of my knowledge of frontend web development is housed in these pages, and I feel the asking price, even for an in-progress book, is very reasonable. Plus, once you purchase a copy, you'll have access to all of the updates as I write new chapters. The price will likely increase as it progresses.
+While this book is publicly available in this GitHub repository, I ask that you [purchase a copy on Leanpub][leanpub] as I have (and continue to) put a _lot_ of work into writing and editing this manuscript. A good portion of my knowledge of frontend web development is housed in these pages, and I feel the asking price, even for an in-progress book, is very reasonable. Plus, once you purchase a copy, you'll have access to all of the updates as I write new chapters. The price will likely increase as it progresses.
 
 
 ### How big is this book going to be?
