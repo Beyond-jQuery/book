@@ -306,8 +306,26 @@ xhr.send(data);
 
 Another notable difference between the `XMLHTTPRequest` route and jQuery's `$.ajax` is that we must set the request header's `Content-Type` header as well. jQuery sets this for us by default, and it is necessary to let the server know how to decode the request data. Luckily, `XMLHttpRequest` provides us with a method for setting request headers - the aptly named `setRequestHeader`.
 
+We can gain some of the same benefits seen previously with the Fetch API, but we _still_ need to do our own encoding. No worries, since that can be accomplished without much trouble:
+
+{title="send URL-encoded POST request to add a name - web API - Firefox and Chrome", lang=javascript}
+~~~~~~~
+var data =
+  encodeURI('name=Mr. Ed&address=1313 Mockingbird Lane&phone=555-555-5555');
+fetch('/user/name', {
+  method: 'POST',
+  headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+  body: data
+})
+~~~~~~~
+
+Just as with `XMLHttpRequest`, the `Content-Type` header must also be specified here, since the default `Content-Type` for `fetch`-initiated requests is also "text/plain". But, again, the Fetch API allows ajax requests to be constructed in a more elegant and condensed form, similar to the solution that jQuery has provided for some time now. While `fetch` is only supported in Firefox, Chrome (and by default Opera), there are open cases to add support to [Safari][fetch-safari-bug] and [Microsoft Edge][fetch-edge-status]. In the near future, `XMLHttpRequest` will be an artifact of history, and `fetch`, which rivals jQuery's ajax support, will be the native transport of choice.
+
 
 ### JSON encoding
+
+JavaScript Object Notation, better known as JSON, is considered to be a "data-interchange language" (as described on json.org). If this obscure description leaves you a bit puzzled, don't feel bad, it's not a particularly useful summary. Think of JSON as a JavaScript object turned into a string. There a bit more to explain, but this is a reasonable high-level definition in my opinion. In web development, this is particularly useful if a browser-based client wants to easily send a JavaScript object to a server endpoint. The server can, in turn, respond to requests from this client, also supplying JSON in the response body, and the client can easily convert this into a JavaScript object to allow easy programmatic parsing and manipulation. While "application/x-www-form-urlencoded" requires data be expressed in a flat format, "application/json" allows data to be expressed in a hierarchical format. A key can have many sub-keys, and those sub-keys can have child keys as well. In this sense, JSON is more more expressive than URL-encoded data, which itself is more expressive and structured than plain text.
+
 
 
 ### Multipart encoding
@@ -345,7 +363,9 @@ Another notable difference between the `XMLHTTPRequest` route and jQuery's `$.aj
 [broadband-99]: http://www.websiteoptimization.com/bw/0403/
 [ecmascript3]: http://www.ecma-international.org/publications/files/ECMA-ST-ARCH/ECMA-262,%203rd%20edition,%20December%201999.pdf
 [fetch-default-content-type]: https://fetch.spec.whatwg.org/#body-mixin
+[fetch-edge-status]: https://dev.windows.com/en-us/microsoft-edge/platform/status/fetchapi
 [fetch-polyfill]: https://github.com/github/fetch
+[fetch-safari-bug]: https://bugs.webkit.org/show_bug.cgi?id=151937
 [fetch-whatwg]: https://fetch.spec.whatwg.org/
 [forms-html5]: http://www.w3.org/TR/html5/forms.html#application/x-www-form-urlencoded-encoding-algorithm
 [http-w3c-91]: http://www.w3.org/Protocols/HTTP/AsImplemented.html
