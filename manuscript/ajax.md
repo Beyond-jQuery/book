@@ -270,7 +270,7 @@ So, if we wanted to create a new user with 3 properties - name, address, and pho
 ~~~~~~~
 $.ajax({
   method: 'POST',
-  url: '/user/name',
+  url: '/user',
   data: {
     name: 'Mr. Ed',
     address: '1313 Mockingbird Lane',
@@ -299,7 +299,7 @@ A couple things about the output of `encodeURI` above, which produces "key1=some
 var xhr = new XMLHttpRequest(),
     data = encodeURI(
       'name=Mr. Ed&address=1313 Mockingbird Lane&phone=555-555-5555');
-xhr.open('POST', '/user/name');
+xhr.open('POST', '/user');
 xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 xhr.send(data);
 ~~~~~~~
@@ -312,7 +312,7 @@ We can gain some of the same benefits seen previously with the Fetch API, but we
 ~~~~~~~
 var data =
   encodeURI('name=Mr. Ed&address=1313 Mockingbird Lane&phone=555-555-5555');
-fetch('/user/name', {
+fetch('/user', {
   method: 'POST',
   headers: {'Content-Type': 'application/x-www-form-urlencoded'},
   body: data
@@ -326,6 +326,128 @@ Just as with `XMLHttpRequest`, the `Content-Type` header must also be specified 
 
 JavaScript Object Notation, better known as JSON, is considered to be a "data-interchange language" (as described on json.org). If this obscure description leaves you a bit puzzled, don't feel bad, it's not a particularly useful summary. Think of JSON as a JavaScript object turned into a string. There a bit more to explain, but this is a reasonable high-level definition in my opinion. In web development, this is particularly useful if a browser-based client wants to easily send a JavaScript object to a server endpoint. The server can, in turn, respond to requests from this client, also supplying JSON in the response body, and the client can easily convert this into a JavaScript object to allow easy programmatic parsing and manipulation. While "application/x-www-form-urlencoded" requires data be expressed in a flat format, "application/json" allows data to be expressed in a hierarchical format. A key can have many sub-keys, and those sub-keys can have child keys as well. In this sense, JSON is more more expressive than URL-encoded data, which itself is more expressive and structured than plain text.
 
+In case you are not already familiar with this common data format, let's represent a single user in JSON:
+
+{title="a user record expressed as a JSON string", lang=javascript}
+~~~~~~~
+{
+  "name": "Mr. Ed",
+  "address": "1313 Mockingbird Lane",
+  "phone": {
+    "home": "555-555-5555"
+    "mobile": "444-444-4444"
+  }
+}
+~~~~~~~
+
+Notice that JSON gives us the power to easily express sub-keys, a feature that is lacking with plaintext and URL-encoded strings. Mr. Ed as two phone numbers, and with JSON we can elegantly associate both of these numbers with with a parent "phone" property. So, how can you convert a JSON string to a JavaScript object and back again using jQuery? First off, jQuery doesn't provide an API method to turn strings into objects. This is likely due to the fact that JavaScript provides a simple and intuitive API to solve this problem already. More on that soon. But what about converting a JavaScript object into a proper JSON string? For this, jQuery does provide something - `$.parseJSON()`. There isn't much need for these methods in the context of ajax requests, so I won't bother demonstrating them. Extending our ajax example from the previous section, let's add a new name record to our server using jQuery, this time with a JSON-encoded payload:
+
+{title="send JSON-encoded POST request to add a name - jQuery", lang=javascript}
+~~~~~~~
+$.ajax({
+  method: 'POST',
+  url: '/user',
+  contentType: 'application/json',
+  data: JSON.stringify({
+    name: 'Mr. Ed',
+    address: '1313 Mockingbird Lane',
+    phone: {
+      home: '555-555-5555',
+      mobile: '444-444-4444'
+    }
+  })
+});
+~~~~~~~
+
+Notice that our code is looking a bit more ugly than the previous URL-encoded example. Two reasons for this, one being that we must explicitly specify the `Content-Type` header via a `contentType` property, an abstraction that isn't really much help. Second, we must leave the comfortable and familiar jQuery API to convert our JavaScript object into JSON. Since jQuery provides no API method to accomplish this (and why would it?) we must make use of the `JSON` object, which has been standardized as part of the ECMAScript specification. The `JSON` object provides a couple methods for converting JSON strings to JavaScript object, and back again. [It first appeared in the ECMAScript 5.1 specification][json-es51], which means it is supported in Node.js as well as all modern browsers, including Internet Explorer 8. The `stringify` method, used in the above jQuery POST example, takes the user record, which is represented as a JavaScript object, and converts it into a proper JSON string. This is needed before we can send the record to our server.
+
+If you'd like to send a GET request that receives JSON data, you can do that quite simply using `getJSON`:
+
+{title="receive JSON-encoded data - jQuery", lang=javascript}
+~~~~~~~
+$.getJSON('/user/1', function(user) {
+  // do something with this user JavaScript object
+});
+~~~~~~~
+
+What about sending the previous POST request without jQuery? First, with `XMLHttpRequest`:
+
+{title="send JSON-encoded POST request to add a name - web API - all browsers", lang=javascript}
+~~~~~~~
+var xhr = new XMLHttpRequest(),
+    data = JSON.stringify({
+      name: 'Mr. Ed',
+      address: '1313 Mockingbird Lane',
+      phone: {
+        home: '555-555-5555',
+        mobile: '444-444-4444'
+      }
+    });
+xhr.open('POST', '/user');
+xhr.setRequestHeader('Content-Type', 'application/json');
+xhr.send(data);
+~~~~~~~
+
+No surprises with XHR. This attempt looks very similar to the URL-encoded POST request we sent in the last section, with the exception of stringifying our JavaScript object, and setting an appropriate `Content-Type` header. As you have already seen, we must address the same issues whether we are using jQuery or not.
+
+But sending a JSON-encoded resquest is only half of the required knowledge. We must be prepared to receive and parse a JSON response too. That looks something like this with `XMLHTTPRequest`:
+
+{title="receive JSON-encoded data - web API - all browsers", lang=javascript}
+~~~~~~~
+var xhr = new XMLHttpRequest();
+xhr.open('GET', '/user/1');
+xhr.onload = function() {
+  var user = JSON.parse(xhr.responseText);
+  // do something with this user JavaScript object
+};
+xhr.send();
+~~~~~~~
+
+Notice that we're sending a GET request for user data, and expecting our server to return this record in a JSON-encoded string. Above, we're leveraging the `onload` funtion, which will be called when the request completes. At that point, we can grab the response body via the `responseText` property on our XHR instance. To turn this into a proper JavaScript object, we must make use of the other method on the JSON object - `parse`. In modern browsers (with the exception of Internet Explorer), receiving JSON data with `XMLHttpRequest` is even easier:
+
+{title="receive JSON-encoded data - web API - all modern browsers except IE", lang=javascript}
+~~~~~~~
+var xhr = new XMLHttpRequest();
+xhr.open('GET', '/user/1');
+xhr.onload = function() {
+  var user = xhr.response;
+  // do something with this user JavaScript object
+};
+xhr.send();
+~~~~~~~
+
+The above example assumes that the server has included a `Content-Type` header of "application/json". This lets `XMLHttpRequest` know what to do with the response data. It ultimately converts it to a JavaScript object and makes the converted value available on the `response` property of our `XMLHttpRequest` instance.
+
+Finally, we can use the Fetch API to add this new user record to our server, again using a JSON-encoded request:
+
+{title="send JSON-encoded POST request to add a name - web API - Firefox and Chrome", lang=javascript}
+~~~~~~~
+fetch('/user', {
+  method: 'POST',
+  headers: {'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    name: 'Mr. Ed',
+    address: '1313 Mockingbird Lane',
+    phone: {
+      home: '555-555-5555',
+      mobile: '444-444-4444'
+    }
+  })
+});
+~~~~~~~
+
+This is unsurprising and straightforward, but what about receiving a JSON-encoded response from our server? Let's send a simply GET request using `fetch` for a user record, with the expectation that our server will respond with a user record encoded as a JSON string:
+
+{title="receive JSON-encoded data - web API - Firefox and Chrome", lang=javascript}
+~~~~~~~
+fetch('/user/1').then(function(request) {
+    return request.json();
+  }).then(function(userRecord) {
+      // do something with this user JavaScript object
+  });
+~~~~~~~
+
+The Fetch API provides our promissory callback with [a `Request` object][fetch-request]. Since we are expected JSON, we call the `json()` method on this object, which itself returns a `Promise`. Note that the `json()` method is actually defined on [the `Body` interface][fetch-body]. The `Request` interface implements the `Body` interface, so we have access to methods on both interfaces here. By returning that promise, we can chain another promissory handler and expect to receive the JavaScript object representation of the response payload as a parameter in our last success callback. Now we have our user record from the server. Pretty simple! Again, if promises are still a bit murky, I'll cover them in great detail in the upcoming [async tasks](#async-tasks) chapter.
 
 
 ### Multipart encoding
@@ -362,13 +484,16 @@ JavaScript Object Notation, better known as JSON, is considered to be a "data-in
 
 [broadband-99]: http://www.websiteoptimization.com/bw/0403/
 [ecmascript3]: http://www.ecma-international.org/publications/files/ECMA-ST-ARCH/ECMA-262,%203rd%20edition,%20December%201999.pdf
+[fetch-body]: https://fetch.spec.whatwg.org/#body
 [fetch-default-content-type]: https://fetch.spec.whatwg.org/#body-mixin
 [fetch-edge-status]: https://dev.windows.com/en-us/microsoft-edge/platform/status/fetchapi
 [fetch-polyfill]: https://github.com/github/fetch
+[fetch-request]: https://fetch.spec.whatwg.org/#request-class
 [fetch-safari-bug]: https://bugs.webkit.org/show_bug.cgi?id=151937
 [fetch-whatwg]: https://fetch.spec.whatwg.org/
 [forms-html5]: http://www.w3.org/TR/html5/forms.html#application/x-www-form-urlencoded-encoding-algorithm
 [http-w3c-91]: http://www.w3.org/Protocols/HTTP/AsImplemented.html
+[json-es51]: http://www.ecma-international.org/ecma-262/5.1/#sec-15.12
 [patch-rfc5789]: https://tools.ietf.org/html/rfc5789
 [rfc6455]: https://tools.ietf.org/html/rfc6455
 [rfc7231]: https://tools.ietf.org/html/rfc7231
