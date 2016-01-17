@@ -490,7 +490,24 @@ The server knows how to find each form field by looking for the unique ID markin
 
 But HTML form submissions are not the _only_ instance where we might want to encode our request message using the multipart/form-data MIME type. Since this MIME type is trivial to implement in all server-side languages, it is probably a safe choice for transmitting key/value pairs from client to server. But, above all else, multipart encoding is perfect for mixing key/value pairs with binary data (such as files). I'll talk more about uploading files in the next section.
 
-So how can we sending a multipart encoded request using jQuery's `$.ajax` method?  
+So how can we sending a multipart encoded request using jQuery's `$.ajax` method?  As you'll see shortly, it's ugly, and the layer of abstraction that jQuery normally provides is incomplete in this case as you must delegate directly to the web API anyway. Continuing with some of the previous examples, let's send a new user record to our server, a record consisting of a user's name, address, and phone number:
+
+{title="sending a multipart encoded request using jQuery - all modern browsers except IE9", lang=javascript}
+~~~~~~~
+var formData = new FormData();
+
+formData.append('name', 'Mr. Ed');
+formData.append('address', '1313 Mockingbird Lane');
+formData.append('phone', '555-555-5555');
+
+$.ajax({
+  method: 'POST',
+  url: '/user',
+  contentType: false,
+  processData: false,
+  data: formData
+});
+~~~~~~~
 
 
 ## Uploading and manipulating files
