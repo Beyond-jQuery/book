@@ -495,7 +495,6 @@ So how can we sending a multipart encoded request using jQuery's `$.ajax` method
 {title="sending a multipart encoded request using jQuery - all modern browsers except IE9", lang=javascript}
 ~~~~~~~
 var formData = new FormData();
-
 formData.append('name', 'Mr. Ed');
 formData.append('address', '1313 Mockingbird Lane');
 formData.append('phone', '555-555-5555');
@@ -508,6 +507,42 @@ $.ajax({
   data: formData
 });
 ~~~~~~~
+
+In order to send a multipart encoded ajax request, we must send a `FormData` object that contains our key/value pairs, and the browser takes care of the rest. There is no jQuery abstraction here; you must make use of the web API's `FormData` directly. Note that `FormData` isn't supported in Internet Explorer 9. But there isn't a real problem with using `FormData`. Though this lack of abstraction is a hole in jQuery's blanket, `FormData` is relatively intuitive and quite powerful. In fact, you can pass it a `<form>` element and key/value pairs will be created for you, ready for asynchronous submission to your server. Mozilla Developer Network has a [great writeup on `FormData`][formdata-mdn]. You should read it for more details.
+
+The biggest problem with sending MPE requests with jQuery is the obscure options that must be set to make it work. `processData: false`? What does that even mean? Well, if you don't set this option, jQuery will attempt to turn `FormData` into a URL-encoded string. As for `contentType: false`, this is required to ensure that jQuery doesn't insert its own Content-Type header. Remember from the section introduction that the browser _must_ specify the Content-Type for you as it includes a calculated multipart boundary ID used by the server to parse the request.
+
+The same request with plain 'ole `XMLHttpRequest` contains no surprises, and, quite frankly, isn't any less intuitive than jQuery's solution:
+
+{title="sending a multipart encoded request - web API - all modern browsers except IE9", lang=javascript}
+~~~~~~~
+var formData = new FormData(),
+    xhr = new XMLHttpRequest();
+
+formData.append('name', 'Mr. Ed');
+formData.append('address', '1313 Mockingbird Lane');
+formData.append('phone', '555-555-5555');
+
+xhr.open('POST', '/user');
+xhr.send(formData);
+~~~~~~~
+
+In fact, using XHR results in _less_ code, and we don't have to include non-sensical options such as `contentType: false` and `processData: false`. As expected, the Fetch API is even more intuitive:
+
+{title="sending a multipart encoded request - web API - Chrome and Firefox only", lang=javascript}
+~~~~~~~
+var formData = new FormData();
+formData.append('name', 'Mr. Ed');
+formData.append('address', '1313 Mockingbird Lane');
+formData.append('phone', '555-555-5555');
+
+fetch('/user', {
+  method: 'POST',
+  body: formData
+});
+~~~~~~~
+
+See? If you can look Beyond jQuery, just a bit, you'll find that the web API is not always as scary as some make it out to be. In this case, jQuery's API suffers from inelegance.
 
 
 ## Uploading and manipulating files
@@ -547,6 +582,7 @@ $.ajax({
 [fetch-request]: https://fetch.spec.whatwg.org/#request-class
 [fetch-safari-bug]: https://bugs.webkit.org/show_bug.cgi?id=151937
 [fetch-whatwg]: https://fetch.spec.whatwg.org/
+[formdata-mdn]: https://developer.mozilla.org/en-US/docs/Web/API/FormData
 [forms-html5]: http://www.w3.org/TR/html5/forms.html#application/x-www-form-urlencoded-encoding-algorithm
 [http-w3c-91]: http://www.w3.org/Protocols/HTTP/AsImplemented.html
 [json-es51]: http://www.ecma-international.org/ecma-262/5.1/#sec-15.12
