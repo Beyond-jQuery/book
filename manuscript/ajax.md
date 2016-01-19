@@ -547,6 +547,10 @@ See? If you can look Beyond jQuery, just a bit, you'll find that the web API is 
 
 ## Uploading and manipulating files
 
+Asynchronous file uploading, [a topic that I have quite a bit of experience with][fineuploader], is yet another example of how jQuery can often fail to effectively wrap the web API and provide users with an experience that justifies use of the library. This is indeed a complex topic, and while I can't cover everything related to file uploads here, I'll be sure to explain the basics and show how files are be uploaded using jQuery, `XMLHttpRequest`, and `fetch` both in [modern browsers](#modern-browsers) _and_ [ancient browsers](#ancient-browsers). In this specific and unusual case, note that Internet Explorer 9 is excluded from the definition of "modern browsers". The reason for this will become clear soon.
+
+
+
 
 ### Uploading files in older browsers
 
@@ -582,6 +586,7 @@ See? If you can look Beyond jQuery, just a bit, you'll find that the web API is 
 [fetch-request]: https://fetch.spec.whatwg.org/#request-class
 [fetch-safari-bug]: https://bugs.webkit.org/show_bug.cgi?id=151937
 [fetch-whatwg]: https://fetch.spec.whatwg.org/
+[fineuploader]: http://fineuploader.com
 [formdata-mdn]: https://developer.mozilla.org/en-US/docs/Web/API/FormData
 [forms-html5]: http://www.w3.org/TR/html5/forms.html#application/x-www-form-urlencoded-encoding-algorithm
 [http-w3c-91]: http://www.w3.org/Protocols/HTTP/AsImplemented.html
