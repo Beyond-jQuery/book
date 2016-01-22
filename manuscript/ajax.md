@@ -564,7 +564,7 @@ The approach described above can be implemented quite easily, simply by asking t
   <input type="file" name="file">
 </form>
 
-<iframe name="upload_frame" style="display: none;"></iframe>
+<iframe name="uploader" style="display: none;"></iframe>
 ~~~~~~~
 
 Notice that the `enctype` attribute is set to "multipart/form-data". You may remember from the previous section that a form with file input elements must generate a multipart encoded request in order to properly communicate the file bytes to the server.
