@@ -560,8 +560,13 @@ The approach described above can be implemented quite easily, simply by asking t
 
 {title="HTML fragment that represents our initial browser context with a file input element", lang=html}
 ~~~~~~~
-<form action="/file-handler" method="POST" enctype="multipart/form-data" target="uploader">
+<form action="/upload"
+      method="POST"
+      enctype="multipart/form-data"
+      target="uploader">
+
   <input type="file" name="file">
+
 </form>
 
 <iframe name="uploader" style="display: none;"></iframe>
