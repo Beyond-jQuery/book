@@ -550,12 +550,63 @@ See? If you can look Beyond jQuery, just a bit, you'll find that the web API is 
 Asynchronous file uploading, [a topic that I have quite a bit of experience with][fineuploader], is yet another example of how jQuery can often fail to effectively wrap the web API and provide users with an experience that justifies use of the library. This is indeed a complex topic, and while I can't cover everything related to file uploads here, I'll be sure to explain the basics and show how files are be uploaded using jQuery, `XMLHttpRequest`, and `fetch` both in [modern browsers](#modern-browsers) _and_ [ancient browsers](#ancient-browsers). In this specific and unusual case, note that Internet Explorer 9 is excluded from the definition of "modern browsers". The reason for this will become clear soon.
 
 
+### Uploading files in ancient browsers
+
+Before we get into uploading files in older browsers, let's define a very impotant term for this section: "browsing context". A browsing context can be a `window` or a `iframe`, for example. So if we have a `window`, and an `iframe` inside of this `window`, we have two browsing contexts - the parent `window`, and the child `iframe`.
+
+The _only_ way to upload files in ancient browsers, including Internet Explorer 9, is to include an `<input type="file">` element inside of a `<form>` and submit this form. By default, the server's response to this form submit replaces the current browsing context. When working with a highly dynamic single page web application, this is unacceptable. We need to be able to upload files in older browsers and still maintain total control over the current browsing context. Unfortunately, there is no way to prevent a form submit from replacing the current browsing context. But we can certainly create a child browsing context where we submit the form, and then monitor this browsing context to determine when our file has been uploaded by listening for changes.
+
+The approach described above can be implemented quite easily, simply by asking the form to target an `<iframe>` in the document. To determine when the file has finished uploading, attach an "onload" event handler to the `<iframe>`. To demonstrate this approach, we'll need to make a few assumptions in order to make this relatively painless. First, imagine our primary browsing context looks like this:
+
+{title="HTML fragment that represents our initial browser context with a file input element", lang=html}
+~~~~~~~
+<form action="/file-handler" method="POST" enctype="multipart/form-data" target="uploader">
+  <input type="file" name="file">
+</form>
+
+<iframe name="upload_frame" style="display: none;"></iframe>
+~~~~~~~
+
+Notice that the `enctype` attribute is set to "multipart/form-data". You may remember from the previous section that a form with file input elements must generate a multipart encoded request in order to properly communicate the file bytes to the server.
+
+Second assumption - we are given a function - `upload()` - that is called when the user selects a file via the file input element. I'm not going to cover this specific detail now, since we haven't yet covered event handling. I'll [discuss events](#browser-events) later in this book.
+
+Ok, so how do we make this happen with jQuery?
+
+{title="ajax uploading in ancient browsers + IE9 - jQuery", lang=javascript}
+~~~~~~~
+function upload() {
+  var $iframe = $('iframe'),
+      $form = $('form');
+
+  $iframe.on('load', function() {
+    alert('file uploaded!')
+  });
+
+  $form.submit();
+}
+~~~~~~~
+
+How much work and complexity has jQuery saved us from here? Let's take a look at the non-jQuery version for a comparison:
+
+{title="ajax uploading in ancient browsers + IE9 - web API - all browsers", lang=javascript}
+~~~~~~~
+function upload() {
+   var iframe = document.getElementsByTagName('iframe')[0],
+       form = document.getElementsByTagName('form')[0]
+
+   iframe.onload = function() {
+     alert('file uploaded!');
+   }
+
+   form.submit();
+}
+~~~~~~~
+
+In short, jQuery hasn't done much at all for us. The web API solution is almost identical to the initial jQuery code. In both cases, we must select the iframe and form, attach an `onload` handler that does something when the upload has completed, and the submit the form. In both cases, our primary browsing context/window remains untouched. The server's response is buried in our hidden `<iframe>`. Pretty neat!
 
 
-### Uploading files in older browsers
-
-
-### Uploading files in newer browsers
+### Uploading files in modern browsers
 
 
 ### Reading and creating files
