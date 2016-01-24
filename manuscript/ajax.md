@@ -552,7 +552,7 @@ Asynchronous file uploading, [a topic that I have quite a bit of experience with
 
 ### Uploading files in ancient browsers
 
-Before we get into uploading files in older browsers, let's define a very impotant term for this section: "browsing context". A browsing context can be a `window` or a `iframe`, for example. So if we have a `window`, and an `iframe` inside of this `window`, we have two browsing contexts - the parent `window`, and the child `iframe`.
+Before we get into uploading files in older browsers, let's define a very important term for this section: "browsing context". A browsing context can be a `window` or a `iframe`, for example. So if we have a `window`, and an `iframe` inside of this `window`, we have two browsing contexts - the parent `window`, and the child `iframe`.
 
 The _only_ way to upload files in ancient browsers, including Internet Explorer 9, is to include an `<input type="file">` element inside of a `<form>` and submit this form. By default, the server's response to this form submit replaces the current browsing context. When working with a highly dynamic single page web application, this is unacceptable. We need to be able to upload files in older browsers and still maintain total control over the current browsing context. Unfortunately, there is no way to prevent a form submit from replacing the current browsing context. But we can certainly create a child browsing context where we submit the form, and then monitor this browsing context to determine when our file has been uploaded by listening for changes.
 
@@ -592,7 +592,7 @@ function upload() {
 }
 ~~~~~~~
 
-How much work and complexity has jQuery saved us from here? Let's take a look at the non-jQuery version for a comparison:
+We _could_ have accomplished a lot more with JavaScript/jQuery here, if we needed to, such as setting the `target` attribute. If we were working with nothing more than a single file input element, we could have also dynamically created the form and moved the file input inside of it as well. But none of that was necessary since our markup contained everything we needed already. How much work and complexity has jQuery saved us from here? Let's take a look at the non-jQuery version for a comparison:
 
 {title="ajax uploading in ancient browsers + IE9 - web API - all browsers", lang=javascript}
 ~~~~~~~
@@ -608,10 +608,65 @@ function upload() {
 }
 ~~~~~~~
 
-In short, jQuery hasn't done much at all for us. The web API solution is almost identical to the initial jQuery code. In both cases, we must select the iframe and form, attach an `onload` handler that does something when the upload has completed, and the submit the form. In both cases, our primary browsing context/window remains untouched. The server's response is buried in our hidden `<iframe>`. Pretty neat!
+jQuery hasn't done much at all for us. The web API solution is almost identical to the initial jQuery code. In both cases, we must select the iframe and form, attach an `onload` handler that does something when the upload has completed, and the submit the form. In both cases, our primary browsing context/window remains untouched. The server's response is buried in our hidden `<iframe>`. Pretty neat!
 
 
 ### Uploading files in modern browsers
+
+There is a much more modern way to upload files asynchronously, and this is possible in all modern browsers, with the exception of Internet Explorer 9. The ability to upload files via JavaScript is possible due to the [File API][fileapi-w3c], _and_ [`XMLHttpRequest` Level 2][xhr2-w3c]. Both of these elements of the web API are standardized by W3C specifications. jQuery does _nothing_ to make uploading files easier. The modern native APIs that bring file uploading the browser are elegant, easy to use, and powerful. jQuery doesn't so much to attempt to provide a layer of abstraction here, and actually makes file uploading a bit awkward.
+
+A typical workflow involves the following steps:
+
+1. User selects one or more files via a `<input type="file" multiple>` element. Note that the `multiple` [boolean attribute](#boolean-attributes) allows the user to select multiple files, provided that the browser supports this attribute.
+2. JavaScript is used to specify a "change" event listener, which is called when the user selects one or more files.
+3. When the "change" listener is invoked, grab the file or files from the `<input type="file">` element. These are made available as [`File` objects][file-w3c], which extend the [`Blob` interface][blob-w3c].
+4. Upload the `File` objects using your ajax transport of choice.
+
+Since we haven't covered [events](#browser-events) yet, assume a function exists that, when called, signals that our user has selected one or more files on the `<input type="file">` that we are monitoring. The goal is to upload these files. And to keep this example focused and simple, _also_ assume that the user is only able to select _one_ file. This means our `<input type="file">` element will _not_ include a `multiple` boolean attribute. File uploading in modern browsers with jQuery can be accomplished, given the environment I just described, like this:
+
+{title="ajax uploading in modern browsers (except IE9) - jQuery", lang=javascript}
+~~~~~~~
+function onFileInputChange() {
+  var file = $('input[type="file"]')[0].files[0];
+
+  $.ajax({
+    method: 'POST',
+    url: '/uploads',
+    contentType: false,
+    processData: false,
+    data: file
+  });  
+}
+~~~~~~~
+
+The above code will send a POST request to an "/uploads" endpoint, and the request body will contain the bytes of the file our user selected. Again we must use the obscure `contentType: false` option to ensure that jQuery leaves the Content-Type header alone so that it may be set by the browser to reflect the MIME type of the file. Also, `processData: false` is needed to prevent jQuery from encoded the `File` object, which destroys the file we are trying to upload. We also could have included the file in a `FormData` object and uploaded that instead. This becomes a better option if we need to upload multiple files in a single request, or if we want to easily include other form data alongside the upload file or files.
+
+Without jQuery, using `XMLHttpRequest`, file uploading is actually much simpler:
+
+{title="ajax uploading - web API - modern browsers except IE9", lang=javascript}
+~~~~~~~
+function onFileInputChange() {
+  var file = document.querySelector('input[type="file"]').files[0],
+      xhr = new XMLHttpRequest();
+
+xhr.open('POST', '/uploads');
+xhr.send(file);
+~~~~~~~
+
+Just as the jQuery example, we're grabbing the selected `File` from the file input's `files` property, which is included as part of the File API, and sending it to our endpoint by passing it into the `send()` method, which supports `Blob`s as of `XMLHttpRequest` level 2.
+
+File uploading is also possible with the Fetch API. Let's take a look:
+
+{title="ajax uploading - web API - Firefox and Chrome", lang=javascript}
+~~~~~~~
+function onFileInputChange() {
+  var file = document.querySelector('input[type="file"]').files[0];
+
+fetch('/uploads', {
+  method: 'POST',
+  body: file
+});
+~~~~~~~
 
 
 ### Reading and creating files
@@ -633,6 +688,7 @@ In short, jQuery hasn't done much at all for us. The web API solution is almost 
 ### Content Security Policy
 
 
+[blob-w3c]: https://www.w3.org/TR/FileAPI/#dfn-Blob
 [broadband-99]: http://www.websiteoptimization.com/bw/0403/
 [ecmascript3]: http://www.ecma-international.org/publications/files/ECMA-ST-ARCH/ECMA-262,%203rd%20edition,%20December%201999.pdf
 [fetch-body]: https://fetch.spec.whatwg.org/#body
@@ -642,6 +698,8 @@ In short, jQuery hasn't done much at all for us. The web API solution is almost 
 [fetch-request]: https://fetch.spec.whatwg.org/#request-class
 [fetch-safari-bug]: https://bugs.webkit.org/show_bug.cgi?id=151937
 [fetch-whatwg]: https://fetch.spec.whatwg.org/
+[file-w3c]: https://www.w3.org/TR/FileAPI/#dfn-file
+[fileapi-w3c]: https://www.w3.org/TR/FileAPI/
 [fineuploader]: http://fineuploader.com
 [formdata-mdn]: https://developer.mozilla.org/en-US/docs/Web/API/FormData
 [forms-html5]: http://www.w3.org/TR/html5/forms.html#application/x-www-form-urlencoded-encoding-algorithm
@@ -658,3 +716,4 @@ In short, jQuery hasn't done much at all for us. The web API solution is almost 
 [uri-length-limit-stackoverflow]: http://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers
 [xhr-default-content-type]: http://www.w3.org/TR/XMLHttpRequest#dom-xmlhttprequest-send
 [xhr-init]: https://blogs.msdn.microsoft.com/ie/2006/01/23/native-xmlhttprequest-object/
+[xhr2-w3c]: https://www.w3.org/TR/XMLHttpRequest2/
