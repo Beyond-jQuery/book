@@ -649,8 +649,9 @@ function onFileInputChange() {
   var file = document.querySelector('input[type="file"]').files[0],
       xhr = new XMLHttpRequest();
 
-xhr.open('POST', '/uploads');
-xhr.send(file);
+  xhr.open('POST', '/uploads');
+  xhr.send(file);
+}
 ~~~~~~~
 
 Just as the jQuery example, we're grabbing the selected `File` from the file input's `files` property, which is included as part of the File API, and sending it to our endpoint by passing it into the `send()` method, which supports `Blob`s as of `XMLHttpRequest` level 2.
@@ -662,10 +663,11 @@ File uploading is also possible with the Fetch API. Let's take a look:
 function onFileInputChange() {
   var file = document.querySelector('input[type="file"]').files[0];
 
-fetch('/uploads', {
-  method: 'POST',
-  body: file
-});
+  fetch('/uploads', {
+    method: 'POST',
+    body: file
+  });
+}
 ~~~~~~~
 
 
