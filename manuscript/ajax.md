@@ -705,17 +705,16 @@ The `modifiedFile` above is a copy of the selected file with the text "hi there!
 
 ## Cross-domain communication: an important topic
 
-
-### Why is this so complicated?
-
-
-### CORS
+As more and more logic is offloaded to the browser, it is becoming common for web applications to pull data from multiple APIs, some of which exist as part of third-party services. A great example of this is a web application (like [Fine Uploader][fineuploader]) that uploads files directly to an Amazon Web Services (AWS) Simple Storage Service (S3) bucket. Server-to-server cross-domain requests are simple and without restrictions. But the same is not true for cross-domain requests initiated from the browser. For the developer that wants to develop a web application that sends files directly to S3 from the browser, an obstacle lies in the way: [the same origin policy][sop]. This policy places restrictions on requests initiated by JavaScript. More specifically, request made by `XMLHttpRequest` between domains are prohibited. For example, sending a request to https://api.github.com from https://mywebapp.com is prevented by the browser because of the same origin policy. While this restriction is in place for added security, this seems like a major limiting factor. How can you make legitimate requests from domain A domain to domain B without funneling them through a server on domain A first? The next two sections will cover two specific approaches to accomplish this. After that, I'll show you how to communicate between iframes that belong to differing domains, something that the same origin policy also restricts.
 
 
-### Communication between differing browsing contexts
+### The early days (JSONP)
 
 
-### Content Security Policy
+### Modern times (CORS)
+
+
+### Communication between differing browsing contexts (Web Messaging API)
 
 
 [blob-w3c]: https://www.w3.org/TR/FileAPI/#dfn-Blob
@@ -743,6 +742,7 @@ The `modifiedFile` above is a copy of the selected file with the text "hi there!
 [rfc7231]: https://tools.ietf.org/html/rfc7231
 [rfc7231-delete]: https://tools.ietf.org/html/rfc7231#section-4.3.5
 [rfc7540]: https://httpwg.github.io/specs/rfc7540.html
+[sop]: https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy
 [status-rfc2616]: http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10
 [uri-length-limit-stackoverflow]: http://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers
 [xhr-default-content-type]: http://www.w3.org/TR/XMLHttpRequest#dom-xmlhttprequest-send
