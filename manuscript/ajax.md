@@ -673,6 +673,34 @@ function onFileInputChange() {
 
 ### Reading and creating files
 
+Generally speaking, developers comfortable with jQuery often attempt to solve _all_ of their frontend development problems with jQuery. They sometimes fail to see the web beyond this library. When developers become dependent on this safety net, this can often lead to frustration when a problem is not addressable through jQuery. This is the [oppressive magic](#oppressive-magic) I wrote about in chapter 1. You just saw how jQuery, at best, provides almost no help when uploading files. Suppose you want to read a file, or even create a new one or modify an existing one to be sent to a server endpoint? This is an area where jQuery has absolutely zero coverage. For reading files, you must rely on the [`FileReader` interface[filereader-w3c], which is defined in the File API. Creation of "files" browser-side rely on the [`Blob` constructor][blob-w3c].
+
+The simplest `FileReader` example, which is sufficient for demonstration purposes here, is to read a text file to the console. Suppose a user selected this text file via a `<input type"file">` and the text `File` object is sent to a function for output. The code required to read this file and output it to the developer tools console would involve the following code:
+
+{title="read a text file and output it to the console - all modern browsers except IE9", lang=javascript}
+~~~~~~~
+function onTextFileSelected(file) {
+  var reader = new FileReader();
+
+  reader.onload = function() {
+    console.log(reader.result);
+  }
+
+  reader.readAsText(file);
+}
+~~~~~~~
+
+No jQuery needed or even possible to read files. And why would you need it? Reading files is pretty easy! Suppose you want to take the same text file and then append some text to the end of the file before uploading it to your server? Surprisingly, this is pretty easy too:
+
+{title="add text to an existing file - all modern browsers except IE9", lang=javascript}
+~~~~~~~
+function onTextFileSelected(file) {
+  var modifiedFile = new Blob([file, 'hi there!'], {type: 'text/plain'});
+  // ...send modifiedFile to uploader
+}
+~~~~~~~
+
+The `modifiedFile` above is a copy of the selected file with the text "hi there!" added to the end. This was accomplished in a grand total of one line of code.
 
 
 ## Cross-domain communication: an important topic
@@ -702,6 +730,7 @@ function onFileInputChange() {
 [fetch-whatwg]: https://fetch.spec.whatwg.org/
 [file-w3c]: https://www.w3.org/TR/FileAPI/#dfn-file
 [fileapi-w3c]: https://www.w3.org/TR/FileAPI/
+[filereader-w3c]: https://www.w3.org/TR/FileAPI/#dfn-filereader
 [fineuploader]: http://fineuploader.com
 [formdata-mdn]: https://developer.mozilla.org/en-US/docs/Web/API/FormData
 [forms-html5]: http://www.w3.org/TR/html5/forms.html#application/x-www-form-urlencoded-encoding-algorithm

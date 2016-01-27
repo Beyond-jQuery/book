@@ -1,4 +1,4 @@
-# The Oppressive Magic of jQuery
+# The Oppressive Magic of jQuery {#oppressive-magic}
 
 For many years, both amateur and professional web developers alike have made use of jQuery to ease the burden of bringing a library or web application to market. In a sense, jQuery has been an integral part of web development. Even at the writing of this book, [jQuery is referenced in the vast majority of public websites][jquerymarketshare], more so than any other library, by a wide margin.
 
