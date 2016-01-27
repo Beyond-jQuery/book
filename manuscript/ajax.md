@@ -710,6 +710,40 @@ As more and more logic is offloaded to the browser, it is becoming common for we
 
 ### The early days (JSONP)
 
+The same origin policy prevents scripts from initiating requests outside the domain of their current browsing context. While this covers ajax transports such as `XMLHttpRequest`, elements such as `<a>`, `<img>`, and `<script>` are _not_ bound by the same origin policy. JavaScript Object Notation with Padding, or JSONP, exploits one of these exceptions to allow scripts to make cross-origin GET requests.
+
+If you're not familiar with JSONP, the name may be a bit misleading. There is actually no JSON involved here at all. It's a very common misconception that JSON must be returned from the server when the client initiates a JSONP call, but that's simply not true. Instead, the server returns a function invocation, which is _not_ valid JSON.
+
+JSONP is essentially just an ugly hack that exploits the fact that `<script>`` tags that load content from a server are not bound by the same-origin policy. There needs to be cooperation and an understanding of the convention by both client and server for this to work properly. You simply need to point the `src` attribute of a `<script>`` tag at a JSONP-aware endpoint and include the name of an existing global function as a query parameter. The server will then construct a string representation that, when executed by the browser, will invoke the global function, passing in the requested data.
+
+Exploiting this JSONP approach in jQuery is actually pretty easy. Say we want to get user information from a server on a different domain:
+
+{title="JSONP - jQuery", lang=javascript}
+~~~~~~~
+$.ajax('http://jsonp-aware-endpoint.com/user/1', {
+  jsonp: 'callback',
+  dataType: 'jsonp'
+}).then(function(response) {
+  // handle user info from server
+});
+~~~~~~~
+
+jQuery takes care of creating the `<script>` tag for us and also creates and tracks a global function. When the global function is called after the response from the server is recieved, jQuery passes that to our response handler above. This is actually a pretty nice abstraction. Completing the same task without jQuery is certainly possible, but not as nice:
+
+{title="JSONP - web API - all browsers", lang=javascript}
+~~~~~~~
+window.myJsonpCallback = function(data) {
+  // handle user info from server
+};
+
+var scriptEl = document.createElement('script');
+scriptEl.setAttribute('src',
+  'http://jsonp-aware-endpoint.com/user/1?callback=myJsonpCallback');
+document.body.appendChild(scriptEl);
+~~~~~~~
+
+Now that you have this newfound knowledge, I suggest you forget it and avoid using JSONP altogether. It's proven to be [a potential security issue][jsonp-security]. Also, in modern browsers, CORS is a much better route. And you're in luck; CORS is feature in the next section. This JSONP section serves mostly as a history lesson and an illustration of how jQuery _was_ quite useful and important before the modern evolution of web specifications.
+
 
 ### Modern times (CORS)
 
@@ -735,6 +769,7 @@ As more and more logic is offloaded to the browser, it is becoming common for we
 [forms-html5]: http://www.w3.org/TR/html5/forms.html#application/x-www-form-urlencoded-encoding-algorithm
 [http-w3c-91]: http://www.w3.org/Protocols/HTTP/AsImplemented.html
 [json-es51]: http://www.ecma-international.org/ecma-262/5.1/#sec-15.12
+[jsonp-security]: http://security.stackexchange.com/a/23439
 [multipart-html5]: https://www.w3.org/TR/html5/forms.html#multipart-form-data
 [patch-rfc5789]: https://tools.ietf.org/html/rfc5789
 [rfc2388]: https://www.ietf.org/rfc/rfc2388.txt
