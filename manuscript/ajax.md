@@ -790,7 +790,7 @@ So, you need to use `XDomainRequest` to send the cross-origin request in IE8/9, 
 
 But, sending cross-origin ajax requests in IE8 and 9 is pretty simple without jQuery. In fact,even if you're a die-hard jQuery fan, you should do it this way:
 
-{title="Determine if XDomainRequest is needed", lang=javascript}
+{title="Use XDomainRequest only if needed", lang=javascript}
 ~~~~~~~
 if (new XMLHttpRequest().withCredentials === undefined) {
     var xdr = new XDomainRequest();
