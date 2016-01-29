@@ -747,12 +747,66 @@ Now that you have this newfound knowledge, I suggest you forget it and avoid usi
 
 ### Modern times (CORS)
 
+CORS, which is short for Cross Origin Resource Sharing, is the more modern way to send ajax request between domains from the browser. CORS is actually a fairly involved topic and very commonly misunderstood even by seasoned web developers. While [the W3C specification][cors-w3c] can be hard to parse, Mozilla Developer Network [has a great explanation][cors-mdn]. I'm only going to touch on a few CORS concepts here, but MDN article is useful if you'd like to have a complete understanding of this topic.
+
+With a reasonable understanding of CORS, sending a cross-origin ajax request via JavaScript is not particularly difficult in modern browsers. Unfortunately, the process is _not_ as easy in Internet Explorer 8 and 9. Cross-origin ajax requests are only possible via JSONP in IE7 and older. In all cases, jQuery offers zero assistance.
+
+For modern browsers, all of the work is delegated server code. The browser does everything necessary client-side for you. Your code for a cross-origin ajax request in a modern browser is identical to a same-origin ajax request. So, I won't bother showing that in jQuery or native JavaScript.
+
+CORS requests can be divided up into two distinct types: simple, and non-simple. Simple requests consists of GET, HEAD, and POST requests, with a Content-Type of "text/plain" or "application/x-www-form-urlencoded". Non-standard headers, such as "x-" headers, are not allowed in "simple" requests. These CORS requests are sent by the browser with an `Origin` header that includes the sending domain. The server must acknowledge that requests from this origin are acceptable. If not, the request fails. Non-simple requests consists of PUT and PATCH requests, as well as other Content-Types, such as "application/json". Also, non-standard headers, as you just learned, will mark a CORS request as "non-simple". In fact, even a GET or POST request can be non-simple if it, for example, contains non-standard request headers. A non-simple request must be "preflighted" by the browser. Non-simple cross-origin requests, such as PUT or POST/GET requests with an X-header (for example) could not be sent from a browser pre-CORS spec. So, for these types of requests, the concept of preflighting was written into the specification to ensure servers do not receive these types of non-simple cross-origin browser-based requests without explicitly opting in. In other words, if you don't want to allow these types of requests, you don't have to change your server at all. The preflight request that the browser sends first will fail, and the browser will never send the underlying request.
+
+It is also important to know that cookies are _not_ sent by default with cross-origin ajax requests.  You must set the `withCredentials` flag on the `XMLHttpRequest` transport. For example:
+
+{title="Sending a credentialed CORS request - jQuery - all modern browsers except IE9", lang=javascript}
+~~~~~~~
+$.ajax('http://someotherdomain.com', {
+    method: 'POST',
+    contentType: 'text/plain',
+    data: 'sometext',
+    beforeSend: function(xmlHttpRequest) {
+        xmlHttpRequest.withCredentials = true;
+    }
+});
+~~~~~~~
+
+jQuery offers somewhat of a leaky abstraction here. We must set the `withCredentials` property on the underlying `xmlHttpRequest` that jQuery manages. The web API route is familiar, and, as expected, we must set the `withCredentials` flag in order to ensure cookies are sent to our server endpoint:
+
+{title="Sending a credentialed CORS request - web API - all modern browsers except IE9", lang=javascript}
+~~~~~~~
+var xhr = new XMLHttpRequest();
+xhr.open('POST', 'http://someotherdomain.com');
+xhr.withCredentials = true;
+xhr.setRequestHeader('Content-Type', 'text/plain');
+xhr.send('sometext');
+~~~~~~~
+
+jQuery actually becomes a headache to deal with when we need to send a cross-domain ajax request in IE8 or IE9. If you're using jQuery for this purpose, you are truly trying to fit a square peg into a round hole. To understand why jQuery is a poor fit for cross-origin requests in IE9 and IE8, it's important to consider a couple low-level points:
+
+1. Cross-origin ajax requests in IE8 and IE9 can only be sent using the IE-proprietary `XDomainRequest` transport. I'll save the rant for why this was such a huge mistake by the IE development team for another book. Regardless, `XDomainRequest` is a stripped down version of `XMLHttpReqest`, and it _must_ be used when making cross-origin ajax requests in IE8 and IE9. There are ;significant restrictions restrictions imposed on this transport][xdr-msdn], such as an inability to send anything other than POST and GET request, and lack of API methods to set request headers or access response headers.
+
+2. jQuery's `ajax` method (and all associated aliases) are just wrappers for `XMLHttpRequest`. It has a hard dependency on `XMLHttpRequest`. I mentioned this earlier in the chapter, but it's useful to point it out here again, given the context.
+
+So, you need to use `XDomainRequest` to send the cross-origin request in IE8/9, but `jQuery.ajax` is hard-coded to use `XMLHttpRequest`. That's a problem, and resolving it in the context of jQuery is not easy. Luckily, for those dead-set on using jQuery for this type of call, there are a few plug-ins that will "fix" jQuery in this regard. Essentially, the plug-ins must override jQuery's ajax request sending/handling logic via the `$.ajaxTransport` method.
+
+But, sending cross-origin ajax requests in IE8 and 9 is pretty simple without jQuery. In fact,even if you're a die-hard jQuery fan, you should do it this way:
+
+{title="Determine if XDomainRequest is needed", lang=javascript}
+~~~~~~~
+if (new XMLHttpRequest().withCredentials === undefined) {
+    var xdr = new XDomainRequest();
+    xdr.open('POST', 'http://someotherdomain.com');
+    xdr.send('sometext');
+}
+~~~~~~~
+
 
 ### Communication between differing browsing contexts (Web Messaging API)
 
 
 [blob-w3c]: https://www.w3.org/TR/FileAPI/#dfn-Blob
 [broadband-99]: http://www.websiteoptimization.com/bw/0403/
+[cors-mdn]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
+[cors-w3c]: https://www.w3.org/TR/cors/
 [ecmascript3]: http://www.ecma-international.org/publications/files/ECMA-ST-ARCH/ECMA-262,%203rd%20edition,%20December%201999.pdf
 [fetch-body]: https://fetch.spec.whatwg.org/#body
 [fetch-default-content-type]: https://fetch.spec.whatwg.org/#body-mixin
@@ -780,6 +834,7 @@ Now that you have this newfound knowledge, I suggest you forget it and avoid usi
 [sop]: https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy
 [status-rfc2616]: http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10
 [uri-length-limit-stackoverflow]: http://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers
+[xdr-msdn]: http://blogs.msdn.com/b/ieinternals/archive/2010/05/13/xdomainrequest-restrictions-limitations-and-workarounds.aspx
 [xhr-default-content-type]: http://www.w3.org/TR/XMLHttpRequest#dom-xmlhttprequest-send
 [xhr-init]: https://blogs.msdn.microsoft.com/ie/2006/01/23/native-xmlhttprequest-object/
 [xhr2-w3c]: https://www.w3.org/TR/XMLHttpRequest2/
