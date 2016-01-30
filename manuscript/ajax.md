@@ -751,9 +751,11 @@ CORS, which is short for Cross Origin Resource Sharing, is the more modern way t
 
 With a reasonable understanding of CORS, sending a cross-origin ajax request via JavaScript is not particularly difficult in modern browsers. Unfortunately, the process is _not_ as easy in Internet Explorer 8 and 9. Cross-origin ajax requests are only possible via JSONP in IE7 and older. In all cases, jQuery offers zero assistance.
 
-For modern browsers, all of the work is delegated server code. The browser does everything necessary client-side for you. Your code for a cross-origin ajax request in a modern browser is identical to a same-origin ajax request. So, I won't bother showing that in jQuery or native JavaScript.
+For modern browsers, all of the work is delegated server code. The browser does everything necessary client-side for you. Your code for a cross-origin ajax request in a modern browser is identical to a same-origin ajax requests when using jQuery's `ajax` API method or when directly using the web API's `XMLHttpReqest` transport, and even with the Fetch API. So, I won't bother showing that here.
 
-CORS requests can be divided up into two distinct types: simple, and non-simple. Simple requests consists of GET, HEAD, and POST requests, with a Content-Type of "text/plain" or "application/x-www-form-urlencoded". Non-standard headers, such as "x-" headers, are not allowed in "simple" requests. These CORS requests are sent by the browser with an `Origin` header that includes the sending domain. The server must acknowledge that requests from this origin are acceptable. If not, the request fails. Non-simple requests consists of PUT and PATCH requests, as well as other Content-Types, such as "application/json". Also, non-standard headers, as you just learned, will mark a CORS request as "non-simple". In fact, even a GET or POST request can be non-simple if it, for example, contains non-standard request headers. A non-simple request must be "preflighted" by the browser. Non-simple cross-origin requests, such as PUT or POST/GET requests with an X-header (for example) could not be sent from a browser pre-CORS spec. So, for these types of requests, the concept of preflighting was written into the specification to ensure servers do not receive these types of non-simple cross-origin browser-based requests without explicitly opting in. In other words, if you don't want to allow these types of requests, you don't have to change your server at all. The preflight request that the browser sends first will fail, and the browser will never send the underlying request.
+CORS requests can be divided up into two distinct types: simple, and non-simple. Simple requests consists of GET, HEAD, and POST requests, with a Content-Type of "text/plain" or "application/x-www-form-urlencoded". Non-standard headers, such as "x-" headers, are not allowed in "simple" requests. These CORS requests are sent by the browser with an `Origin` header that includes the sending domain. The server must acknowledge that requests from this origin are acceptable. If not, the request fails. Non-simple requests consists of PUT and PATCH requests, as well as other Content-Types, such as "application/json". Also, non-standard headers, as you just learned, will mark a CORS request as "non-simple". In fact, even a GET or POST request can be non-simple if it, for example, contains non-standard request headers.
+
+A non-simple CORS request must be "preflighted" by the browser. A preflight is an OPTIONS request sent by the browser before the underlying request is sent. If the server properly acknowledges the preflight, the browser will then send the underlying/original request. Non-simple cross-origin requests, such as PUT or POST/GET requests with an X-header (for example) could not be sent from a browser pre-CORS spec. So, for these types of requests, the concept of preflighting was written into the specification to ensure servers do not receive these types of non-simple cross-origin browser-based requests without explicitly opting in. In other words, if you don't want to allow these types of requests, you don't have to change your server at all. The preflight request that the browser sends first will fail, and the browser will never send the underlying request.
 
 It is also important to know that cookies are _not_ sent by default with cross-origin ajax requests.  You must set the `withCredentials` flag on the `XMLHttpRequest` transport. For example:
 
@@ -780,6 +782,21 @@ xhr.setRequestHeader('Content-Type', 'text/plain');
 xhr.send('sometext');
 ~~~~~~~
 
+The Fetch API makes sending credentials with cross-origin ajax requests simpler:
+
+{title="Sending a credentialed CORS request - web API - Chrome and Firefox", lang=javascript}
+~~~~~~~
+fetch('http://someotherdomain.com', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'text/plain'
+  },
+  credentials: 'include'
+});
+~~~~~~~
+
+The `credentials` option used above ensures that any credentials, such as cookies, are sent along with the CORS request. Note that even for same-origin requests, `fetch` does not send cookies to the server endpoint by default. For same-origin requests, you must include a `credentials: 'same-origin'` option to ensure `fetch` sends cookies with the request. The default value of the `credentials` option is 'omit', which is why `fetch` does not send cookies with any request by default.
+
 jQuery actually becomes a headache to deal with when we need to send a cross-domain ajax request in IE8 or IE9. If you're using jQuery for this purpose, you are truly trying to fit a square peg into a round hole. To understand why jQuery is a poor fit for cross-origin requests in IE9 and IE8, it's important to consider a couple low-level points:
 
 1. Cross-origin ajax requests in IE8 and IE9 can only be sent using the IE-proprietary `XDomainRequest` transport. I'll save the rant for why this was such a huge mistake by the IE development team for another book. Regardless, `XDomainRequest` is a stripped down version of `XMLHttpReqest`, and it _must_ be used when making cross-origin ajax requests in IE8 and IE9. There are ;significant restrictions restrictions imposed on this transport][xdr-msdn], such as an inability to send anything other than POST and GET request, and lack of API methods to set request headers or access response headers.
@@ -788,7 +805,7 @@ jQuery actually becomes a headache to deal with when we need to send a cross-dom
 
 So, you need to use `XDomainRequest` to send the cross-origin request in IE8/9, but `jQuery.ajax` is hard-coded to use `XMLHttpRequest`. That's a problem, and resolving it in the context of jQuery is not easy. Luckily, for those dead-set on using jQuery for this type of call, there are a few plug-ins that will "fix" jQuery in this regard. Essentially, the plug-ins must override jQuery's ajax request sending/handling logic via the `$.ajaxTransport` method.
 
-But, sending cross-origin ajax requests in IE8 and 9 is pretty simple without jQuery. In fact,even if you're a die-hard jQuery fan, you should do it this way:
+Instead of wrestling with jQuery when attempting to send cross-origin ajax requests in older browsers, stick with the web API. The code below demonstrates a simple way to determine if you need to use `XDomainRequest` instead of `XMLHttpReqest`.
 
 {title="Use XDomainRequest only if needed", lang=javascript}
 ~~~~~~~
@@ -799,8 +816,7 @@ if (new XMLHttpRequest().withCredentials === undefined) {
 }
 ~~~~~~~
 
-
-### Communication between differing browsing contexts (Web Messaging API)
+The native web not only provides a reasonable API for initiating ajax requests, both with `XMLHttpReqest` and even more so with `fetch`, it sometimes is even _more_ intuitive than jQuery in this context, especially when sending some cross-origin ajax requests.
 
 
 [blob-w3c]: https://www.w3.org/TR/FileAPI/#dfn-Blob
