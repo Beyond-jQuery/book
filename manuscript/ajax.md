@@ -390,7 +390,7 @@ xhr.send(data);
 
 No surprises with XHR. This attempt looks very similar to the URL-encoded POST request we sent in the last section, with the exception of stringifying our JavaScript object, and setting an appropriate `Content-Type` header. As you have already seen, we must address the same issues whether we are using jQuery or not.
 
-But sending a JSON-encoded resquest is only half of the required knowledge. We must be prepared to receive and parse a JSON response too. That looks something like this with `XMLHTTPRequest`:
+But sending a JSON-encoded request is only half of the required knowledge. We must be prepared to receive and parse a JSON response too. That looks something like this with `XMLHTTPRequest`:
 
 {title="receive JSON-encoded data - web API - all browsers", lang=javascript}
 ~~~~~~~
@@ -673,7 +673,7 @@ function onFileInputChange() {
 
 ### Reading and creating files
 
-Generally speaking, developers comfortable with jQuery often attempt to solve _all_ of their frontend development problems with jQuery. They sometimes fail to see the web beyond this library. When developers become dependent on this safety net, this can often lead to frustration when a problem is not addressable through jQuery. This is the [oppressive magic](#oppressive-magic) I wrote about in chapter 1. You just saw how jQuery, at best, provides almost no help when uploading files. Suppose you want to read a file, or even create a new one or modify an existing one to be sent to a server endpoint? This is an area where jQuery has absolutely zero coverage. For reading files, you must rely on the [`FileReader` interface[filereader-w3c], which is defined in the File API. Creation of "files" browser-side rely on the [`Blob` constructor][blob-w3c].
+Generally speaking, developers comfortable with jQuery often attempt to solve _all_ of their front-end development problems with jQuery. They sometimes fail to see the web beyond this library. When developers become dependent on this safety net, this can often lead to frustration when a problem is not addressable through jQuery. This is the [oppressive magic](#oppressive-magic) I wrote about in chapter 1. You just saw how jQuery, at best, provides almost no help when uploading files. Suppose you want to read a file, or even create a new one or modify an existing one to be sent to a server endpoint? This is an area where jQuery has absolutely zero coverage. For reading files, you must rely on the [`FileReader` interface[filereader-w3c], which is defined in the File API. Creation of "files" browser-side rely on the [`Blob` constructor][blob-w3c].
 
 The simplest `FileReader` example, which is sufficient for demonstration purposes here, is to read a text file to the console. Suppose a user selected this text file via a `<input type"file">` and the text `File` object is sent to a function for output. The code required to read this file and output it to the developer tools console would involve the following code:
 
@@ -728,7 +728,7 @@ $.ajax('http://jsonp-aware-endpoint.com/user/1', {
 });
 ~~~~~~~
 
-jQuery takes care of creating the `<script>` tag for us and also creates and tracks a global function. When the global function is called after the response from the server is recieved, jQuery passes that to our response handler above. This is actually a pretty nice abstraction. Completing the same task without jQuery is certainly possible, but not as nice:
+jQuery takes care of creating the `<script>` tag for us and also creates and tracks a global function. When the global function is called after the response from the server is received, jQuery passes that to our response handler above. This is actually a pretty nice abstraction. Completing the same task without jQuery is certainly possible, but not as nice:
 
 {title="JSONP - web API - all browsers", lang=javascript}
 ~~~~~~~
