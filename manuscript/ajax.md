@@ -1,8 +1,8 @@
 # Ajax Requests: Dynamic Data and Page Updates {#ajax-requests}
 
-AJAX, or **A**synchronous **J**avaScript **a**nd **X**ML, is a feature provided by the web API that allows data to be updated or retrieved from a server without reloading the entire page. This capability was absent from the browser initially. This time marked the infancy of the web, and with it came along a less-than-ideal user experience that resulted in a fair amount of redundant bytes circulated between client and server. The inefficiency of this model was compounded by the fact that internet bandwidth was extremely limited by today's standards. Back in 1999 when Microsoft first introduced [`XMLHTTP` as an ActiveX control in Internet Explorer 5.0][xhr-init], about [95% of internet users were limited by a 56 kbps or slower][broadband-99] dial-up connection.
+AJAX, or Asynchronous JavaScript And XML, is a feature provided by the web API that allows data to be updated or retrieved from a server without reloading the entire page. This capability was absent from the browser initially. The time without this feature marked the infancy of the web, and with it came along a less-than-ideal user experience that resulted in a fair amount of redundant bytes circulated between client and server. The inefficiency of this primitive model was compounded by the fact that internet bandwidth was extremely limited, by today's standards. Back in 1999 when Microsoft first introduced [`XMLHTTP` as an ActiveX control in Internet Explorer 5.0][xhr-init], about [95% of internet users were limited by a 56 kbps or slower][broadband-99] dial-up connection.
 
-`XMLHTTP` was a proprietary JavaScript object implemented by Microsoft, and it represented a huge leap in both web development technology and user experience. It was the first full-featured transport for focused client/server communication without the need to update the current page. Previously, the entire page needed to be reloaded even if only a small segment of the data on the page needed to be refreshed. This all changed with the advent of AJAX communication. The initial API for this new transport matches it's modern-day cousin - `XMLHTTPRequest`. Essentially, this object allows a developer to construct a `new` transport instance, send a GET, POST, PUT, or DELETE request to any endpoint (on the same domain), and then programmatically retrieve the status and message-body of the server's response. While the aging `XMLHTTPRequest` will eventually be completely replaced by the [Fetch API][fetch-whatwg], it thrived unopposed and mostly unchanged for about 15 years.
+`XMLHTTP` was a proprietary JavaScript object implemented as part of the web API by Microsoft, and it represented a huge leap in both web development technology and user experience. It was the first full-featured built-in transport for focused client/server communication that allowed for updates without replacing the entire page. Previously, the entire page needed to be reloaded even if only a small segment of the data on the page had changed. The initial API for this new transport matches its modern-day cousin - `XMLHttpRequest`. Essentially, this object allows a developer to construct a `new` transport instance, send a GET, POST, PUT, PATCH, or DELETE request to any endpoint (on the same domain), and then programmatically retrieve the status and message-body of the server's response. While the aging `XMLHttpRequest` will eventually be replaced by the [Fetch API][fetch-whatwg], it has thrived unopposed and mostly unchanged for about 15 years.
 
 
 ## Mastering the concepts of ajax communication
@@ -19,16 +19,15 @@ The first 2 items will be dealt with directly in this section, in addition to an
 
 ### Async is hard
 
-Based on my extensive experience with ajax communication, along with observations of other developers struggling with this piece of the web API, the most attractive attribute of this feature is also its most confusing. JavaScript does not abstract asynchronous operations nearly as well as other more traditional languages, such as Java. On top of the historical lack of intuitive native support for tasks that occur in separate threads (such as ajax requests), there are currently three different common ways to account for these types of out-of-band operations. These methods include callbacks, promises, and asynchronous functions. While native support for asynchronous operations _has_ improved over time, most developers still must explicitly deal with these types of tasks, which can be challenging due to the fact that it often requires all surrounding code to be structured accordingly. This often makes the software developer's job of accounting for these operations awkward and the resulting code complex. This of course adds risk and potentially more bugs to the underlying application.
+Based on my extensive experience with ajax communication, along with observations of other developers struggling with this piece of the web API, the most attractive attribute of this feature is also its most confusing. JavaScript does not abstract asynchronous operations nearly as well as other more traditional languages, such as Java. On top of the historical lack of intuitive native support for tasks that occur in out of band (such as ajax requests), there are currently three different common ways to account for these types of asynchronous operations. Thee methods include callbacks, promises, and asynchronous functions. While native support for asynchronous operations _has_ improved over time, most developers still must explicitly deal with these types of tasks, which can be challenging due to the fact that it often requires all surrounding code to be structured accordingly. This often makes the software developer's job of accounting for asynchronous calls awkward and the resulting code complex. This of course adds risk and potentially more bugs to the underlying application.
 
-Callbacks will be discussed in this chapter, as will promises, to a lesser degree. Promises will be covered in much more detail in the upcoming [Async Tasks](#async-tasks) chapter, along with asynchronous functions, which is a feature provided by ECMAScript 7 that aims to make dealing with asynchronous operations, such as ajax requests, surprisingly easy. However, most developers don't have the luxury of using ES7 async functions, so the reality of dealing with ajax request remains that you must embrace their asynchronous nature instead of hiding from it. This is quite mind-bending initially. Even after you have successfully grasped this concept, expect frequent frustration in less-than-trivial situations, such as when dealing with nested asynchronous requests. If this is not already clear through previous experience, you will likely come to realize this complexity as you complete this chapter. Still, this concept is perhaps the most important of all to master when working with ajax requests.
+Callbacks will be demonstrated in this chapter, as will promises. Promises, primarily will be covered in much more detail in the upcoming [Async Tasks](#async-tasks) chapter, along with asynchronous functions, which is a feature provided by ECMAScript 7 that aims to make dealing with asynchronous operations, such as ajax requests, surprisingly easy. However, most developers don't have the luxury of using ES7 async functions, so the reality of dealing with ajax request remains that you must embrace their asynchronous nature instead of hiding from it. This is quite mind-bending initially. Even after you have successfully grasped this concept, expect frequent frustration in less-than-trivial situations, such as when dealing with nested asynchronous requests. If this is not already clear through previous experience, you may even come to realize this complexity as you complete this chapter. Still, this concept is perhaps the most important of all to master when working with ajax requests.
 
 
 ### HTTP
 
 The primary protocol used to communicate between a browser and a server is HTTP, which is an acronym for HyperText Transfer Protocol. Tim Berners-Lee, also know as the father of the internet, created the [first official HTTP specification][http-w3c-91] in 1991. This first version was designed alongside HTML and the [first web browser](#history-of-browsers) with one method - GET. When a page was requested by the browser, a GET request would be sent, and the server would respond with the HTML that makes up the requested page, which the web browser would then render. Before ajax was introduced as a complementary specification, HTTP was mostly limited to this workflow.  
-
-Though HTTP started with just one method - GET - several more were added over time. Currently, HEAD, POST, PUT, DELETE, and PATCH are all part of the current specification - version 2 - which is maintained by the Internet Engineering Task Force (IETF) as [RFC 7540][rfc7540]. GET requests are expected to have an empty message body (request payload), with a response that describes the resource referenced in the request URI (Universal Resource Indicator). It is a "safe" method, such that no changes to the resource should be made server-side as a result of handling this request. HEAD is very similar to GET, except is returns an empty message body. However, HEAD is useful such that it does include a response header - `Content-Length` - with a value equal the the number of bytes that would be transferred had the request been GET instead. This is useful to, for example, check the size of a file without actually returning the entire file. HEAD, as you might expect, is also a "safe" method.
+Though HTTP started with just one method - GET - several more were added over time. Currently, HEAD, POST, PUT, DELETE, and PATCH are all part of the current specification - version 2 - which is maintained by the Internet Engineering Task Force (IETF) as [RFC 7540][rfc7540]. GET requests are expected to have an empty message body (request payload), with a response that describes the resource referenced in the request URI (Universal Resource Indicator). It is a "safe" method, such that no changes to the resource should be made server-side as a result of handling this request. HEAD is very similar to GET, except is returns an empty message body. However, HEAD is useful in that it includes a response header - `Content-Length` - with a value equal the the number of bytes that would be transferred had the request been GET instead. This is useful to, for example, check the size of a file without actually returning the entire file. HEAD, as you might expect, is also a "safe" method.
 
 DELETE, PUT, POST, and PATCH, are _not_ safe, in that they are expected to possibly change the associated resource on the server. Of these four "unsafe" methods, two of them - PUT and DELETE - are considered to be "idempotent", which means that they will always produce the same result even they are called multiple times. PUT is commonly used to replace a resource, while DELETE is, obviously, used to remove a resource. PUT requests are expected to have a message body that describes the updated resource content, while DELETE is _not_ expected to have a payload. POST differs from PUT in that it will create a new resource. Finally, PATCH, which is [a relatively new HTTP request method][patch-rfc5789], allows a resource to be modified in very specific ways. The message body of this request describes exactly how the resource should be modified. PATCH differs from the PUT method in that it does not entirely replace the referenced resource.
 
@@ -37,19 +36,19 @@ All ajax requests will use one of the methods described above to communicate dyn
 
 ### Expected and unexpected responses
 
-An understanding of the protocol used to communicate between client and server is a fundamentally important concept. With this comes the ability to send requests from client to server, but the _response_ to these requests is equally important. Request have headers and optionally a message-body (payload), while responses are made up of three parts - the response message-body, headers, and a status code. The status code is unique to responses, and is generally accessible when analyzing the response associated with JavaScript-initiated request. Status codes are usually three digits and can be generally classified based on the most significant digit, starting with 200. 200-level status codes are indicative of success, 300-level is used for redirects, while 400 and 500-level statuses indicate some sort of error. These are all formally [defined in great detail in RFC 2616][status-rfc2616].
+An understanding of the protocol used to communicate between client and server is a fundamentally important concept. Part of this is, of course, _sending_ requests, but the _response_ to these requests is equally important. Requests have headers and optionally a message-body (payload), while responses are made up of three parts - the response message-body, headers, and a status code. The status code is unique to responses, and is usually accessible on the underlying transport instance (such as `XMLHttpReqest` or `fetch`). Status codes are usually three digits and can be generally classified based on the most significant digit. 200-level status codes are indicative of success, 300 is used for redirects, while 400 and 500-level statuses indicate some sort of error. These are all formally [defined in great detail in RFC 2616][status-rfc2616].
 
-Just as it is important to handle code exceptions with a `try`/`catch` block, it is equally important to address exceptional responses. While 200-level responses are often expected, or at least desired, you must also account for unexpected or undesired responses, such as 400/500-level, or even responses with a status of `0` (which may happen if the request is terminated due to a network error or the server returns a completely empty response). I have observed that it appears to be common to simply ignore exceptional conditions, and this is not limited to handling of HTTP responses. In fact, I am guilty of this myself.
+Just as it is important to handle code exceptions with a `try`/`catch` block, it is equally important to address exceptional ajax responses. While 200-level responses are often expected, or at least desired, you must also account for unexpected or undesired responses, such as 400/500-level, or even responses with a status of `0` (which may happen if the request is terminated due to a network error or the server returns a completely empty response). I have observed that it appears to be common to simply ignore exceptional conditions, and this is not limited to handling of HTTP responses. In fact, I am guilty of this myself.
 
 
 ### Web Sockets
 
-Web sockets are a relatively new web API feature, compared to traditional ajax requests. They were first standardized in 2011 by the IETF (Internet Engineering Task Force) in [RFC 6455][rfc6455] and are currently supported by all [modern browsers](#modern-browsers), with the exception of Internet Explorer 9. Web sockets differ from pure HTTP requests in a number of ways, most notably their lifetime. While HTTP requests are normally very short-lived, web socket connections are meant to remain open for the life of the application instance or web page. a web socket connection starts as an HTTP request, which is required for the initial handshake. But after this handshake is complete, client and server are free to exchange data at will in whatever format they have agreed upon. This web socket protocol allows for truly real-time communicate between client and server. While web sockets will not be explored in more depth in this chapter, I felt it was useful to at least mention them, as they _do_ account for another method of JavaScript-initiated asynchronous communication between browser & server.
+Web sockets are a relatively new web API feature, compared to traditional ajax requests. They were first standardized in 2011 by the IETF (Internet Engineering Task Force) in [RFC 6455][rfc6455] and are currently supported by all [modern browsers](#modern-browsers), with the exception of Internet Explorer 9. Web sockets differ from pure HTTP requests in a number of ways, most notably their lifetime. While HTTP requests are normally very short-lived, web socket connections are meant to remain open for the life of the application instance or web page. A web socket connection starts as an HTTP request, which is required for the initial handshake. But after this handshake is complete, client and server are free to exchange data at will in whatever format they have agreed upon. This web socket protocol allows for truly real-time communication between client and server. While web sockets will not be explored in more depth in this chapter, I felt it was useful to at least mention them, as they _do_ account for another method of JavaScript-initiated asynchronous communication.
 
 
 ## Sending GET, POST, DELETE, PUT, and PATCH requests
 
-jQuery provides first-class support for ajax requests through the appropriately named `ajax()` method. Through this method, you can send ajax requests of any type, but jQuery also provides alias for many standardized HTTP request methods - such as `get()` and `post()` - which save you a few keystrokes. The web API provides a single object - `XMLHttpRequest` - to send asynchronous requests of any type from browser to server.
+jQuery provides first-class support for ajax requests through the appropriately named `ajax()` method. Through this method, you can send ajax requests of any type, but jQuery also provides alias for some standardized HTTP request methods - such as `get()` and `post()` - which save you a few keystrokes. The web API provides two object - `XMLHttpRequest` and `fetch` - to send asynchronous requests of any type from browser to server. While `XMLHttpReqest` is supported in all browsers, `fetch` is relatively new and only supported in Chrome and Firefox at this time.
 
 A simple GET request to a server endpoint using jQuery, with a trivial response handler, looks something like this:
 
@@ -58,13 +57,16 @@ A simple GET request to a server endpoint using jQuery, with a trivial response 
 $.get('/my/name').then(
   function success(name) {
     console.log('my name is ' + name);
+  },
+  function failure() {
+    console.error('Name request failed!');
   }
 );
 ~~~~~~~
 
-W> Note that the console object is not available in Internet Explorer 9 and older unless the developer tools are open. Also, the above example does not handle error responses, only success.
+W> Note that the console object is not available in Internet Explorer 9 and older unless the developer tools are open.
 
-Above, we are sending a GET request to the "/my/name" server endpoint, and expecting a plaintext response containing a name value, which we are then printing to the browser console. Please note that I am not handling error responses, simply to keep this example simple. You should _always_ account for exceptional situations when dealing with ajax responses in production-level applications. jQuery provides several ways to deal with responses, but I will focus specifically on the one demonstrated above, which is a very simple example of a promise. I'll talk about promises, which are a standardized part of JavaScript, in [the Async Tasks chapter](#async-tasks) coming up later.
+Above, we are sending a GET request to the "/my/name" server endpoint, and expecting a plaintext response containing a name value, which we are then printing to the browser console. If the request fails (such as if the server returns an error stats code), the `failure` function is invoked. In this case, I'm making use of the `Promise` that jQuery's `ajax` method and its aliases return. jQuery provides several ways to deal with responses, but I will focus specifically on the one demonstrated above. I'll talk about promises, which are a standardized part of JavaScript, in [the Async Tasks chapter](#async-tasks) coming up later.
 
 The same request, sent without jQuery and usable in all browsers, is a bit more typing, but certainly not too difficult:
 
@@ -73,30 +75,48 @@ The same request, sent without jQuery and usable in all browsers, is a bit more 
 var xhr = new XMLHttpRequest();
 xhr.open('GET', '/my/name');
 xhr.onload = function() {
-  console.log('my name is ' + xhr.responseText);
+  if (xhr.status >= 400) {
+    console.error('Name request failed!');
+  }
+  else {
+    console.log('my name is ' + xhr.responseText);
+  }
+};
+xhr.onerror = function() {
+  console.error('Name request failed!');
 };
 xhr.send();
 ~~~~~~~
 
-The `onload` property is where we can easily set our response handler. From here, we can be sure the response has completed, and then can determine if the request was successful and get a handler on the response data. All of this is available on the instance of `XMLHTTPRequest` we created and assigned to the `xhr` variable. From the above code, you may be a bit disappointed that the web API doesn't support promises like jQuery. That _was_ true, up until [the `fetch` API][fetch-whatwg] was created by [the WHATWG](#whatwg-vs-w3c). The Fetch API provides a modern native replacement for the aging `XMLHTTPRequest` transport, and it is currently supported by Firefox and Chrome, with more browser support on the horizon. Let's look at this same example using `fetch`:
+`onload` is called when the request completes and some response has been received. It _may_ be an error response though, so we must confirm by looking at the response status code. `onerror` is called if the request fails at some very low level, such as due to a [CORS](#cors) error. The `onload` property is where we can easily set our response handler. From here, we can be sure the response has completed, and then can determine if the request was successful and get a handle on the response data. All of this is available on the instance of `XMLHttpRequest` we created and assigned to the `xhr` variable. From the above code, you may be a bit disappointed that the web API doesn't support promises like jQuery. That _was_ true, up until [the `fetch` API][fetch-whatwg] was created by [the WHATWG](#whatwg-vs-w3c). The Fetch API provides a modern native replacement for the aging `XMLHttpRequest` transport, and it is currently supported by Firefox and Chrome, with more browser support on the horizon. Let's look at this same example using `fetch`:
 
 {title="send GET request & handle the response - web API - Firefox and Chrome", lang=javascript}
 ~~~~~~~
 fetch('/my/name').then(function(response) {
-  return response.text();
-}).then(function(name) {
-  console.log('my name is ' + name);
-});
+  if (response.ok) {
+    return response.text();    
+  }
+  else {
+    throw new Error();
+  }
+}).then(
+  function success(name) {
+    console.log('my name is ' + name);
+  },
+  function failure() {
+    console.error('Name request failed!');
+  }
+);
 ~~~~~~~
 
-The above code not only embraces the promises specification, but also removes a lot of the boilerplate commonly seen with `XMLHttpRequest`. You'll see more examples of `fetch` throughout this chapter. Note that any of the above examples are identical for HEAD requests, with the exception of the method specifier.
+The above code not only embraces the promises specification, but also removes a lot of the boilerplate commonly seen with `XMLHttpRequest`. You'll see more examples of `fetch` throughout this chapter. Note that any of the above examples are identical for HEAD requests, with the exception of the method specifier. You'll also notice that `fetch` returns a `Promise` like jQuery's `ajax`. The difference being that jQuery executes the error function when a non-success status code is executes. `fetch` only does this, like `XMLHttpReqest`, when a low-level network error occurs. But we can trigger our error function when the server returns a response with an error code by throwing an exception if the response is not `ok`, via the `ok` property on the `Response` object passed to our first promise handler.
 
 Many developers who learned web development through a jQuery lens probably think that this library is doing something magical and complex when you invoke the `$.ajax` method. That couldn't be further from the truth. All of the heavy lifting is done by the browser via the `XMLHttpRequest` object. jQuery's `ajax` is just a wrapper around `XMLHttpRequest`. Using the browser's built-in support for ajax requests isn't very difficult, as you'll see in a moment. Even cross-origin requests are not only simple without jQuery, you'll see how they are actually _easier_ without jQuery.
 
 
 ### Sending POST requests
 
-I demonstrated above how to GET information from a server endpoint using jQuery, `XMLHttpRequest`, and `fetch`. But what about some of the other available HTTP methods? Instead of GETting a name, suppose you would like to add a new name to the server. The most appropriate method for this situation is POST. The name to add will be included in our request payload, which is a common place to include this sort of data when sending a POST. To keep this simple, we'll sending the name using a MIME type of text/plain. I'll cover more advanced encoding techniques later on in this chapter. I'll also omit response handling code here as well. You'll see more complete examples in the upcoming hands-on section. This section is meant to demonstrate the differences between the various approaches when sending requests.
+I demonstrated above how to GET information from a server endpoint using jQuery, `XMLHttpRequest`, and `fetch`. But what about some of the other available HTTP methods? Instead of GETting a name, suppose you would like to add a new name to the server. The most appropriate method for this situation is POST. The name to add will be included in our request payload, which is a common place to include this sort of data when sending a POST. To keep this simple, we'll sending the name using a MIME type of text/plain. I'll cover more advanced encoding techniques later on in this chapter. I'll omit response handling code here as well so we can focus on the key concepts.
 
 {title="send POST request to add a name - jQuery", lang=javascript}
 ~~~~~~~
@@ -121,7 +141,7 @@ xhr.send('Mr. Ed');
 
 Sending this request without jQuery is actually _less_ lines of code. By default, [the `Content-Type` is set to "text/plain" by `XMLHttpRequest` in this case][xhr-default-content-type], so we don't need to mess with any request headers. We can conveniently pass the body of our request as a parameter to the `send` method, as illustrated above.
 
-If your goal is to embrace the latest and greatest web standards, you can sending this POST using `fetch`:
+If your goal is to embrace the latest and greatest web standards, you can sending this POST using `fetch` instead:
 
 {title="send POST request to add a name - web API - Firefox and Chrome", lang=javascript}
 ~~~~~~~
@@ -131,12 +151,12 @@ fetch('/user/name', {
 });
 ~~~~~~~
 
-Sending this request looks similar to jQuery, but without a lot of the boilerplate. Like `XMLHTTPRequest`, [`fetch` intelligently sets the request `Content-Type` based on the request payload][fetch-default-content-type], so we do not need to specify this request header.
+Sending this request looks similar to jQuery, but without a lot of the boilerplate. Like `XMLHTTPRequest`, [`fetch` intelligently sets the request `Content-Type` based on the request payload][fetch-default-content-type] (in some cases), so we do not need to specify this request header.
 
 
 ### Sending PUT requests
 
-While POST requests are often used to create a new resource, PUT requests typically update an existing one. For example, PUT would be most appropriate for replacing information about an existing product. Another example involves uploading a large file in chunks. The first request, creating the resource, would be a POST. Subsequent requests that contain each piece of the file would use PUT, as each chunk is effectively be an update to the server-side representation of the file. The URI of the request identifies the resource to be updated with the new information located in the body. To simply illustrate sending a PUT request using jQuery, `XMLHttpRequest`, and `fetch`, I'll demonstrate updating a mobile phone number for an existing user record.
+While POST requests are often used to create a new resource, PUT requests typically replace an existing one. For example, PUT would be most appropriate for replacing information about an existing product. The URI of the request identifies the resource to be replaced with the new information located in the body. To simply illustrate sending a PUT request using jQuery, `XMLHttpRequest`, and `fetch`, I'll demonstrate updating a mobile phone number for an existing user record.
 
 {title="send PUT request to update a user record - jQuery", lang=javascript}
 ~~~~~~~
@@ -144,7 +164,7 @@ $.ajax({
   method: 'PUT',
   url: '/user/1',
   contentType: 'text/plain',
-  data: /* complete user record including new mobile number */
+  data: //complete user record including new mobile number
 });
 ~~~~~~~
 
@@ -163,7 +183,7 @@ The Fetch API, as expected, provides the most concise approach:
 ~~~~~~~
 fetch('/user/1', {
   method: 'PUT',
-  body: /* complete user record including new mobile number */
+  body: //complete user record including new mobile number
 });
 ~~~~~~~
 
@@ -174,19 +194,16 @@ DELETE requests are similar to PUTs in that the resource to be acted upon is spe
 
 >A payload within a DELETE request message has no defined semantics; sending a payload body on a DELETE request might cause some existing implementations to reject the request.
 
-This means that the only safe way to specify parameters, apart from the resource to be acted upon, is to include them as query parameters in the request URI. Other than this exceptional case, DELETE requests are sent in the same manner as PUTS. And, like a PUT request, DELETE requests are idempotent. Remember that an idempotent request is one that behaves the same regardless of the number of times it is called. It would be quite surprising if multiple calls to delete the same resource resulted in, for example, removal of a different resource depending on the request index.
+This means that the only safe way to specify parameters, apart from the resource to be acted upon, is to include them as query parameters in the request URI. Other than this exceptional case, DELETE requests are sent in the same manner as PUTs. And, like a PUT request, DELETE requests are idempotent. Remember that an idempotent request is one that behaves the same regardless of the number of times it is called. It would be quite surprising if multiple calls to delete the same resource resulted in, for example, removal of a different resource.
 
 A request to remove a resource, using jQuery, looks like this:
 
 {title="send DELETE request to remove a user record - jQuery", lang=javascript}
 ~~~~~~~
-$.ajax({
-  method: 'DELETE',
-  url: '/user/1'
-});
+$.ajax('/user/1', {method: 'DELETE'});
 ~~~~~~~
 
-...and the same simple request, using `XMLHttpRequest`, can be achieved with only an extra line of code:
+...and the same simple request, using `XMLHttpRequest`, can be achieved with only two extra lines of code:
 
 {title="send DELETE request to remove a user record - web API - all browsers", lang=javascript}
 ~~~~~~~
@@ -202,12 +219,12 @@ Finally, we can send this DELETE request natively in Firefox and Chrome using th
 fetch('/user/1', {method: 'DELETE'});
 ~~~~~~~
 
-Sending this request with `fetch` is so simple that we can easily write the entire thing in one line without losing readability.
+Sending this request with `fetch` is just as simple as `$.ajax`; we can easily write the entire thing in one line without losing readability.
 
 
 ### Sending PATCH requests
 
-As mentioned earlier in this chapter, PATCH requests are relatively new on the HTTP scene, and they are used to update a _portion_ of an existing resource. Take our previous PUT request example, where we only want to update a user's mobile phone number, but have to include all other user data in our PUT request as well. For small records, this may be fine, but for records of substantial size, it can not only be a waste of bandwidth, but also a poor use of server processing power (determining which properties have actually changed). For this situation, we can use PATCH requests.
+As mentioned earlier in this chapter, PATCH requests are relatively new on the HTTP scene, and they are used to update a _portion_ of an existing resource. Take our previous PUT request example, where we only want to update a user's mobile phone number, but have to include all other user data in our PUT request as well. For small records, this may be fine, but for records of substantial size, it can not only be a waste of bandwidth, but also a poor use of server processing power (determining which properties have actually changed). Another approach may be to define specific endpoints for each part of the user's data, or identify the data to be updated based on URI query parameters, but that just clutters up our API. For this situation, it is best to use PATCH requests.
 
 Let's revisit the PUT example where we need to update an existing user's mobile number, this time with PATCH. A jQuery approach - using a simple plaintext-based key-value message body to indicate the property to change along with the new property value - would look like this:
 
@@ -221,7 +238,7 @@ $.ajax({
 });
 ~~~~~~~
 
-Remember that we can use any format we choose for the body of the PATCH request to specify the data to update, as long as client and server are in agreement. If we prefer to use `XMLHTTPRequest`, the same request looks like this:
+Remember that we can use any format we choose for the body of the PATCH request to specify the data to update, as long as client and server are in agreement. If we prefer to use `XMLHttpRequest`, the same request looks like this:
 
 {title="send PATCH request to update a user's mobile number - web API - all browsers", lang=javascript}
 ~~~~~~~
@@ -243,14 +260,14 @@ fetch('/user/1', {
 
 ## Encoding requests and reading encoded responses
 
-In the previous section, I touched on the simplest of all encoding methods - text/plain - which is the Multipurpose Internet Mail Extension (better known as MIME type) for unformatted text that makes up an HTTP request or response. The simplicity of plain text is both a blessing and a curse. That is, it is easy to work with, but only appropriate for very small and simple cases. The lack of any standardized structure limits its expressiveness and usefulness. For more complex (and more common) requests, there are more appropriate encoding types. In this section, I'll discuss three other MIME types - application/x-www-form-urlencoded, application/json, and multipart/form-data. At the end of this section, you will be not only familiar with these additional encoding methods, but will also be able to understand how to encode and decode messages without jQuery, especially when sending HTTP requests and parsing responses.
+In the previous section, I touched on the simplest of all encoding methods - text/plain - which is the Multipurpose Internet Mail Extension (better known as MIME type) for unformatted text that makes up an HTTP request or response. The simplicity of plain text is both a blessing and a curse. That is, it is easy to work with, but only appropriate for very small and simple cases. The lack of any standardized structure limits its expressiveness and usefulness. For more complex (and more common) requests, there are more appropriate encoding types. In this section, I'll discuss three other MIME types - "application/x-www-form-urlencoded", "application/json", and "multipart/form-data". At the end of this section, you will be not only familiar with these additional encoding methods, but will also be able to understand how to encode and decode messages without jQuery, especially when sending HTTP requests and parsing responses.
 
 
 ### URL encoding
 
-URL encoding can take place in the request's URL, or in the message body of the request/response. The MIME type of this encoding scheme is application/x-www-form-urlencoded and data consists of simple key/value pairs. Each key and value is separated by an equal side (`=`), while each pair is separated by an ampersand (`&`). But the encoding algorithm is much more than this. Keys and values may be further encoded, depending on their character makeup. Non-ASCII characters, along with some reserved characters, are replaced with a percent character (`%`) followed by the character's ASCII code. This is [further defined in the HTML forms section of the W3C HTML5 specification][forms-html5]. This description is arguably a bit over-simplistic, but certainly appropriate and comprehensive enough for the purposes of this chapter. If you'd like to learn more about the encoding algorithm for this MIME type, please have a look at the spec, though it is a bit dry and may take a few reads to properly parse.
+URL encoding can take place in the request's URL, or in the message body of the request/response. The MIME type of this encoding scheme is "application/x-www-form-urlencoded" and data consists of simple key/value pairs. Each key and value is separated by an equal sign (`=`), while each pair is separated by an ampersand (`&`). But the encoding algorithm is much more than this. Keys and values may be further encoded, depending on their character makeup. Non-ASCII characters, along with some reserved characters, are replaced with a percent character (`%`) followed by the character's ASCII code. This is [further defined in the HTML forms section of the W3C HTML5 specification][forms-html5]. This description is arguably a bit over-simplistic, but certainly appropriate and comprehensive enough for the purposes of this chapter. If you'd like to learn more about the encoding algorithm for this MIME type, please have a look at the spec, though it is a bit dry and may take a few reads to properly parse.
 
-For GET and DELETE requests, URL encoded data should be included at the end of the URI, since these request methods typically should not include payloads. For all other requests, the body of the message is the most appropriate place for your URL encoded data. In this case, the request or response must include a `Content-Type` header of "application/x-www-form-urlencoded" - the MIME type of the encoding scheme. URL encoded messages are expected to be relatively small, especially when dealing with GET and DELETE requests due to [real-world URI length restrictions in place on browsers and servers][uri-length-limit-stackoverflow]. While this encoding method is more elegant than text/plain, the lack of hierarchy means that these messages are also limited in their expressiveness to some degree.
+For GET and DELETE requests, URL encoded data should be included at the end of the URI, since these request methods typically should not include payloads. For all other requests, the body of the message is the most appropriate place for your URL encoded data. In this case, the request or response must include a `Content-Type` header of "application/x-www-form-urlencoded" - the MIME type of the encoding scheme. URL encoded messages are expected to be relatively small, especially when dealing with GET and DELETE requests due to [real-world URI length restrictions in place on browsers and servers][uri-length-limit-stackoverflow]. While this encoding method is more elegant than text/plain, the lack of hierarchy means that these messages are also limited in their expressiveness to some degree. However, child properties _can_ be tied to parent properties using brackets. For example, a "parent" key that has a value of a set of child key/value pairs - "child1" and "child2" - can be encoded as "parent[child1]=child1val&parent[child2]=child2val". In fact, this is what jQuery does when encoding a JavaScript object into a URL-encoded string.
 
 jQuery's API provides a function that takes an object and turns it into a URL encoded string - `$.param`. For example, if we wanted to encode a couple simple key/value pairs into a URL-encoded string, our code would look like this:
 
@@ -283,7 +300,8 @@ jQuery does admittedly make this relatively intuitive, as it allows you to pass 
 
 Even though the web API _does_ require you to be conscious of the encoding type _and_ it requires you encode your data before sending the request, these tasks are not overly complicated. I've already showed you how jQuery allows you to encode a string of text to "application/x-www-form-urlencoded" - using `$.param` - and you can accomplish the same without jQuery using the `encodeURI` and `encodeURIComponent` methods available on global namespace. These methods are defined in the ECMAScript specification, and have been available since the [ECMA-262 3rd edition specification][ecmascript3], completed in 1999.
 
-Both `encodeURI` and `encodeURIComponent` perform the same general task - URL encode a string. But they each determine _which_ parts of the string to encode a bit differently, so they are tied to specific use-cases. `encodeURI` is meant to be used for a complete URL, such as "http://raynicholus.com?first=ray&last=nicholus", _or_ a string of key-value pairs separated by an ampersand (`&`), such as "first=ray&last=nicholus". However, `encodeURIComponent` is meant to only be used on a single value that needs to be URL encoded, such as "Ray Nicholus" or "Mr. Ed". If you use `encodeURIComponent` to encode the full URL listed earlier in this paragraph then the colon, forward slashes, question mark, and ampersand will all be URL encoded, which is probably not what you want (unless the entire URL is itself a query parameter).
+Both `encodeURI` and `encodeURIComponent` perform the same general task - URL encode a string. But they each determine _which_ parts of the string to encode a bit differently, so they are tied to specific use-cases. `encodeURI` is meant to be used for a complete URL, such as
+"http://raynicholus.com?first=ray&last=nicholus", _or_ a string of key-value pairs separated by an ampersand (`&`), such as "first=ray&last=nicholus". However, `encodeURIComponent` is meant to only be used on a single value that needs to be URL encoded, such as "Ray Nicholus" or "Mr. Ed". If you use `encodeURIComponent` to encode the full URL listed earlier in this paragraph then the colon, forward slashes, question mark, and ampersand will all be URL encoded, which is probably not what you want (unless the entire URL is itself a query parameter).
 
 Looking back at the simple URL-encoding example with jQuery a little while back in this section, we can encode the same data with the web API using `encodeURI`:
 
@@ -292,7 +310,8 @@ Looking back at the simple URL-encoding example with jQuery a little while back 
 encodeURI('key1=some value&key 2=another value');
 ~~~~~~~
 
-A couple things about the output of `encodeURI` above, which produces "key1=some%20value&key%202=another%20value". First, notice that, while jQuery replaced spaces with the plus sign (`+`), `encodeURI` (and `encodeURIComponent`) replaces spaces with "%20". This is perfectly valid, but a notable difference. Second, while jQuery allows you to express the data to be encoded as a JavaScript object, `encodeURI` requires you separate the keys from the values with an equals sign (`=`) and the key-value pairs with an ampersand (`&`). Taking this a bit further, we can duplicate the same POST request we sent above that adds a new name, first using `XMLHttpRequest`:
+A couple things about the output of `encodeURI` above, which produces
+"key1=some%20value&key%202=another%20value". First, notice that, while jQuery replaced spaces with the plus sign (`+`), `encodeURI` (and `encodeURIComponent`) replace spaces with "%20". This is perfectly valid, but a notable difference. Second, while jQuery allows you to express the data to be encoded as a JavaScript object, `encodeURI` requires you separate the keys from the values with an equals sign (`=`) and the key-value pairs with an ampersand (`&`). Taking this a bit further, we can duplicate the same POST request we sent above that adds a new name, first using `XMLHttpRequest`:
 
 {title="send URL-encoded POST request to add a name - web API - all browsers", lang=javascript}
 ~~~~~~~
@@ -319,12 +338,12 @@ fetch('/user', {
 })
 ~~~~~~~
 
-Just as with `XMLHttpRequest`, the `Content-Type` header must also be specified here, since the default `Content-Type` for `fetch`-initiated requests is also "text/plain". But, again, the Fetch API allows ajax requests to be constructed in a more elegant and condensed form, similar to the solution that jQuery has provided for some time now. While `fetch` is only supported in Firefox, Chrome (and by default Opera), there are open cases to add support to [Safari][fetch-safari-bug] and [Microsoft Edge][fetch-edge-status]. In the near future, `XMLHttpRequest` will be an artifact of history, and `fetch`, which rivals jQuery's ajax support, will be the native transport of choice.
+Just as with `XMLHttpRequest`, the `Content-Type` header must also be specified here, since the default `Content-Type` for `fetch`-initiated requests with a `String` body is also "text/plain". But, again, the Fetch API allows ajax requests to be constructed in a more elegant and condensed form, similar to the solution that jQuery has provided for some time now. While `fetch` is only supported in Firefox, Chrome (and by default Opera), there are open cases to add support to [Safari][fetch-safari-bug] and [Microsoft Edge][fetch-edge-status]. In the near future, `XMLHttpRequest` will be an artifact of history, and `fetch`, which rivals jQuery's ajax support, will be the ajax transport of choice.
 
 
 ### JSON encoding
 
-JavaScript Object Notation, better known as JSON, is considered to be a "data-interchange language" (as described on json.org). If this obscure description leaves you a bit puzzled, don't feel bad, it's not a particularly useful summary. Think of JSON as a JavaScript object turned into a string. There a bit more to explain, but this is a reasonable high-level definition in my opinion. In web development, this is particularly useful if a browser-based client wants to easily send a JavaScript object to a server endpoint. The server can, in turn, respond to requests from this client, also supplying JSON in the response body, and the client can easily convert this into a JavaScript object to allow easy programmatic parsing and manipulation. While "application/x-www-form-urlencoded" requires data be expressed in a flat format, "application/json" allows data to be expressed in a hierarchical format. A key can have many sub-keys, and those sub-keys can have child keys as well. In this sense, JSON is more more expressive than URL-encoded data, which itself is more expressive and structured than plain text.
+JavaScript Object Notation, better known as JSON, is considered to be a "data-interchange language" (as described on json.org). If this obscure description leaves you a bit puzzled, don't feel bad, it's not a particularly useful summary. Think of JSON as a JavaScript object turned into a string. There _is_ a bit more to explain, but this is a reasonable high-level definition in my opinion. In web development, this is particularly useful if a browser-based client wants to easily send a JavaScript object to a server endpoint. The server can, in turn, respond to requests from this client, also supplying JSON in the response body, and the client can easily convert this into a JavaScript object to allow easy programmatic parsing and manipulation. While "application/x-www-form-urlencoded" requires data be expressed in a flat format (or denote parent/child relationships using non-standard bracket notation), "application/json" allows data to be expressed in a hierarchical format. A key can have many sub-keys, and those sub-keys can have child keys as well. In this sense, JSON is more more expressive than URL-encoded data, which itself is more expressive and structured than plain text.
 
 In case you are not already familiar with this common data format, let's represent a single user in JSON:
 
@@ -340,7 +359,7 @@ In case you are not already familiar with this common data format, let's represe
 }
 ~~~~~~~
 
-Notice that JSON gives us the power to easily express sub-keys, a feature that is lacking with plaintext and URL-encoded strings. Mr. Ed as two phone numbers, and with JSON we can elegantly associate both of these numbers with with a parent "phone" property. So, how can you convert a JSON string to a JavaScript object and back again using jQuery? First off, jQuery doesn't provide an API method to turn strings into objects. This is likely due to the fact that JavaScript provides a simple and intuitive API to solve this problem already. More on that soon. But what about converting a JavaScript object into a proper JSON string? For this, jQuery does provide something - `$.parseJSON()`. There isn't much need for these methods in the context of ajax requests, so I won't bother demonstrating them. Extending our ajax example from the previous section, let's add a new name record to our server using jQuery, this time with a JSON-encoded payload:
+Notice that JSON gives us the power to easily express sub-keys, a feature that is lacking with plaintext and URL-encoded strings. Mr. Ed has two phone numbers, and with JSON we can elegantly associate both of these numbers with with a parent "phone" property. So, how can you convert a JSON string to a JavaScript object and back again using jQuery? First off, jQuery doesn't provide an API method to turn strings into objects. This is likely due to the fact that JavaScript provides a simple and intuitive API to solve this problem already. More on that soon. But what about converting a JavaScript object into a proper JSON string? For this, jQuery does provide something - `$.parseJSON()`. There isn't much need for this methods in the context of ajax requests, so I won't bother demonstrating it. Extending our ajax example from the previous section, let's add a new name record to our server using jQuery, this time with a JSON-encoded payload:
 
 {title="send JSON-encoded POST request to add a name - jQuery", lang=javascript}
 ~~~~~~~
@@ -447,12 +466,12 @@ fetch('/user/1').then(function(request) {
   });
 ~~~~~~~
 
-The Fetch API provides our promissory callback with [a `Request` object][fetch-request]. Since we are expected JSON, we call the `json()` method on this object, which itself returns a `Promise`. Note that the `json()` method is actually defined on [the `Body` interface][fetch-body]. The `Request` interface implements the `Body` interface, so we have access to methods on both interfaces here. By returning that promise, we can chain another promissory handler and expect to receive the JavaScript object representation of the response payload as a parameter in our last success callback. Now we have our user record from the server. Pretty simple! Again, if promises are still a bit murky, I'll cover them in great detail later in the [async tasks](#async-tasks) chapter.
+The Fetch API provides our promissory callback with [a `Request` object][fetch-request]. Since we are expecting JSON, we call the `json()` method on this object, which itself returns a `Promise`. Note that the `json()` method is actually defined on [the `Body` interface][fetch-body]. The `Request` object implements the `Body` interface, so we have access to methods on both interfaces here. By returning that promise, we can chain another promissory handler and expect to receive the JavaScript object representation of the response payload as a parameter in our last success callback. Now we have our user record from the server. Pretty simple _and_ elegant! Again, if promises are still a bit murky, I'll cover them in great detail later in the [async tasks](#async-tasks) chapter.
 
 
 ### Multipart encoding
 
-Another common encoding scheme, usually associated with HTML form submissions, is multipart/form-data, also known as multipart encoding. The algorithm for this method of passing data is formally defined by the IETF in [RFC 2388][rfc2388]. The use of this algorithm in the context of HTML forms us further described by the W3C in [the HTML specification][multipart-html5]. Non-ASCII characters in a multipart/form-data message do _not_ have to be escaped. Instead, each piece of the message is split into fields, and each field is housed inside of a multipart boundary. Boundaries as separated by unique IDs that are generated by the browser, and they are guaranteed to be unique among all other data in the request, as the browser analyzes the data in the request to ensure a conflicted ID is not generated. A field in a multipart encoded message is often an HTML `<form>` field. Each field will be housed inside of its own multipart boundary. Inside of each boundary is a header, where metadata about field (such as its name/key), along with a body, where the field _value_ lives.
+Another common encoding scheme, usually associated with HTML form submissions, is multipart/form-data, also known as multipart encoding. The algorithm for this method of passing data is formally defined by the IETF in [RFC 2388][rfc2388]. The use of this algorithm in the context of HTML forms is further described by the W3C in [the HTML specification][multipart-html5]. Non-ASCII characters in a multipart/form-data message do _not_ have to be escaped. Instead, each piece of the message is split into fields, and each field is housed inside of a multipart boundary. Boundaries as separated by unique IDs that are generated by the browser, and they are guaranteed to be unique among all other data in the request, as the browser analyzes the data in the request to ensure a conflicted ID is not generated. A field in a multipart encoded message is often an HTML `<form>` field. Each field will be housed inside of its own multipart boundary. Inside of each boundary is a header, where metadata about the field live (such as its name/key), along with a body (where the field _value_ lives).
 
 Consider the following form:
 
@@ -490,7 +509,7 @@ The server knows how to find each form field by looking for the unique ID markin
 
 But HTML form submissions are not the _only_ instance where we might want to encode our request message using the multipart/form-data MIME type. Since this MIME type is trivial to implement in all server-side languages, it is probably a safe choice for transmitting key/value pairs from client to server. But, above all else, multipart encoding is perfect for mixing key/value pairs with binary data (such as files). I'll talk more about uploading files in the next section.
 
-So how can we sending a multipart encoded request using jQuery's `$.ajax` method?  As you'll see shortly, it's ugly, and the layer of abstraction that jQuery normally provides is incomplete in this case as you must delegate directly to the web API anyway. Continuing with some of the previous examples, let's send a new user record to our server, a record consisting of a user's name, address, and phone number:
+So how can we send a multipart encoded request using jQuery's `$.ajax` method?  As you'll see shortly, it's ugly, and the layer of abstraction that jQuery normally provides is incomplete in this case as you must delegate directly to the web API anyway. Continuing with some of the previous examples, let's send a new user record to our server, a record consisting of a user's name, address, and phone number:
 
 {title="sending a multipart encoded request using jQuery - all modern browsers except IE9", lang=javascript}
 ~~~~~~~
@@ -508,7 +527,7 @@ $.ajax({
 });
 ~~~~~~~
 
-In order to send a multipart encoded ajax request, we must send a `FormData` object that contains our key/value pairs, and the browser takes care of the rest. There is no jQuery abstraction here; you must make use of the web API's `FormData` directly. Note that `FormData` isn't supported in Internet Explorer 9. But there isn't a real problem with using `FormData`. Though this lack of abstraction is a hole in jQuery's blanket, `FormData` is relatively intuitive and quite powerful. In fact, you can pass it a `<form>` element and key/value pairs will be created for you, ready for asynchronous submission to your server. Mozilla Developer Network has a [great writeup on `FormData`][formdata-mdn]. You should read it for more details.
+In order to send a multipart encoded ajax request, we must send a `FormData` object that contains our key/value pairs, and the browser takes care of the rest. There is no jQuery abstraction here; you must make use of the web API's `FormData` directly. Note that `FormData` isn't supported in Internet Explorer 9. This lack of abstraction is a hole in jQuery's blanket, though `FormData` is relatively intuitive and quite powerful. In fact, you can pass it a `<form>` element and key/value pairs will be created for you, ready for asynchronous submission to your server. Mozilla Developer Network has a [great writeup on `FormData`][formdata-mdn]. You should read it for more details.
 
 The biggest problem with sending MPE requests with jQuery is the obscure options that must be set to make it work. `processData: false`? What does that even mean? Well, if you don't set this option, jQuery will attempt to turn `FormData` into a URL-encoded string. As for `contentType: false`, this is required to ensure that jQuery doesn't insert its own Content-Type header. Remember from the section introduction that the browser _must_ specify the Content-Type for you as it includes a calculated multipart boundary ID used by the server to parse the request.
 
@@ -527,7 +546,7 @@ xhr.open('POST', '/user');
 xhr.send(formData);
 ~~~~~~~
 
-In fact, using XHR results in _less_ code, and we don't have to include non-sensical options such as `contentType: false` and `processData: false`. As expected, the Fetch API is even more intuitive:
+In fact, using XHR results in _less_ code, and we don't have to include non-sensical options such as `contentType: false` and `processData: false`. As expected, the Fetch API is even simpler:
 
 {title="sending a multipart encoded request - web API - Chrome and Firefox only", lang=javascript}
 ~~~~~~~
@@ -547,7 +566,7 @@ See? If you can look Beyond jQuery, just a bit, you'll find that the web API is 
 
 ## Uploading and manipulating files
 
-Asynchronous file uploading, [a topic that I have quite a bit of experience with][fineuploader], is yet another example of how jQuery can often fail to effectively wrap the web API and provide users with an experience that justifies use of the library. This is indeed a complex topic, and while I can't cover everything related to file uploads here, I'll be sure to explain the basics and show how files are be uploaded using jQuery, `XMLHttpRequest`, and `fetch` both in [modern browsers](#modern-browsers) _and_ [ancient browsers](#ancient-browsers). In this specific and unusual case, note that Internet Explorer 9 is excluded from the definition of "modern browsers". The reason for this will become clear soon.
+Asynchronous file uploading, [a topic that I have quite a bit of experience with][fineuploader], is yet another example of how jQuery can often fail to effectively wrap the web API and provide users with an experience that justifies use of the library. This is indeed a complex topic, and while I can't cover everything related to file uploads here, I'll be sure to explain the basics and show how files can be uploaded using jQuery, `XMLHttpRequest`, and `fetch` both in [modern browsers](#modern-browsers) _and_ [ancient browsers](#ancient-browsers). In this specific and somewhat unusual case, note that Internet Explorer 9 is excluded from the definition of "modern browsers". The reason for this will become clear soon.
 
 
 ### Uploading files in ancient browsers
@@ -556,7 +575,7 @@ Before we get into uploading files in older browsers, let's define a very import
 
 The _only_ way to upload files in ancient browsers, including Internet Explorer 9, is to include an `<input type="file">` element inside of a `<form>` and submit this form. By default, the server's response to this form submit replaces the current browsing context. When working with a highly dynamic single page web application, this is unacceptable. We need to be able to upload files in older browsers and still maintain total control over the current browsing context. Unfortunately, there is no way to prevent a form submit from replacing the current browsing context. But we can certainly create a child browsing context where we submit the form, and then monitor this browsing context to determine when our file has been uploaded by listening for changes.
 
-The approach described above can be implemented quite easily, simply by asking the form to target an `<iframe>` in the document. To determine when the file has finished uploading, attach an "onload" event handler to the `<iframe>`. To demonstrate this approach, we'll need to make a few assumptions in order to make this relatively painless. First, imagine our primary browsing context looks like this:
+The approach described above can be implemented quite easily, simply by asking the form to target an `<iframe>` in the document. To determine when the file has finished uploading, attach an "onload" event handler to the `<iframe>`. To demonstrate this approach, we'll need to make a few assumptions in order to make this relatively painless. First, imagine our primary browsing context contains a fragment of markup that looks like this:
 
 {title="HTML fragment that represents our initial browser context with a file input element", lang=html}
 ~~~~~~~
@@ -574,7 +593,7 @@ The approach described above can be implemented quite easily, simply by asking t
 
 Notice that the `enctype` attribute is set to "multipart/form-data". You may remember from the previous section that a form with file input elements must generate a multipart encoded request in order to properly communicate the file bytes to the server.
 
-Second assumption - we are given a function - `upload()` - that is called when the user selects a file via the file input element. I'm not going to cover this specific detail now, since we haven't yet covered event handling. I'll [discuss events](#browser-events) later in this book.
+Second assumption - we are given a function - `upload()` - that is called when the user selects a file via the file input element. I'm not going to cover this specific detail now, since we haven't yet covered event handling. I'll [discuss events](#browser-events) in the next chapter.
 
 Ok, so how do we make this happen with jQuery?
 
@@ -613,7 +632,7 @@ jQuery hasn't done much at all for us. The web API solution is almost identical 
 
 ### Uploading files in modern browsers
 
-There is a much more modern way to upload files asynchronously, and this is possible in all modern browsers, with the exception of Internet Explorer 9. The ability to upload files via JavaScript is possible due to the [File API][fileapi-w3c], _and_ [`XMLHttpRequest` Level 2][xhr2-w3c]. Both of these elements of the web API are standardized by W3C specifications. jQuery does _nothing_ to make uploading files easier. The modern native APIs that bring file uploading the browser are elegant, easy to use, and powerful. jQuery doesn't so much to attempt to provide a layer of abstraction here, and actually makes file uploading a bit awkward.
+There is a much more modern way to upload files asynchronously, and this is possible in all modern browsers, with the exception of Internet Explorer 9. The ability to upload files via JavaScript is possible due to the [File API][fileapi-w3c], _and_ [`XMLHttpRequest` Level 2][xhr2-w3c] (an small and non-breaking update to the original specification in terms of API). Both of these elements of the web API are standardized by W3C specifications. jQuery does _nothing_ to make uploading files easier. The modern native APIs that bring file uploading the browser are elegant, easy to use, and powerful. jQuery doesn't so much to attempt to provide a layer of abstraction here, and actually makes file uploading a bit awkward.
 
 A typical workflow involves the following steps:
 
@@ -639,7 +658,7 @@ function onFileInputChange() {
 }
 ~~~~~~~
 
-The above code will send a POST request to an "/uploads" endpoint, and the request body will contain the bytes of the file our user selected. Again we must use the obscure `contentType: false` option to ensure that jQuery leaves the Content-Type header alone so that it may be set by the browser to reflect the MIME type of the file. Also, `processData: false` is needed to prevent jQuery from encoded the `File` object, which destroys the file we are trying to upload. We also could have included the file in a `FormData` object and uploaded that instead. This becomes a better option if we need to upload multiple files in a single request, or if we want to easily include other form data alongside the upload file or files.
+The above code will send a POST request to an "/uploads" endpoint, and the request body will contain the bytes of the file our user selected. Again we must use the obscure `contentType: false` option to ensure that jQuery leaves the Content-Type header alone so that it may be set by the browser to reflect the MIME type of the file. Also, `processData: false` is needed to prevent jQuery from encoding the `File` object, which destroys the file we are trying to upload. We also could have included the file in a `FormData` object and uploaded that instead. This becomes a better option if we need to upload multiple files in a single request, or if we want to easily include other form data alongside the file or files.
 
 Without jQuery, using `XMLHttpRequest`, file uploading is actually much simpler:
 
@@ -673,7 +692,7 @@ function onFileInputChange() {
 
 ### Reading and creating files
 
-Generally speaking, developers comfortable with jQuery often attempt to solve _all_ of their front-end development problems with jQuery. They sometimes fail to see the web beyond this library. When developers become dependent on this safety net, this can often lead to frustration when a problem is not addressable through jQuery. This is the [oppressive magic](#oppressive-magic) I wrote about in chapter 1. You just saw how jQuery, at best, provides almost no help when uploading files. Suppose you want to read a file, or even create a new one or modify an existing one to be sent to a server endpoint? This is an area where jQuery has absolutely zero coverage. For reading files, you must rely on the [`FileReader` interface[filereader-w3c], which is defined in the File API. Creation of "files" browser-side rely on the [`Blob` constructor][blob-w3c].
+Generally speaking, developers comfortable with jQuery often attempt to solve _all_ of their front-end development problems with jQuery. They sometimes fail to see the web beyond this library. When developers become dependent on this safety net, it can often lead to frustration when a problem is not addressable through jQuery. This is the [oppressive magic](#oppressive-magic) I wrote about in chapter 1. You just saw how jQuery, at best, provides almost no help when uploading files. Suppose you want to read a file, or even create a new one or modify an existing one to be sent to a server endpoint? This is an area where jQuery has absolutely zero coverage. For reading files, you must rely on the [`FileReader` interface][filereader-w3c], which is defined as part of the File API. Creation of "files" browser-side requires use of the [`Blob` constructor][blob-w3c].
 
 The simplest `FileReader` example, which is sufficient for demonstration purposes here, is to read a text file to the console. Suppose a user selected this text file via a `<input type"file">` and the text `File` object is sent to a function for output. The code required to read this file and output it to the developer tools console would involve the following code:
 
@@ -705,7 +724,7 @@ The `modifiedFile` above is a copy of the selected file with the text "hi there!
 
 ## Cross-domain communication: an important topic
 
-As more and more logic is offloaded to the browser, it is becoming common for web applications to pull data from multiple APIs, some of which exist as part of third-party services. A great example of this is a web application (like [Fine Uploader][fineuploader]) that uploads files directly to an Amazon Web Services (AWS) Simple Storage Service (S3) bucket. Server-to-server cross-domain requests are simple and without restrictions. But the same is not true for cross-domain requests initiated from the browser. For the developer that wants to develop a web application that sends files directly to S3 from the browser, an obstacle lies in the way: [the same origin policy][sop]. This policy places restrictions on requests initiated by JavaScript. More specifically, request made by `XMLHttpRequest` between domains are prohibited. For example, sending a request to https://api.github.com from https://mywebapp.com is prevented by the browser because of the same origin policy. While this restriction is in place for added security, this seems like a major limiting factor. How can you make legitimate requests from domain A domain to domain B without funneling them through a server on domain A first? The next two sections will cover two specific approaches to accomplish this. After that, I'll show you how to communicate between iframes that belong to differing domains, something that the same origin policy also restricts.
+As more and more logic is offloaded to the browser, it is becoming common for web applications to pull data from multiple APIs, some of which exist as part of third-party services. A great example of this is a web application (like [Fine Uploader][fineuploader]) that uploads files directly to an Amazon Web Services (AWS) Simple Storage Service (S3) bucket. Server-to-server cross-domain requests are simple and without restrictions. But the same is not true for cross-domain requests initiated from the browser. For the developer that wants to develop a web application that sends files directly to S3 from the browser, an obstacle lies in the way: [the same origin policy][sop]. This policy places restrictions on requests initiated by JavaScript. More specifically, requests made by `XMLHttpRequest` between domains are prohibited. For example, sending a request to https://api.github.com from https://mywebapp.com is prevented by the browser because of the same origin policy. While this restriction is in place for added security, this seems like a major limiting factor. How can you make legitimate requests from domain A to domain B without funneling them through a server on domain A first? The next two sections will cover two specific approaches to accomplish this.
 
 
 ### The early days (JSONP)
@@ -714,7 +733,7 @@ The same origin policy prevents scripts from initiating requests outside the dom
 
 If you're not familiar with JSONP, the name may be a bit misleading. There is actually no JSON involved here at all. It's a very common misconception that JSON must be returned from the server when the client initiates a JSONP call, but that's simply not true. Instead, the server returns a function invocation, which is _not_ valid JSON.
 
-JSONP is essentially just an ugly hack that exploits the fact that `<script>`` tags that load content from a server are not bound by the same-origin policy. There needs to be cooperation and an understanding of the convention by both client and server for this to work properly. You simply need to point the `src` attribute of a `<script>`` tag at a JSONP-aware endpoint and include the name of an existing global function as a query parameter. The server will then construct a string representation that, when executed by the browser, will invoke the global function, passing in the requested data.
+JSONP is essentially just an ugly hack that exploits the fact that `<script>` tags that load content from a server are not bound by the same-origin policy. There needs to be cooperation and an understanding of the convention by both client and server for this to work properly. You simply need to point the `src` attribute of a `<script>` tag at a JSONP-aware endpoint and include the name of an existing global function as a query parameter. The server must then construct a string representation that, when executed by the browser, will invoke the global function, passing in the requested data.
 
 Exploiting this JSONP approach in jQuery is actually pretty easy. Say we want to get user information from a server on a different domain:
 
@@ -742,18 +761,18 @@ scriptEl.setAttribute('src',
 document.body.appendChild(scriptEl);
 ~~~~~~~
 
-Now that you have this newfound knowledge, I suggest you forget it and avoid using JSONP altogether. It's proven to be [a potential security issue][jsonp-security]. Also, in modern browsers, CORS is a much better route. And you're in luck; CORS is feature in the next section. This JSONP section serves mostly as a history lesson and an illustration of how jQuery _was_ quite useful and important before the modern evolution of web specifications.
+Now that you have this newfound knowledge, I suggest you forget it and avoid using JSONP altogether. It's proven to be [a potential security issue][jsonp-security]. Also, in modern browsers, CORS is a much better route. And you're in luck - CORS is featured in the next sub-section. This explanation of JSONP serves mostly as a history lesson and an illustration of how jQuery _was_ quite useful and important before the modern evolution of web specifications.
 
 
-### Modern times (CORS)
+### Modern times (CORS) {#cors}
 
-CORS, which is short for Cross Origin Resource Sharing, is the more modern way to send ajax request between domains from the browser. CORS is actually a fairly involved topic and very commonly misunderstood even by seasoned web developers. While [the W3C specification][cors-w3c] can be hard to parse, Mozilla Developer Network [has a great explanation][cors-mdn]. I'm only going to touch on a few CORS concepts here, but MDN article is useful if you'd like to have a complete understanding of this topic.
+CORS, which is short for Cross Origin Resource Sharing, is the more modern way to send ajax request between domains from the browser. CORS is actually a fairly involved topic and very commonly misunderstood even by seasoned web developers. While [the W3C specification][cors-w3c] can be hard to parse, Mozilla Developer Network [has a great explanation][cors-mdn]. I'm only going to touch on a few CORS concepts here, but the MDN article is useful if you'd like to have a more detailed understanding of this topic.
 
-With a reasonable understanding of CORS, sending a cross-origin ajax request via JavaScript is not particularly difficult in modern browsers. Unfortunately, the process is _not_ as easy in Internet Explorer 8 and 9. Cross-origin ajax requests are only possible via JSONP in IE7 and older. In all cases, jQuery offers zero assistance.
+With a reasonable understanding of CORS, sending a cross-origin ajax request via JavaScript is not particularly difficult in modern browsers. Unfortunately, the process is _not_ as easy in Internet Explorer 8 and 9. Cross-origin ajax requests are only possible via JSONP in IE7 and older, and you are restricted to GET requests in those browsers (since this is an inherent limitation of JSONP). In all non-JSONP cases, jQuery offers zero assistance.
 
-For modern browsers, all of the work is delegated server code. The browser does everything necessary client-side for you. Your code for a cross-origin ajax request in a modern browser is identical to a same-origin ajax requests when using jQuery's `ajax` API method or when directly using the web API's `XMLHttpReqest` transport, and even with the Fetch API. So, I won't bother showing that here.
+For modern browsers, all of the work is delegated to server code. The browser does everything necessary client-side for you. In the most basic case, your code for a cross-origin ajax request in a modern browser is identical to a same-origin ajax request when using jQuery's `ajax` API method, or when directly using the web API's `XMLHttpReqest` transport, and even with the Fetch API. So, I won't bother showing that here.
 
-CORS requests can be divided up into two distinct types: simple, and non-simple. Simple requests consists of GET, HEAD, and POST requests, with a Content-Type of "text/plain" or "application/x-www-form-urlencoded". Non-standard headers, such as "x-" headers, are not allowed in "simple" requests. These CORS requests are sent by the browser with an `Origin` header that includes the sending domain. The server must acknowledge that requests from this origin are acceptable. If not, the request fails. Non-simple requests consists of PUT and PATCH requests, as well as other Content-Types, such as "application/json". Also, non-standard headers, as you just learned, will mark a CORS request as "non-simple". In fact, even a GET or POST request can be non-simple if it, for example, contains non-standard request headers.
+CORS requests can be divided up into two distinct types: simple, and non-simple. Simple requests consist of GET, HEAD, and POST requests, with a Content-Type of "text/plain" or "application/x-www-form-urlencoded". Non-standard headers, such as "x-" headers, are not allowed in "simple" requests. These CORS requests are sent by the browser with an `Origin` header that includes the sending domain. The server must acknowledge that requests from this origin are acceptable. If not, the request fails. Non-simple requests consists of PUT, PATCH, and DELETE requests, as well as other Content-Types, such as "application/json". Also, non-standard headers, as you just learned, will mark a CORS request as "non-simple". In fact, even a GET or POST request can be non-simple if it, for example, contains non-standard request headers.
 
 A non-simple CORS request must be "preflighted" by the browser. A preflight is an OPTIONS request sent by the browser before the underlying request is sent. If the server properly acknowledges the preflight, the browser will then send the underlying/original request. Non-simple cross-origin requests, such as PUT or POST/GET requests with an X-header (for example) could not be sent from a browser pre-CORS spec. So, for these types of requests, the concept of preflighting was written into the specification to ensure servers do not receive these types of non-simple cross-origin browser-based requests without explicitly opting in. In other words, if you don't want to allow these types of requests, you don't have to change your server at all. The preflight request that the browser sends first will fail, and the browser will never send the underlying request.
 
@@ -799,7 +818,7 @@ The `credentials` option used above ensures that any credentials, such as cookie
 
 jQuery actually becomes a headache to deal with when we need to send a cross-domain ajax request in IE8 or IE9. If you're using jQuery for this purpose, you are truly trying to fit a square peg into a round hole. To understand why jQuery is a poor fit for cross-origin requests in IE9 and IE8, it's important to consider a couple low-level points:
 
-1. Cross-origin ajax requests in IE8 and IE9 can only be sent using the IE-proprietary `XDomainRequest` transport. I'll save the rant for why this was such a huge mistake by the IE development team for another book. Regardless, `XDomainRequest` is a stripped down version of `XMLHttpReqest`, and it _must_ be used when making cross-origin ajax requests in IE8 and IE9. There are ;significant restrictions restrictions imposed on this transport][xdr-msdn], such as an inability to send anything other than POST and GET request, and lack of API methods to set request headers or access response headers.
+1. Cross-origin ajax requests in IE8 and IE9 can only be sent using the IE-proprietary `XDomainRequest` transport. I'll save the rant for why this was such a huge mistake by the IE development team for another book. Regardless, `XDomainRequest` is a stripped down version of `XMLHttpReqest`, and it _must_ be used when making cross-origin ajax requests in IE8 and IE9. There are [significant restrictions restrictions imposed on this transport][xdr-msdn], such as an inability to send anything other than POST and GET requests, and lack of API methods to set request headers or access response headers.
 
 2. jQuery's `ajax` method (and all associated aliases) are just wrappers for `XMLHttpRequest`. It has a hard dependency on `XMLHttpRequest`. I mentioned this earlier in the chapter, but it's useful to point it out here again, given the context.
 
