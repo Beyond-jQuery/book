@@ -357,6 +357,35 @@ var sceneTwoTitle = cache[cacheIdx].scenes[1].title;
 We could easily create a `getData` function to accompany our `setData` that makes storing and looking up our element data a bit more intuitive. But this all-browser non-jQuery solution is surprisingly simple. For an even more elegant non-jQuery approach that targets more modern browsers, check out the next section, where I will demonstrate the `dataset` element property _and_ the `WeakMap` API.
 
 
+##### Removing data from our cache when elements are removed from the DOM
+
+One potential issue with the approach I just demonstrated is the fact that the cache will grow unbounded. It would be useful to remove items from the cache when corresponding elements are remove from the DOM. Ideally, we could simply "listen" to DOM element removal "events" and revoke elements from our cache accordingly. Luckily, this is possible in most modern browsers natively, thanks to `MutationObserver`, which is a web standard maintained by WHATWG as [part of their DOM specification][mutationobserver-whatwg]. Internet Explorer 9 and 10 are the holdouts, but [a polyfill exists][mutationobserver-polyfill] to fill in those two gaps. Before `MutationObserver`, there was still native ability to observe changes to the DOM via "Mutation Events", but these proved to be highly inefficient and are no longer part of any active specification. The polyfill I just referred to falls back to Mutation Events in IE10 and 9.
+
+Mutation Observers allow for a callback function to be executed whenever any change to any DOM element (or its child or descendants) is detected. This is exactly what we are looking for. More specifically, when a DOM element attached to a cache item is removed, we'd like to be notified so the cache can be cleaned up. Take the `<video>` element from the cache example. Remember that we stored some data about various scenes present in the video in a cache object. When the `<video>` is removed, the cache entry should be removed as well to prevent our cache from growing needlessly. Using Mutation Observers, our code to accomplish that may look something like this:
+
+{title="remove scene data for a video element when the element is removed - web API - all modern browsers w/ polyfill", lang=javascript}
+~~~~~~~
+var videoEl = document.querySelector('video'),
+    observer = new MutationObserver(function(mutations) {
+      var wasVideoRemoved = mutations.some(function(mutation) {
+        return mutation.removedNodes.some(function(removedNode) {
+          return removedNode === videoEl;
+        })
+      });
+
+      if (wasVideoRemoved) {
+        var cacheIdx = videoEl.getAttribute('data-cache-idx');
+        cache.splice(cacheIdx, 1);
+        observer.disconnect();
+      }    
+    });
+
+observer.observe(videoEl.parentNode, {childList: true});
+~~~~~~~
+
+Above, all changes to children of our video's parent element are being observed. If we observe the video element directly, we won't be notified when it is removed. The `childList` configuration option passed to our observer ensures that we are notified whenever our video or any of its siblings are changed. When our callback function is hit, if our video element _was_ removed, we remove the corresponding entry in the cache and then disconnect our Mutation Observer, since we no longer need it. For [more information on `MutationObserver`][mutationobserver-mdn], have a look at Mozilla Developer Network.
+
+
 ## The future of element data {#data-futures}
 
 Storing trivial or complex data without jQuery in _all_ browsers is not particularly difficult, but it's also not very elegant. Luckily for us, the web is evolving quickly, and two new APIs exist that should make our code more beautiful, and maybe even a bit more performant. I'll show you how to manage trivial element data with the [HTML5 `dataset` property](#element-dataset), and complex data using the [ECMAScript 6 `WeakMap` collection](#es6-weakmap). Keep in mind that everything in this section is meant for the latest browsers only. In each case, nothing older than Internet Explorer 11 is an option. This may seem like an unpleasant restriction in 2015, but in a short amount of time all common browsers will be supported.
@@ -471,3 +500,9 @@ The web without jQuery is looking pretty powerful.
 [html5-domstringmap]: http://www.w3.org/TR/html5/infrastructure.html#domstringmap-0
 
 [ie8-circular-refs-fix]: https://msdn.microsoft.com/en-us/library/dd361842(VS.85).aspx
+
+[mutationobserver-mdn]: https://developer.mozilla.org/en/docs/Web/API/MutationObserver
+
+[mutationobserver-polyfill]: https://github.com/webcomponents/webcomponentsjs/blob/v0.7.20/MutationObserver.js
+
+[mutationobserver-whatwg]: https://dom.spec.whatwg.org/#mutation-observers
