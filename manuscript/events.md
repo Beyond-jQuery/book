@@ -1,4 +1,4 @@
-# Browser Events (IN PROGRESS) {#bowser-event}
+# Browser Events (IN PROGRESS) {#browser-events}
 %% What are events?
 %% jQuery was important for event handling when IE8 was still commonly supported
 %% Focus on modern browsers, will have a brief section on ancient browser support at the end
