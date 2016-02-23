@@ -13,7 +13,15 @@ Before I cover _using_ events to solve common problems, I think it's prudent to 
 
 
 ### Event types: Custom, and native
-%% custom vs. native
+
+To start off my comprehensive coverage of browser events, I'll now introduce you to the two high-level categories that all events fit into: "custom", and "native". Native events are those defined in one of the official web specifications, such as those maintained by [WHATWG or W3C](#whatwg-vs-w3c). A listing of most events can be found in the [DOM Level 3 UI Events specification][dom3-ui-events-w3c], maintained by the W3C. Please note that this is _not_ an exhaustive list, it only contains a subset of the events available today. Some of the native events include "click", which is an event that is triggered by the browser when a DOM element is selected via a pointed device or keyboard. Another common event is "load", which is fired when an `<img>`, document in a `window`, or `<iframe>` has successfully loaded. There are quite a few different native events available. A good resource that provides a list of all currently available native events can be seen on the [Mozilla Developer Network events page][events-mdn].
+
+Custom events are, as you might expect, non-standard events that are specific to a particular application or library. They can be created on-demand to support dynamic event-based workflows. For example, consider a file upload library that would like to fire an event whenever an file upload has started, and then another when the file upload is finished. Just after (or perhaps just before) the upload commences, the library might want to fire an "uploadStart" event, and then "uploadComplete" once the file is successfully on the server. There really aren't any native events that provide the semantics needed for this situation, so custom events are the best solution. Luckily, the DOM API does provide a way to trigger custom events. While triggering custom events has been a bit of a hassle cross-browser without a [polyfill](#shims-and-polyfills), that is slowly changing. More on that later.
+
+The one thing that ties custom and native events together is [the `Event` object][event-object-w3c]. It's described in a specification curated by the W3C.
+%% the Event object
+
+
 %% custom events created with jQuery are not visible outside of jQuery, also artificial bubbling
 
 
@@ -68,3 +76,8 @@ Before I cover _using_ events to solve common problems, I think it's prudent to 
 %% forms
 %% working with the Event object
 %% load events
+
+
+[dom3-ui-events-w3c]: https://www.w3.org/TR/DOM-Level-3-Events
+[events-mdn]: https://developer.mozilla.org/en-US/docs/Web/Events
+[event-object-w3c]: https://www.w3.org/TR/uievents/#h-event-interfaces
