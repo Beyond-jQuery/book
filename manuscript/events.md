@@ -24,6 +24,49 @@ The one thing that ties custom and native events together is [the `Event` object
 
 
 ### Event propagation: Bubbling vs capturing
+
+In the early days of the web, Netscape provided one way to disperse events throughout the DOM - event capturing - while Internet Explorer provided a contrasting method - event bubbling. Before standardization, browsers essentially made their own siloed choices when implementing features, which is what led to these two divergent approaches. This all changed in 2000 when the [W3C](#whatwg-vs-w3c) drafted the [DOM Level 2 Events Specification][dom2-events]. This document described an event model that included both event capturing _and_ bubbling. All browsers that adhere to this specification follow this method of distributing events across the DOM. Currently, all [modern browsers](#modern-browsers) implement DOM Level 2 Events. [Ancient browsers](#ancient-browsers), which only support event bubbling, will be covered at the end of this chapter.   
+
+In all modern browsers, per the DOM Level 2 Events spec, When a DOM event is created, the capturing phase begins. Assuming the event is not cancelled at some point after it is triggered, it starts at `document` and propagates downwards, starting with the top-most ancestor of the element that triggered the event (the target element), and ending with this target element. After the capturing phase is complete, the bubbling phase commences. Starting with the target element, the event "bubbles" up the DOM, hitting each ancestor, until the event is cancelled or until it hits `document`.
+
+If the description regarding the progress of an event is still a bit confusing, let me try to explain with a simple demonstration. Consider the following HTML document:
+
+{title="HTML element ID - markup", lang=html}
+~~~~~~~
+<!DOCTYPE html>
+<html>
+<head>
+  <title>event propagation demo</title>
+</head>
+<body>
+  <section>
+    <h1>nested divs</h1>
+    <div>one
+      <div>child of one
+        <div>child of child of one</div>
+      </div>
+    </div>
+  </section>
+</body>
+</html>
+~~~~~~~
+
+Suppose the `<div>child of child of one</div>` element is clicked. The click event takes the following path through the DOM:
+
+**Capturing Phase:**
+1. `document`
+2. '<body>'
+3. `<section>`
+4. `<div>one`
+5. `<div>child of one`
+6. `<div>child of child of one`
+**Bubbling Phase:**
+7. `<div>child of one`
+8. `<div>one`
+9. `<section>`
+10. '<body>'
+11. `document`
+
 %% is one _better_ than the other? why?
 %% explain and provide example scenarios for both
 %% jquery artificially bubbles events, doesn't support capturing
@@ -77,6 +120,7 @@ The one thing that ties custom and native events together is [the `Event` object
 %% load events
 
 
+[dom2-events]: https://www.w3.org/TR/DOM-Level-2-Events/
 [dom3-ui-events-w3c]: https://www.w3.org/TR/DOM-Level-3-Events
 [events-mdn]: https://developer.mozilla.org/en-US/docs/Web/Events
 [event-object-w3c]: https://www.w3.org/TR/uievents/#h-event-interfaces
