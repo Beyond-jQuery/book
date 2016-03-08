@@ -53,8 +53,7 @@ If the description regarding the progress of an event is still a bit confusing, 
 
 Suppose the `<div>child of child of one</div>` element is clicked. The click event takes the following path through the DOM:
 
-**Capturing Phase:**
-
+**Capturing Phase:** 
 1. `document`
 2. '<body>'
 3. `<section>`
@@ -63,11 +62,10 @@ Suppose the `<div>child of child of one</div>` element is clicked. The click eve
 6. `<div>child of child of one`
 
 **Bubbling Phase:**
-
 7. `<div>child of one`
 8. `<div>one`
 9. `<section>`
-10. '<body>'
+10. `<body>`
 11. `document`
 
 %% is one _better_ than the other? why?
