@@ -70,9 +70,11 @@ Suppose the `<div>child of child of one</div>` element is clicked. The click eve
 10. `<body>`
 11. `document`
 
-%% is one _better_ than the other? why?
-%% explain and provide example scenarios for both
-%% jquery artificially bubbles events, doesn't support capturing
+So, when it is appropriate to focus on the capturing phase over the bubbling phase, or vice versa? The most common choice, without a doubt, is to intercept events in the bubbling phase. One reason to focus on the bubbling phase is due to historical reasons. Before Internet Explorer 9, this was the _only_ phase available. This is no longer an obstacle with the advent of standardization and modern browsers. In addition to lack of support for capturing in ancient browsers, jQuery _also_ lacks support for this phase. This is perhaps yet another reason why it is not particularly popular and bubbling is the default choice. But there is no denying that the concept of event bubbling is more intuitive than capturing. Envisioning an event that moves up the DOM tree, starting with the element that created the event, seems to be a bit more sensible than an event that _ends_ with the event that created it. In fact, capturing is rarely discussed when describing the browser event model. Finally, attaching a handler to the event bubbling phase is the default behavior when using the web API to listen for events.
+
+Event though the event bubbling phase is often preferred, there _are_ instances where capturing is the better choice. There appears to be a performance advantage to utilization of the capturing phase. Since event capturing occurs _before_ bubbling, this seems to make sense. Basecamp, a web-based project management application, [has made use of event capturing to improve performance in their project][basecamp-capturing], for example. Another reason to make use of the capturing phase: event delegation for "focus" and "blur" events. While these events do not bubble, handler delegation is possible by using the capturing phase. I'll cover [event delegation](#event-delegation) in detail later on in this chapter. Finally, capturing can be used to react to events that have been cancelled in the bubbling phase. There are a number of reasons to cancel an event, that is, to prevent it from reaching any subsequent event handlers. Almost always, events are cancelled in the bubbling phase. [I'll discuss this a bit more later in this chapter](#modifying-events), but for now imagine a click event cancelled by a third-party library in your web application. If you still need access to this event in another handler, you can register a handler on an element in the capturing phase.
+
+jQuery has made the unfortunate choice of artificially bubbling events. In other words, when an event is triggered via the library, it calculates the expected bubbling path, and triggers handlers on each element in this path. jQuery does not make use of the native support for bubbling and capturing provided by the browser. While this certainly adds complexity and bloat to the library, it's not clear if there are any performance consequences.
 
 
 ## Creating and firing DOM events
@@ -94,14 +96,14 @@ Suppose the `<div>child of child of one</div>` element is clicked. The click eve
 %% one-time event listener binding w/ and w/out jQuery
 
 
-## Modifying an event inside your event listener
+## Modifying an event inside your event listener {#modifying-events}
 %% preventDefault
 %% stopPropagation
 %% stopPropagationImmediate
 %% attaching data for subsequent listener consumption
 
 
-## Event delegation: powerful and underused
+## Event delegation: powerful and underused {#event-delegation}
 %% Penalty for too many events listeners?
 %% Why else are delegated events important?
 %% React has even built this in to their library.
@@ -123,6 +125,7 @@ Suppose the `<div>child of child of one</div>` element is clicked. The click eve
 %% load events
 
 
+[basecamp-capturing]: https://signalvnoise.com/posts/3137-using-event-capturing-to-improve-basecamp-page-load-times
 [dom2-events]: https://www.w3.org/TR/DOM-Level-2-Events/
 [dom3-ui-events-w3c]: https://www.w3.org/TR/DOM-Level-3-Events
 [events-mdn]: https://developer.mozilla.org/en-US/docs/Web/Events
