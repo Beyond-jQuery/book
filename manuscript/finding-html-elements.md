@@ -488,8 +488,7 @@ var allSiblings = document.querySelectorAll('#parent SPAN ~ *');
 // Converts the allSiblings NodeList into an Array.
 allSiblings = [].slice.call(allSiblings);
 
-var referenceElement = document.querySelector('#parent > SPAN'),
-    currentElement = referenceElement;
+var currentElement = document.querySelector('#parent > SPAN');
 
 // This loop executes until we run out of previous siblings,
 // starting with the sibling before the <span>. Each sibling
@@ -497,7 +496,7 @@ var referenceElement = document.querySelector('#parent > SPAN'),
 // the allSiblings array will contain all siblings of the <span>
 // (before and after).
 do {
-   currentElement = referenceElement.previousElementSibling;
+   currentElement = currentElement.previousElementSibling;
    currentElement && allSiblings.push(currentElement);
 } while (currentElement);
 ~~~~~~~
@@ -509,11 +508,10 @@ For Internet Explorer 8 support, you will have to use `Node.previousSibling` ins
 var generalSiblings = document.querySelectorAll('#parent SPAN ~ *');
 
 var previousSiblings = [],
-    referenceElement = document.querySelector('#parent SPAN'),
-    currentElement = referenceElement;
+    currentElement = document.querySelector('#parent SPAN');
 
 do {
-   currentElement = referenceElement.previousSibling;
+   currentElement = currentElement.previousSibling;
    // This differs from the previous example in that we must
    // exclude non-Element Nodes by examining the nodeType property.
    if (currentElement && currentElement.nodeType === 1) {
