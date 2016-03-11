@@ -78,9 +78,91 @@ jQuery has made the unfortunate choice of artificially bubbling events. In other
 
 
 ## Creating and firing DOM events
-%% 1 way to do this w/ jQuery
-%% At least one way to do this w/out jQuery, depending on the event
-%% Use the following events in an example: click, focus, blur, and submit
+
+To demonstrate firing DOM events with and without jQuery, let's use the following HTML fragment:
+
+{title="DOM event triggering demo - markup", lang=html}
+~~~~~~~
+<div>
+  <button type="button">do something</button>
+</div>
+
+<form method="POST" action="/user">
+  <label>Enter user name:
+    <input name="user">
+  </label>
+  <button type="submit">submit</button>
+</form>
+~~~~~~~
+
+
+### jQuery
+
+jQuery's events API contains two methods that allow DOM events to be created and propagated throughout the DOM: `trigger` and `triggerHandler`. The `trigger` method is most commonly used - it allows an event to be created and propagated to all ancestors of the originating element via bubbling. Remember that jQuery artificially bubbles all events, and it does _not_ support event capturing. The `triggerHandler` method differs from `trigger` in that it only executes event handlers on the element in which it is called - the event is _not_ bubbled to ancestor elements. Really, jQuery's `triggerHandler` is different from `trigger` in many other ways, but the definition I have provided is sufficient for this section.
+
+Below, I'll use jQuery's `trigger` function to submit the form in two ways, focus the text input, and then _remove_ focus from the input element.
+
+{title="triggering DOM events - jQuery", lang=javascript}
+~~~~~~~
+// submits the form
+$('form').trigger('submit');
+
+// submits the form by clicking the button
+$('button[type="submit"]').trigger('click');
+
+// focuses the text input
+$('input').trigger('focus');
+
+// removes focus from the text input
+$('input').trigger('blur');
+~~~~~~~
+
+To be fair, there is a second way to trigger the same events with jQuery, by using aliases for these events defined in the library's API:
+
+{title="triggering DOM events - jQuery", lang=javascript}
+~~~~~~~
+// submits the form
+$('form').submit();
+
+// submits the form by clicking the button
+$('button[type="submit"]').click();
+
+// focuses the text input
+$('input').focus();
+
+// removes focus from the text input
+$('input').blur();
+~~~~~~~
+
+What if we want to click on the button that appears before the form, but we don't want to trigger any click handlers attached to ancestor elements. Suppose the parent `<div>` contains a click handler that we do not want to trigger in this instance. With jQuery, we can use `triggerHandler` to accomplish this:
+
+{title="triggering DOM events without bubbling - jQuery", lang=javascript}
+~~~~~~~
+// clicks the first button - the click event does not bubble
+$('button[type="button"]').triggerHandler('click');
+~~~~~~~
+
+
+### web API
+
+There are between two and three ways to trigger the same events demonstrated above _without_ using jQuery (depending) on the browser. It's good to have choices (sometimes). Anyway, the easiest way to trigger the above events using the web API is to invoke corresponding native methods on the target elements. This gives us code that looks very similar to the second block of jQuery code above.
+
+{title="triggering DOM events - web API - all modern browsers + IE8", lang=javascript}
+~~~~~~~
+// submits the form
+document.querySelector('form').submit();
+
+// submits the form by clicking the button
+document.querySelector('button[type="submit"]').click();
+
+// focuses the text input
+document.querySelector('input').focus();
+
+// removes focus from the text input
+document.querySelector('input').blur();
+~~~~~~~
+
+The above code is only limited to IE8 and newer due to use of `querySelector`, but this is far more than sufficient given the current year and state of browser support. The `click`, `focus`, and `blur` methods are available on all DOM element objects that inherit from [`HTMLElement`][htmlelement-html5]. The `submit` method is available to `<form>` elements only, as it is defined on the [`HTMLFormElement` interface][htmlform-html5]. The "click" and "submit" events bubble when they are triggered with these methods. Per [the W3C specification][dom2-events], "blur" and "focus" events do _not_ bubble, however. They are available to other event handlers in the capturing phase though.
 
 
 ## Creating and firing custom events
@@ -132,3 +214,5 @@ jQuery has made the unfortunate choice of artificially bubbling events. In other
 [events-mdn]: https://developer.mozilla.org/en-US/docs/Web/Events
 [event-object-w3c]: https://www.w3.org/TR/uievents/#h-event-interfaces
 [focus-w3c]: https://www.w3.org/TR/uievents/#event-type-focus
+[htmlelement-html5]: https://www.w3.org/TR/html5/dom.html#htmlelement
+[htmlform-html5]: https://www.w3.org/TR/html5/forms.html#the-form-element
