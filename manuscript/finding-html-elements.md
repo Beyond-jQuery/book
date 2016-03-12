@@ -615,7 +615,7 @@ The native web does not provide a single API method that returns all ancestors o
 var currentNode = document.getElementsByTagName('A')[0],
     ancestors = [];
 
-while (currentNode.parentNode) {
+while (currentNode.parentElement) {
    ancestors.push(currentNode.parentElement);
    currentNode = currentNode.parentElement;
 }
