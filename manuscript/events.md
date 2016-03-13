@@ -143,7 +143,7 @@ $('button[type="button"]').triggerHandler('click');
 ~~~~~~~
 
 
-### web API
+### Web API
 
 There are between two and three ways to trigger the same events demonstrated above _without_ using jQuery (depending) on the browser. It's good to have choices (sometimes). Anyway, the easiest way to trigger the above events using the web API is to invoke corresponding native methods on the target elements. This gives us code that looks very similar to the second block of jQuery code above.
 
@@ -163,6 +163,28 @@ document.querySelector('input').blur();
 ~~~~~~~
 
 The above code is only limited to IE8 and newer due to use of `querySelector`, but this is far more than sufficient given the current year and state of browser support. The `click`, `focus`, and `blur` methods are available on all DOM element objects that inherit from [`HTMLElement`][htmlelement-html5]. The `submit` method is available to `<form>` elements only, as it is defined on the [`HTMLFormElement` interface][htmlform-html5]. The "click" and "submit" events bubble when they are triggered with these methods. Per [the W3C specification][dom2-events], "blur" and "focus" events do _not_ bubble, however. They are available to other event handlers in the capturing phase though.
+
+The above events can _also_ be created by using either the `Event` constructor, or [the `createEvent` method available on `document`][createevent-document]. The former is supported in all modern browsers, with the exception of any version of Internet Explorer. In the next code demonstration, I'll show you how to programmatically determine if the `Event` constructor is supported, and then fall back to the alternative path for triggering events. Perhaps you are wondering why you would even need to trigger events using an approach different from the simple one outlined above. If you wish to alter the default behavior of an event in some way, constructing an `Event` object in some way is required. For example, in order to mimic the behavior of jQuery's `triggerHandler` method and prevent an event from bubbling, we must pass specific configuration to our `click` event when constructing it. You will see this at the end of the following code section that demonstrates a second approach to triggering events, which is needed to prevent our click event from bubbling up the DOM.
+
+{title="triggering DOM events without bubbling - web API - all modern browsers", lang=javascript}
+~~~~~~~
+var clickEvent;
+
+// If the `Event` constructor function is not supported,
+// fall back to `createEvent` method.
+if (typeof Event === 'function') {
+  clickEvent = new Event('click', {bubbles: false});  
+}
+else {
+    clickEvent = document.createEvent('Event');
+    clickEvent.initEvent('click', false, true);
+}
+
+document.querySelector('button[type="button"]')
+  .dispatchEvent(clickEvent);
+~~~~~~~
+
+Above, when we must fall back to `initEvent`, the second parameter is `bubbles`, which must be set to `false` when the event must _not_ bubble. The `Event` constructor provides a more elegant way to set this and other options - using a set of object properties. Once Internet Explorer 11 is dead and buried, we can focus exclusively on the `Event` constructor and forget `initEvent` ever existed. But until then, the above check will allow you to choose the proper path if you must construct and event with special configuration options.
 
 
 ## Creating and firing custom events
@@ -209,6 +231,7 @@ The above code is only limited to IE8 and newer due to use of `querySelector`, b
 
 [basecamp-capturing]: https://signalvnoise.com/posts/3137-using-event-capturing-to-improve-basecamp-page-load-times
 [blur-w3c]: https://www.w3.org/TR/uievents/#event-type-blur
+[createevent-document]: https://www.w3.org/TR/DOM-Level-3-Events/#widl-DocumentEvent-createEvent
 [dom2-events]: https://www.w3.org/TR/DOM-Level-2-Events/
 [dom3-ui-events-w3c]: https://www.w3.org/TR/DOM-Level-3-Events
 [events-mdn]: https://developer.mozilla.org/en-US/docs/Web/Events
