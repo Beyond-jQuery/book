@@ -188,7 +188,25 @@ Above, when we must fall back to `initEvent`, the second parameter is `bubbles`,
 
 
 ## Creating and firing custom events
-%% Remember the limitation w/ using jQuery-created custom events
+
+Remember that custom events are those that are not standardized as part of an accepted web specification, such as those maintained by [the W3C and the WHATWG](#whatwg-vs-w3c). Let's imagine a scenario where we are writing a third-party library that handles adding and removing items from a gallery of images. When our library is integrated into a larger application, we need to provide a simple way to notify any listeners when an item is added or removed by this library. In this case, our library will wrap the gallery of images, so we can signal a removal or addition simply by trigger an event that can be observed by an ancestor element. There aren't any standardized DOM events that are appropriate here, so we'll need to create our own event, a _custom_ event. The custom event associated with removing an image will be aptly called "image-removed".
+
+### jQuery
+
+Let's first fire this event using jQuery. We'll assume that we already have a handle on an element controlled by our library. Our event will be triggered by this particular element.
+
+{title="triggering custom events - jQuery", lang=javascript}
+~~~~~~~
+// Triggers a custom "image-removed" element,
+// which bubbles up to ancestor elements.
+$libraryElement.trigger('image-removed');
+~~~~~~~
+
+This looks identical to the code used to trigger native DOM events, and it is. jQuery has a simple, elegant, and consistent API for triggering events of all types. But there is a problem here - the code that listens for this event, outside of our jQuery library, _must_ also use jQuery to observe this event. This is a limitation of jQuery's custom event system. It matters little if the user of our library is using some other library or even if the user does not wish to use jQuery outside of this library. Perhaps it is not clear to our user that jQuery _must_ be used to listen for this event. They are forced to rely on jQuery and jQuery alone to accept messages from our library.
+
+
+### Web API
+
 %% 2 ways to create custom events w/out jQuery
 %% Example scenario
 
