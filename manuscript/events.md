@@ -189,7 +189,7 @@ Above, when we must fall back to `initEvent`, the second parameter is `bubbles`,
 
 ## Creating and firing custom events
 
-Remember that custom events are those that are not standardized as part of an accepted web specification, such as those maintained by [the W3C and the WHATWG](#whatwg-vs-w3c). Let's imagine a scenario where we are writing a third-party library that handles adding and removing items from a gallery of images. When our library is integrated into a larger application, we need to provide a simple way to notify any listeners when an item is added or removed by this library. In this case, our library will wrap the gallery of images, so we can signal a removal or addition simply by trigger an event that can be observed by an ancestor element. There aren't any standardized DOM events that are appropriate here, so we'll need to create our own event, a _custom_ event. The custom event associated with removing an image will be aptly called "image-removed".
+Remember that custom events are those that are not standardized as part of an accepted web specification, such as those maintained by [the W3C and the WHATWG](#whatwg-vs-w3c). Let's imagine a scenario where we are writing a third-party library that handles adding and removing items from a gallery of images. When our library is integrated into a larger application, we need to provide a simple way to notify any listeners when an item is added or removed by this library. In this case, our library will wrap the gallery of images, so we can signal a removal or addition simply by trigger an event that can be observed by an ancestor element. There aren't any standardized DOM events that are appropriate here, so we'll need to create our own event, a _custom_ event. The custom event associated with removing an image will be aptly called "image-removed", and will need to include the ID of the removed image.
 
 ### jQuery
 
@@ -199,7 +199,7 @@ Let's first fire this event using jQuery. We'll assume that we already have a ha
 ~~~~~~~
 // Triggers a custom "image-removed" element,
 // which bubbles up to ancestor elements.
-$libraryElement.trigger('image-removed');
+$libraryElement.trigger('image-removed', {id: 1});
 ~~~~~~~
 
 This looks identical to the code used to trigger native DOM events, and it is. jQuery has a simple, elegant, and consistent API for triggering events of all types. But there is a problem here - the code that listens for this event, outside of our jQuery library, _must_ also use jQuery to observe this event. This is a limitation of jQuery's custom event system. It matters little if the user of our library is using some other library or even if the user does not wish to use jQuery outside of this library. Perhaps it is not clear to our user that jQuery _must_ be used to listen for this event. They are forced to rely on jQuery and jQuery alone to accept messages from our library.
@@ -207,8 +207,53 @@ This looks identical to the code used to trigger native DOM events, and it is. j
 
 ### Web API
 
-%% 2 ways to create custom events w/out jQuery
-%% Example scenario
+Triggering custom events with the web API is exactly like triggering native DOM events. The difference here is with _creating_ custom events, although the process and API is still quite similar.
+
+{title="triggering custom events - web API - all modern browsers except Internet Explorer", lang=javascript}
+~~~~~~~
+var event = new CustomEvent('image-removed', {
+  bubbles: true,
+  detail: {id: 1}
+});
+libraryElement.dispatchEvent(event);
+~~~~~~~
+
+Above, we can easily create our custom event, trigger it, and ensure it bubbles up to ancestor elements. So, our "image-removed" event is observable outside of our library. We've also passed the image ID in the `detail` property of the event payload. More on accessing this data later on. But there's a problem here - this will _not_ work in any version of Internet Explorer. Unfortunately, as I mentioned in the last section, Explorer does not support the `Event` constructor. So, we must fall back to the following approach in IE:
+
+{title="triggering custom events - web API - all modern browsers", lang=javascript}
+~~~~~~~
+var event = document.createEvent('CustomEvent');
+event.initCustomEvent('image-removed', false, true, {id: 1});
+libraryElement.dispatchEvent(event);
+~~~~~~~
+
+Instead of creating an 'Event', as we did when attempting to trigger a native DOM event in Internet Explorer in the previous section, we must instead create a 'CustomEvent'. This exposes an `initCustomEvent` method, which is defined on the `CustomEvent` interface. This special method allows us to pass custom data along with this event, such as the image ID in this case.
+
+The above code currently (as of early 2016) works in all modern browsers, but this _may_ change in the future, since [`CustomEvent.initCustomEvent` has been deprecated in the W3C UI Events specification][customevent-w3c]. This means that is may be removed from any future browser version. To make our code future proof and still ensure it works in Internet Explorer, we will need to use the same check for the `CustomEvent` constructor from the previous section.
+
+{title="triggering custom events - web API - all modern browsers", lang=javascript}
+~~~~~~~
+var event;
+
+// If the `CustomEvent` constructor function is not supported,
+// fall back to `createEvent` method.
+if (typeof CustomEvent === 'function') {
+  event = new CustomEvent('image-removed', {
+    bubbles: true,
+    detail: {id: 1}
+  });  
+}
+else {
+    event = document.createEvent('CustomEvent');
+    event.initCustomEvent('image-removed', false, true,
+      {id: 1}
+    });
+}
+
+libraryElement.dispatchEvent(event);
+~~~~~~~
+
+After Internet Explorer fades into obsolesce and Microsoft Edge takes its place, the above code will no longer be needed at all.
 
 
 ## Listening (and un-listening) for event notifications
@@ -250,6 +295,7 @@ This looks identical to the code used to trigger native DOM events, and it is. j
 [basecamp-capturing]: https://signalvnoise.com/posts/3137-using-event-capturing-to-improve-basecamp-page-load-times
 [blur-w3c]: https://www.w3.org/TR/uievents/#event-type-blur
 [createevent-document]: https://www.w3.org/TR/DOM-Level-3-Events/#widl-DocumentEvent-createEvent
+[customevent-w3c]: https://www.w3.org/TR/uievents/#idl-interface-CustomEvent-initializers
 [dom2-events]: https://www.w3.org/TR/DOM-Level-2-Events/
 [dom3-ui-events-w3c]: https://www.w3.org/TR/DOM-Level-3-Events
 [events-mdn]: https://developer.mozilla.org/en-US/docs/Web/Events
