@@ -56,7 +56,7 @@ Suppose the `<div>child of child of one</div>` element is clicked. The click eve
 **Capturing Phase:**
 
 1. `document`
-2. '<body>'
+2. `<body>`
 3. `<section>`
 4. `<div>one`
 5. `<div>child of one`
