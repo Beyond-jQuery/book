@@ -313,7 +313,6 @@ $(someElement).one('click', function() {
 
 After the attached handler function is executed, the click event will no longer be observed.
 
-
 ### Observing events with the web API
 %% How can we do this w/ and w/out jQuery?
 %% w/out jQuery: inline, element properties (e.g. onclick), addEventListener
