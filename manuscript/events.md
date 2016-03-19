@@ -96,7 +96,7 @@ To demonstrate firing DOM events with and without jQuery, let's use the followin
 ~~~~~~~
 
 
-### jQuery
+### Firing DOM events with jQuery
 
 jQuery's events API contains two methods that allow DOM events to be created and propagated throughout the DOM: `trigger` and `triggerHandler`. The `trigger` method is most commonly used - it allows an event to be created and propagated to all ancestors of the originating element via bubbling. Remember that jQuery artificially bubbles all events, and it does _not_ support event capturing. The `triggerHandler` method differs from `trigger` in that it only executes event handlers on the element in which it is called - the event is _not_ bubbled to ancestor elements. Really, jQuery's `triggerHandler` is different from `trigger` in many other ways, but the definition I have provided is sufficient for this section.
 
@@ -143,7 +143,7 @@ $('button[type="button"]').triggerHandler('click');
 ~~~~~~~
 
 
-### Web API
+### Web API DOM events
 
 There are between two and three ways to trigger the same events demonstrated above _without_ using jQuery (depending) on the browser. It's good to have choices (sometimes). Anyway, the easiest way to trigger the above events using the web API is to invoke corresponding native methods on the target elements. This gives us code that looks very similar to the second block of jQuery code above.
 
@@ -191,7 +191,7 @@ Above, when we must fall back to `initEvent`, the second parameter is `bubbles`,
 
 Remember that custom events are those that are not standardized as part of an accepted web specification, such as those maintained by [the W3C and the WHATWG](#whatwg-vs-w3c). Let's imagine a scenario where we are writing a third-party library that handles adding and removing items from a gallery of images. When our library is integrated into a larger application, we need to provide a simple way to notify any listeners when an item is added or removed by this library. In this case, our library will wrap the gallery of images, so we can signal a removal or addition simply by trigger an event that can be observed by an ancestor element. There aren't any standardized DOM events that are appropriate here, so we'll need to create our own event, a _custom_ event. The custom event associated with removing an image will be aptly called "image-removed", and will need to include the ID of the removed image.
 
-### jQuery
+### jQuery custom events
 
 Let's first fire this event using jQuery. We'll assume that we already have a handle on an element controlled by our library. Our event will be triggered by this particular element.
 
@@ -205,7 +205,7 @@ $libraryElement.trigger('image-removed', {id: 1});
 This looks identical to the code used to trigger native DOM events, and it is. jQuery has a simple, elegant, and consistent API for triggering events of all types. But there is a problem here - the code that listens for this event, outside of our jQuery library, _must_ also use jQuery to observe this event. This is a limitation of jQuery's custom event system. It matters little if the user of our library is using some other library or even if the user does not wish to use jQuery outside of this library. Perhaps it is not clear to our user that jQuery _must_ be used to listen for this event. They are forced to rely on jQuery and jQuery alone to accept messages from our library.
 
 
-### Web API
+### Firing custom events with the web API
 
 Triggering custom events with the web API is exactly like triggering native DOM events. The difference here is with _creating_ custom events, although the process and API is still quite similar.
 
@@ -257,9 +257,66 @@ After Internet Explorer fades into obsolesce and Microsoft Edge takes its place,
 
 
 ## Listening (and un-listening) for event notifications
-%% Why is this important?
+
+Triggering events is one important part of passing messages around the DOM, but these events don't provide any actual value without corresponding listeners. In this section, I'll cover handling DOM and custom events. Many of you may already be familiar with the process of registering event observers with jQuery, but I'll demonstrate how this is done first so that the differences when relying exclusively on the web API are apparent.
+
+A `window` resize event handler may be important to make adjustments to a complex application as the view of your page is changed by the user. This "resize" event, which is triggered on the `window` when the browser is resized by the user, will provide us with a good way to demonstrate registering and unregistering event listeners.
+
+### jQuery event handlers
+
+jQuery's `on` API method provides everything necessary to observe both DOM and custom events triggered on an element in the document.
+
+{title="observing a window resize event - jQuery", lang=javascript}
+~~~~~~~
+$(window).on('resize', function() {
+  // react to new window size
+});
+~~~~~~~
+
+If, at some point in the future, we no longer care about the size of the window, we can remove this handler using jQuery's appropriately named `off` handler, but this is less straightforward than adding a new listener. We have two options:
+
+1. Remove _all_ resize event listeners (easy).
+2. Remove only our resize event listener (a bit harder).
+
+Let's look at option 1 first:
+
+{title="observing a window resize event - jQuery", lang=javascript}
+~~~~~~~
+// remove all resize listeners - usually a bad idea
+$(window).off('resize');
+~~~~~~~
+
+The first option is quite simple, but we run the risk of causing problems for other code on the page that still relies on window resize events. In other words, option 1 is usually a poor choice. So that leaves us with option 2, which requires we store a reference to our handler function and provide that to jQuery so it can unbind only our listener. So, we will need to re-write our event listener call above such that we can easily unregister our listener later.
+
+{title="observing a window resize event - jQuery", lang=javascript}
+~~~~~~~
+var resizeHandler = function() {
+    // react to new window size
+};
+
+$(window).on('resize', resizeHandler);
+
+// ...later
+
+// remove only our resize handler
+$(window).off('resize', resizeHandler);
+~~~~~~~
+
+Binding an event listener to a specific element and then removing it later when it is no longer needed is usually sufficient, but we may have a situation where an event handler is only ever needed once. After it is first executed, it can and should be removed. Perhaps we have an element that, once clicked, changes state in such a way that subsequent clicks are not prudent. jQuery provides a `one` API method for such cases:
+
+{title="auto-unbinding event listener - jQuery", lang=javascript}
+~~~~~~~
+$(someElement).one('click', function() {
+  // handle click event
+})
+~~~~~~~
+
+After the attached handler function is executed, the click event will no longer be observed.
+
+
+### Observing events with the web API
 %% How can we do this w/ and w/out jQuery?
-%% w/out jQuery: inline, element properties (e.g. onclick), addEventListener, and non-standard attachEvent
+%% w/out jQuery: inline, element properties (e.g. onclick), addEventListener
 %% one-time event listener binding w/ and w/out jQuery
 
 
