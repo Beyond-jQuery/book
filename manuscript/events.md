@@ -280,7 +280,7 @@ If, at some point in the future, we no longer care about the size of the window,
 
 Let's look at option 1 first:
 
-{title="observing a window resize event - jQuery", lang=javascript}
+{title="removing a window resize event handler - jQuery", lang=javascript}
 ~~~~~~~
 // remove all resize listeners - usually a bad idea
 $(window).off('resize');
@@ -288,7 +288,7 @@ $(window).off('resize');
 
 The first option is quite simple, but we run the risk of causing problems for other code on the page that still relies on window resize events. In other words, option 1 is usually a poor choice. So that leaves us with option 2, which requires we store a reference to our handler function and provide that to jQuery so it can unbind only our listener. So, we will need to re-write our event listener call above such that we can easily unregister our listener later.
 
-{title="observing a window resize event - jQuery", lang=javascript}
+{title="observing and un-observing a window resize event - jQuery", lang=javascript}
 ~~~~~~~
 var resizeHandler = function() {
     // react to new window size
@@ -314,9 +314,76 @@ $(someElement).one('click', function() {
 After the attached handler function is executed, the click event will no longer be observed.
 
 ### Observing events with the web API
-%% How can we do this w/ and w/out jQuery?
-%% w/out jQuery: inline, element properties (e.g. onclick), addEventListener
-%% one-time event listener binding w/ and w/out jQuery
+
+Since the beginning of time (almost), there have been two simple ways to attach an event handler to a specific DOM element, both can be considered "inline". The first involves including the event handler function as the value of an attribute of the element in the document markup:
+
+{title="inline event handler - web API - all browsers", lang=html}
+~~~~~~~
+<button onclick="handleButtonClick()">click me</button>
+~~~~~~~
+
+There are a couple problems with the above approach. First, this requires a global `handleButtonClick` function. If you have a number of buttons or other elements that require specific click handler functions, you will end with a cluttered and messy global namespace. Global variables and functions should always be avoided to prevent conflicts and unnecessary access to internal logic. This type of inline event handler is a step in the wrong direction for that reason.
+
+A second reason this is bad - it requires mixing your JavaScript and HTML in the same file. Generally speaking, this is discouraged as it goes against the principle of separation of concerns. That is, HTML belongs in HTML files and JavaScript belongs in JavaScript files. This isolates the code such that changes are potentially less risky, and caching is improved as changes to JavaScript do not invalidate the markup files, and vice versa.
+
+Another way to register for the same click event requires attaching a handler function to the element's corresponding event property:
+
+{title="inline event handler - web API - all browsers", lang=javascript}
+~~~~~~~
+buttonEl.onclick = function() {
+  // handle button click
+};
+~~~~~~~
+
+While this approach is slightly better than the HTML-based event handler, since we are not forced to bind to a global function, it is still a non-optimal solution. You cannot specify an attribute-based event handler _and_ an element property handler for the same event on the same element. The last specified handler will effectively remove any other inline event handler on the element for a given event type. In fact, only one total inline event handler may be specified for a given event on a given element. This is likely a big issue for modern web applications, as it is quite common for multiple uncoordinated modules to exist on the same page. Perhaps more than one of these modules needs to attach an event handler of the same type to the same element. With inline event handlers, this simply is not possible.
+
+Since Internet Explorer 9, an `addEventListener` method has been available on the `EventTarget` interface. All `Element`s implement this interface as does `Window` (among other DOM objects). The `EventTarget` interface first appeared in the [W3C DOM Level 2 Events specification][dom2-events], and the `addEventListener` method was part of this initial version of the interface. Registering for custom and DOM events is possible with this method, and the syntax is very similar to jQuery's `on` method. Continuing with the button example from above:
+
+{title="modern event handler - web API - all modern browsers", lang=javascript}
+~~~~~~~
+buttonEl.addEventListener('click', function() {
+  // handle button click
+});
+~~~~~~~
+
+The above solution does not suffer from any of the issues that plague inline event handlers. There is no required binding to global functions. You may attach as many different click handlers to this button element as you like. The handler is attached purely with JavaScript, so it may exist exclusively in a JavaScript file. In the previous section, I reminded you how a "resize" event was bound to the `window` with jQuery. The same handler using the modern web API looks like this:
+
+{title="observing a window resize event - web API - modern browsers", lang=javascript}
+~~~~~~~
+window.addEventListener('resize', function() {
+  // react to new window size
+});
+~~~~~~~
+
+This looks a _lot_ like our example of binding to the same event with jQuery, with the exception of a longer event binding method (`on` vs. `addEventListener`). You might be glad to know that an appropriately named web API method exists to un-bind our handler, should we need to do this at some point. The `EventTarget` interface also defines a `removeEventListener` method. The `removeEventListener` method differs from jQuery's `off` in one notable way - there is no way to remove _all_ event listeners of a given type from a particular element. Perhaps this is a good thing. So, in order to remove our `window` "resize" handler, we must structure our code like so:
+
+{title="observing and un-observing a window resize event - web API - modern browsers", lang=javascript}
+~~~~~~~
+var resizeHandler = function() {
+    // react to new window size
+};
+
+window.addEventListener('resize', resizeHandler);
+
+// ...later
+
+// remove only our resize handler
+window.removeEventListener('resize', resizeHandler);
+~~~~~~~
+
+Remember the one-time click handler we created with jQuery's `one` API method? Does something similar exist in the web API? Unfortunately, no, but we can reproduce the same behavior without much trouble:
+
+{title="auto-unbinding event listener - web API - modern browsers", lang=javascript}
+~~~~~~~
+var clickHandler = function() {
+  // handle click event
+  // ...then unregister handler
+  someElement.removeEventListener('click', clickHandler);
+};
+someElement.addEventListener('click', clickHandler);
+~~~~~~~
+
+After the attached handler function is executed, the click event will no longer be observed, just like jQuery's `one` method. There _are_ more elegant ways to solve this problem, but the above solution makes use of only what you have learned so far in "Beyond jQuery". You may discover a more elegant method after completing this book, especially after reading about [JavaScript utilities](#javascript-utilities).
 
 
 ## Modifying an event inside your event listener {#modifying-events}
