@@ -387,7 +387,48 @@ After the attached handler function is executed, the click event will no longer 
 
 
 ## Modifying an event inside your event listener {#modifying-events}
-%% preventDefault
+
+I've showed you how to fire and observe events in the last couple sections, but sometimes your need to do more than just create or listen for events. Occasionally, you will need to either influence the bubbling/capturing phase or even attach data to an event in order to make it available to subsequent listeners.
+
+As a contrived example (but possibly realistic in a very twisted web application piloted by project managers who have no concept of reality), suppose you needed to prevent users from selecting any text or images on an entire page. How can you accomplish this? Perhaps by interfering with some mouse event, somehow. But which event, and how? Perhaps the event to focus on is "click". If this was your first guess, you were close, but not quite correct.
+
+According to the W3C DOM Level 3 Events specification, [the "mousedown" event][mousedown-w3c] starts a drag or text selection operation as it's _default_ action. So, we must prevent the _default_ action of a "mousedown" event. We can prevent text and image selection/dragging across the entire page using jQuery _or_ the pure web API by simply registering a "mousedown" event listener on `window` and calling the `preventDefault()` method on the `Event` object that is passed to our handler once our handler is executed by the browser.
+
+{title="preventing a default event action - jQuery", lang=javascript}
+~~~~~~~
+$(window).on('mousedown', function(event) {
+  event.preventDefault();
+});
+
+// ...or...
+$(window).mousedown(function(event) {
+  event.preventDefault();
+});
+~~~~~~~
+
+{title="preventing a default event action - web API - modern browsers", lang=javascript}
+~~~~~~~
+window.addEventListener('mousedown', function(event) {
+  event.preventDefault();
+});
+~~~~~~~
+
+The jQuery approach is almost identical to the one that only relies on the native web API. Either way, we've satisfied the requirements - no text or images can be selected or dragged on our page.
+
+{#event-object}
+This is probably a good time to start discussing the `Event` object. Above, an `Event` instance is passed to our event handler function when it is executed by jQuery or the browser (respectively). The `Event` interface is defined in [the W3C DOM4 specification][dom4-event]. When a custom or native DOM event is created, the browser creates an instance of `Event` and passes it to each registered listener during the capturing and bubbling phases.
+
+The event object passed to each listener contains a number of properties that, for instance, describe the associated event. Such as:
+
+* The event type (click, mousedown, focus).
+* The element that created the event.
+* The current event phase (capturing or bubbling).
+* The current element in the bubbling or capturing phase.
+
+There are other similar properties, but the above list represents a good sampling of the more notable ones. In addition to properties that describe the event, there are also a number of methods that allow the event to be controlled. One such method is `preventDefault()`, as I just demonstrated. But there are others, which I will cover shortly.
+
+jQuery has its [own version of the `Event` interface][event-jquery] (of course). According to jQuery's docs, their event object "normalizes the event object according to W3C standards". This was potentially useful for ancient browsers. But for modern browsers - not so much. For the most part, with the exception of a few properties and methods, the two interfaces are very similar.
+
 %% stopPropagation
 %% stopPropagationImmediate
 %% attaching data for subsequent listener consumption
@@ -421,8 +462,11 @@ After the attached handler function is executed, the click event will no longer 
 [customevent-w3c]: https://www.w3.org/TR/uievents/#idl-interface-CustomEvent-initializers
 [dom2-events]: https://www.w3.org/TR/DOM-Level-2-Events/
 [dom3-ui-events-w3c]: https://www.w3.org/TR/DOM-Level-3-Events
+[dom4-event]: https://www.w3.org/TR/dom/#interface-event
+[event-jquery]: https://api.jquery.com/category/events/event-object/
 [events-mdn]: https://developer.mozilla.org/en-US/docs/Web/Events
 [event-object-w3c]: https://www.w3.org/TR/uievents/#h-event-interfaces
 [focus-w3c]: https://www.w3.org/TR/uievents/#event-type-focus
 [htmlelement-html5]: https://www.w3.org/TR/html5/dom.html#htmlelement
 [htmlform-html5]: https://www.w3.org/TR/html5/forms.html#the-form-element
+[mousedown-w3c]: https://www.w3.org/TR/DOM-Level-3-Events/#event-type-mousedown
