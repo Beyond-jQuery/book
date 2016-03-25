@@ -72,7 +72,7 @@ Suppose the `<div>child of child of one</div>` element is clicked. The click eve
 
 So, when it is appropriate to focus on the capturing phase over the bubbling phase, or vice versa? The most common choice, without a doubt, is to intercept events in the bubbling phase. One reason to focus on the bubbling phase is due to historical reasons. Before Internet Explorer 9, this was the _only_ phase available. This is no longer an obstacle with the advent of standardization and modern browsers. In addition to lack of support for capturing in ancient browsers, jQuery _also_ lacks support for this phase. This is perhaps yet another reason why it is not particularly popular and bubbling is the default choice. But there is no denying that the concept of event bubbling is more intuitive than capturing. Envisioning an event that moves up the DOM tree, starting with the element that created the event, seems to be a bit more sensible than an event that _ends_ with the event that created it. In fact, capturing is rarely discussed when describing the browser event model. Finally, attaching a handler to the event bubbling phase is the default behavior when using the web API to listen for events.
 
-Event though the event bubbling phase is often preferred, there _are_ instances where capturing is the better choice. There appears to be a performance advantage to utilization of the capturing phase. Since event capturing occurs _before_ bubbling, this seems to make sense. Basecamp, a web-based project management application, [has made use of event capturing to improve performance in their project][basecamp-capturing], for example. Another reason to make use of the capturing phase: event delegation for ["focus"][focus-w3c] and ["blur"][blur-w3c] events. While these events do not bubble, handler delegation is possible by using the capturing phase. I'll cover [event delegation](#event-delegation) in detail later on in this chapter. Finally, capturing can be used to react to events that have been cancelled in the bubbling phase. There are a number of reasons to cancel an event, that is, to prevent it from reaching any subsequent event handlers. Almost always, events are cancelled in the bubbling phase. [I'll discuss this a bit more later in this chapter](#modifying-events), but for now imagine a click event cancelled by a third-party library in your web application. If you still need access to this event in another handler, you can register a handler on an element in the capturing phase.
+Event though the event bubbling phase is often preferred, there _are_ instances where capturing is the better choice. There appears to be a performance advantage to utilization of the capturing phase. Since event capturing occurs _before_ bubbling, this seems to make sense. Basecamp, a web-based project management application, [has made use of event capturing to improve performance in their project][basecamp-capturing], for example. Another reason to make use of the capturing phase: event delegation for ["focus"][focus-w3c] and ["blur"][blur-w3c] events. While these events do not bubble, handler delegation is possible by using the capturing phase. I'll cover [event delegation](#event-delegation) in detail later on in this chapter. Finally, capturing can be used to react to events that have been cancelled in the bubbling phase. There are a number of reasons to cancel an event, that is, to prevent it from reaching any subsequent event handlers. Almost always, events are cancelled in the bubbling phase. [I'll discuss this a bit more later in this chapter](#controlling-event-propagation), but for now imagine a click event cancelled by a third-party library in your web application. If you still need access to this event in another handler, you can register a handler on an element in the capturing phase.
 
 jQuery has made the unfortunate choice of artificially bubbling events. In other words, when an event is triggered via the library, it calculates the expected bubbling path, and triggers handlers on each element in this path. jQuery does not make use of the native support for bubbling and capturing provided by the browser. While this certainly adds complexity and bloat to the library, it's not clear if there are any performance consequences.
 
@@ -386,7 +386,7 @@ someElement.addEventListener('click', clickHandler);
 After the attached handler function is executed, the click event will no longer be observed, just like jQuery's `one` method. There _are_ more elegant ways to solve this problem, but the above solution makes use of only what you have learned so far in "Beyond jQuery". You may discover a more elegant method after completing this book, especially after reading about [JavaScript utilities](#javascript-utilities).
 
 
-## Modifying an event inside your event listener {#modifying-events}
+## Controlling event propagation {#controlling-event-propagation}
 
 I've showed you how to fire and observe events in the last couple sections, but sometimes your need to do more than just create or listen for events. Occasionally, you will need to either influence the bubbling/capturing phase or even attach data to an event in order to make it available to subsequent listeners.
 
@@ -429,9 +429,59 @@ There are other similar properties, but the above list represents a good samplin
 
 jQuery has its [own version of the `Event` interface][event-jquery] (of course). According to jQuery's docs, their event object "normalizes the event object according to W3C standards". This was potentially useful for ancient browsers. But for modern browsers - not so much. For the most part, with the exception of a few properties and methods, the two interfaces are very similar.
 
-%% stopPropagation
-%% stopPropagationImmediate
-%% attaching data for subsequent listener consumption
+The next two examples demonstrate how to prevent a specific event from reaching other registered event handlers. In order to prevent a click event, for example, from reaching any event handler on subsequent DOM nodes, simply call `stopImmediatePropagation()` on the passed `Event` object. This method exists in both the jQuery `Event` interface _and_ the standardized web API `Event` interface.
+
+{title="stop a click event from bubbling - jQuery", lang=javascript}
+~~~~~~~
+$someElement.click(function(event) {
+    event.stopPropagation();
+});
+
+// ...or...
+
+$someElement.on('click', function(event) {
+    event.stopPropagation();
+});
+~~~~~~~
+
+Using jQuery, you can stop an event from bubbling with `stopPropagation()`, but you _cannot_ stop the event during the capturing phase, unless of course you defer to the web API.
+
+{title="stop a click event from propagating - web API - modern browsers", lang=javascript}
+~~~~~~~
+// stop propagation during capturing phase
+someElement.addEventListener('click', function(event) {
+    event.stopPropagation();
+}, true);
+
+// stop propagation during bubbling phase
+someElement.addEventListener('click', function(event) {
+    event.stopPropagation();
+});
+~~~~~~~
+
+The web API is capable of stopping event propagation in either the capturing _or_ the bubbling phase. But `stopPropagation()` does not stop the event from reaching any subsequent listeners on the _same_ element. For this task, the `stopImmediatePropagation()` event method is available, which stops the event from reaching _any_ further handlers, whether they are registered on the current DOM node _or_ subsequent nodes. Again, the web API and jQuery share the same method name, but jQuery is restricted to the bubbling phase, as always.
+
+{title="stop a click event from reaching any other handlers - jQuery", lang=javascript}
+~~~~~~~
+$someElement.on('click', function(event) {
+    event.stopImmediatePropagation();
+});
+~~~~~~~
+
+{title="stop a click event from reaching any other handlers - web API - modern browsers", lang=javascript}
+~~~~~~~
+someElement.addEventListener('click', function(event) {
+    event.stopImmediatePropagation();
+});
+~~~~~~~
+
+Note that both jQuery and the web API offer a shortcut to prevent an event's default action _and_ to prevent the event from reaching handlers on subsequent DOM nodes. You can effectively call `event.preventDefault()` and `event.stopPropagation()` by returning `false` in your event handler.
+
+
+## Attaching data to events
+
+%% passing data to native DOM event handlers
+%% ... to custom data event handlers
 
 
 ## Event delegation: powerful and underused {#event-delegation}
