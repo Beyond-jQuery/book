@@ -12,11 +12,11 @@ In this chapter, I'll discuss how to create, trigger, and listen for standard br
 Before I cover _using_ events to solve common problems, I think it's prudent to first outline how browser events "work". The event system in this context does follow the publish-subscribe pattern at a basic level, but there is much more to browser events than this. For starters, there are multiple classifications of browsers events. The two broadest categories are referred to as "custom" and "native" (by me). "Native" browser events can be further assigned to sub-groups, which I will discuss shortly. Apart from event types, browser events also have a unique attribute - the methods in which they are dispersed to listeners. In fact, there are two distinct ways that a browser event can be broadcast across a page. Individual listeners can affect these events in various ways as well. In addition to event _types_, I'll also explain event _propagation_ in this section. After completing this first section, you will have a good understanding of the core concepts surrounding browser events. This will allow you to effectively follow the subsequent sections that outline specific use of the events API.
 
 
-### Event types: Custom, and native
+### Event types: Custom, and native {#event-types}
 
 To start off my comprehensive coverage of browser events, I'll now introduce you to the two high-level categories that all events fit into: "custom", and "native". Native events are those defined in one of the official web specifications, such as those maintained by [WHATWG or W3C](#whatwg-vs-w3c). A listing of most events can be found in the [DOM Level 3 UI Events specification][dom3-ui-events-w3c], maintained by the W3C. Please note that this is _not_ an exhaustive list, it only contains a subset of the events available today. Some of the native events include "click", which is an event that is triggered by the browser when a DOM element is selected via a pointed device or keyboard. Another common event is "load", which is fired when an `<img>`, document in a `window`, or `<iframe>` has successfully loaded. There are quite a few different native events available. A good resource that provides a list of all currently available native events can be seen on the [Mozilla Developer Network events page][events-mdn].
 
-Custom events are, as you might expect, non-standard events that are specific to a particular application or library. They can be created on-demand to support dynamic event-based workflows. For example, consider a file upload library that would like to fire an event whenever an file upload has started, and then another when the file upload is finished. Just after (or perhaps just before) the upload commences, the library might want to fire an "uploadStart" event, and then "uploadComplete" once the file is successfully on the server. There really aren't any native events that provide the semantics needed for this situation, so custom events are the best solution. Luckily, the DOM API does provide a way to trigger custom events. While triggering custom events has been a bit of a hassle cross-browser without a [polyfill](#shims-and-polyfills), that is slowly changing. More on that later.
+Custom events are, as you might expect, non-standard events that are specific to a particular application or library. They can be created on-demand to support dynamic event-based workflows. For example, consider a file upload library that would like to fire an event whenever an file upload has started, and then another when the file upload is finished. Just after (or perhaps just before) the upload commences, the library might want to fire an "uploadStart" event, and then "uploadComplete" once the file is successfully on the server. It can even fire an "uploadError" event if a file upload ends prematurely. There really aren't any native events that provide the semantics needed for this situation, so custom events are the best solution. Luckily, the DOM API does provide a way to trigger custom events. While triggering custom events has been a bit of a hassle cross-browser without a [polyfill](#shims-and-polyfills), that is slowly changing. More on that later.
 
 There is an interesting limitation associated with jQuery when dealing with custom events, something you won't find anywhere in the jQuery documentation. A custom event created and triggered without jQuery can be observed and handled using jQuery's event API. However, a custom event created and triggered with jQuery's event API _cannot_ be observed and handled without also using jQuery's event API. In other words, custom events created by jQuery are entirely proprietary and non-standard. The reason for this is actually quite simple. While it is possible for jQuery to trigger all event handlers on a specific element for a native DOM event, it is _not_ possible to do the same for custom events, nor is it possible to query a specific HTML element for its attaches event listeners. For this reason, jQuery custom events are only usable by jQuery custom event handlers.
 
@@ -229,7 +229,8 @@ libraryElement.dispatchEvent(event);
 
 Instead of creating an 'Event', as we did when attempting to trigger a native DOM event in Internet Explorer in the previous section, we must instead create a 'CustomEvent'. This exposes an `initCustomEvent` method, which is defined on the `CustomEvent` interface. This special method allows us to pass custom data along with this event, such as the image ID in this case.
 
-The above code currently (as of early 2016) works in all modern browsers, but this _may_ change in the future, since [`CustomEvent.initCustomEvent` has been deprecated in the W3C UI Events specification][customevent-w3c]. This means that is may be removed from any future browser version. To make our code future proof and still ensure it works in Internet Explorer, we will need to use the same check for the `CustomEvent` constructor from the previous section.
+{#customevent-workaround}
+The above code currently (as of early 2016) works in all modern browsers, but this _may_ change in the future once the `CustomEvent` constructor is supported in all browsers. It _may_ be removed from any future browser version. To make our code future proof and still ensure it works in Internet Explorer, we will need to use the same check for the `CustomEvent` constructor from the previous section.
 
 {title="triggering custom events - web API - all modern browsers", lang=javascript}
 ~~~~~~~
@@ -478,10 +479,62 @@ someElement.addEventListener('click', function(event) {
 Note that both jQuery and the web API offer a shortcut to prevent an event's default action _and_ to prevent the event from reaching handlers on subsequent DOM nodes. You can effectively call `event.preventDefault()` and `event.stopPropagation()` by returning `false` in your event handler.
 
 
-## Attaching data to events
+## Passing data to event handlers
 
-%% passing data to native DOM event handlers
-%% ... to custom data event handlers
+Sometimes the standard data associated with an event is not enough. Sometimes event handlers need more specific information about the event they are handling. Remember the "uploadError" custom event I detailed in the [event types section](#event-types)? This is triggered from a library embedded on a page, and the "uploadError" event provides information to listeners outside of the library about a failed file upload. Suppose the file upload library we are using is attached to a container element, and our application wraps this container element and registers an "uploadError" event handler. When a particular file upload fails, this event is triggered and our handler displays an information message to the user. In order to customize this message, we need the name of the failed file. The upload library can pass the file's name to our handler in the `Event` object.
+
+First, let's review how data is passed to event handlers with jQuery:
+
+{title="pass data to a custom event handler - jQuery", lang=javascript}
+~~~~~~~
+// send the failed filename w/ an error event
+$uploaderElement.trigger('uploadError', {
+  filename: 'picture.jpeg'
+});
+
+// ...and this is a listener for the event
+$uploaderParent.on('uploadError', function(event, data) {
+  showAlert('Failed to upload ' + data.filename);
+});
+~~~~~~~
+
+jQuery makes the object passed to the `trigger` function available to any event listeners via a second parameter passed to the handler. With this, we can access any properties on the passed object.
+
+To achieve the same result with the web API, we would make use of `CustomElement` and its built-in ability to handle data.
+
+{title="pass data to a custom event handler - web API - all modern browsers exception IE", lang=javascript}
+~~~~~~~
+// send the failed filename w/ an error event
+var event = new CustomEvent('uploadError', {
+  bubbles: true,
+  detail: {filename: 'picture.jpeg'}
+});
+uploaderElement.dispatchEvent(event);
+
+// ...and this is a listener for the event
+uploaderParent.addEventListener('uploadError', function(event) {
+  showAlert('Failed to upload ' + event.detail.filename);
+});
+~~~~~~~
+
+This is not as succinct as the jQuery solution, but it works, at least in all modern browsers other than IE. For a more cross-browser solution, you can rely on the old custom event API, as demonstrated earlier. I'll focus only on the old API in the following demonstration, but I encourage you to read about a more [future-proof method of creating `CustomEvent` instances](#customevent-workaround) covered earlier.
+
+{title="pass data to a custom event handler - web API - all modern browsers exception IE", lang=javascript}
+~~~~~~~
+// send the failed filename w/ an error event
+var event = document.createEvent('CustomEvent');
+event.initCustomEvent('uploadError', true, true, {
+  filename: 'picture.jpeg'
+});
+uploaderElement.dispatchEvent(event);
+
+// ...and this is a listener for the event
+uploaderParent.addEventListener('uploadError', function(event) {
+  showAlert('Failed to upload ' + event.detail.filename);
+});
+~~~~~~~
+
+In both cases, the data attach to the `CustomEvent` is available to our listeners via a [standardized `detail` property][customevent-detail]. With the `CustomEvent` constructor, this data is provided on a `detail` property of the object passed when creating a new instance. The `detail` property on this object matches the `detail` property on the `CustomEvent` object available to our listeners, which is nice and consistent. Our listeners still have access to this same `detail` property when setting up our "uploadError" event, it is buried in a sea of parameters passed to `initCustomEvent`. In my experience, anything more than 2 parameters is confusing and non-intuitive. This is not an uncommon preference, which may explain why the more modern `CustomEvent` constructor only mandates two parameters, the second being an object where all custom event is provided.
 
 
 ## Event delegation: powerful and underused {#event-delegation}
@@ -509,7 +562,7 @@ Note that both jQuery and the web API offer a shortcut to prevent an event's def
 [basecamp-capturing]: https://signalvnoise.com/posts/3137-using-event-capturing-to-improve-basecamp-page-load-times
 [blur-w3c]: https://www.w3.org/TR/uievents/#event-type-blur
 [createevent-document]: https://www.w3.org/TR/DOM-Level-3-Events/#widl-DocumentEvent-createEvent
-[customevent-w3c]: https://www.w3.org/TR/uievents/#idl-interface-CustomEvent-initializers
+[customevent-detail]: https://dom.spec.whatwg.org/#dom-customevent-detail
 [dom2-events]: https://www.w3.org/TR/DOM-Level-2-Events/
 [dom3-ui-events-w3c]: https://www.w3.org/TR/DOM-Level-3-Events
 [dom4-event]: https://www.w3.org/TR/dom/#interface-event
