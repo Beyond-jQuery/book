@@ -538,11 +538,86 @@ In both cases, the data attach to the `CustomEvent` is available to our listener
 
 
 ## Event delegation: powerful and underused {#event-delegation}
-%% Penalty for too many events listeners?
-%% Why else are delegated events important?
-%% React has even built this in to their library.
-%% Scenario where delegated event handling is very useful
-%% jQuery vs web API handling
+
+There have been multiple occasions where I have danced around and entirely avoided a very important topic - event delegation. Simply put, event delegation involves attaching a single event handler to a top-level element with the intention of handling events that bubble up from descendant elements. The event handler logic in this top-level element may contain code paths that differ based on the event target element (the element that first received the event). But why do this? Why not simply attach specific event handlers directly to the appropriate elements?
+
+One reason that has been discussed ad nauseam is potential performance benefits of delegated event handlers. CPU cycles are saved by binding a single event handler that is responsible for monitoring events on many descendant elements, as opposed to querying each element and attaching a dedicated handler function to each element directly. This theory makes a lot of sense, and of course it's true. But how much time in terms of CPU cycles is really saved here? I suppose the answer to that question is: it depends. It depends on how many elements you intend to monitor, for one.
+
+It's hard to imagine a common scenario where delegated event handling is both desirable and detrimental to performance. The practice has caught on, partially for the expected performance reasons, and also due to the ability to centralize event handling code to one specific root element instead of spreading it out across the DOM. Take React for example. React is a JavaScript library that focuses specifically on the "view" portion of a typical Model View Controller web application. In terms of event handling, [React has implemented an interesting abstraction][eventdelegation-react]:
+
+>React doesn't actually attach event handlers to the nodes themselves. When React starts up, it starts listening for all events at the top level using a single event listener.
+
+In other words, all event handlers attached to elements with React are promoted to a single delegated event handler on a common parent element. Perhaps you still don't see an instance where delegated event handlers are appropriate. In the rest of this section, I'll focus on a simple example that demonstrates the power of event delegation.
+
+Suppose you have a list filled with list items, each with a button that removes an item from the list. You _could_ attach a click handler to each individual list item's button. But doesn't it seem like the wrong approach to loop over all of the button elements and attach the very same click handler function to each? You may argue that this is not unreasonable, and even easy to accomplish. But what if new items can added to this list dynamically after the initial page load. Now attaching a new event handler to each new list item, as it is added, becomes less appealing.
+
+The best solution here is to use event delegation. In other words, attach one click handler to the list element. When any of the delete buttons inside of the list item elements are clicked, the event will bubble up to the list element. At this point, your one event handler will be hit and you can easily determine, by inspecting the event object, which list item was clicked and respond appropriately by removing the associated list item. Below, we're using some text to make our delete buttons more accessible, as well as close/remove icons from the [Ionicons site][ionicons] to enhance the appearance of our buttons.
+
+The HTML for such a list may look something like this:
+
+{title="list with removable items", lang=html}
+~~~~~~~
+<link href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css"
+      rel="stylesheet">
+<ul id="cars-list">
+    <li>Honda
+      <button>
+        <span>delete</span>
+        <span class="ion-close-circled"></span>
+      </button>
+    </li>
+    <li>Toyota
+      <button>
+        <span>delete</span>
+        <span class="ion-close-circled"></span>
+      </button>
+    </li>
+    <li>Kia
+      <button>
+        <span>delete</span>
+        <span class="ion-close-circled"></span>
+      </button>
+    </li>
+    <li>Ford
+      <button>
+        <span>delete</span>
+        <span class="ion-close-circled"></span>
+      </button>
+    </li>
+</ul>
+~~~~~~~
+
+With jQuery, we can use the `click` alias to attach a click handler to the `<ul>` and delete the appropriate car list item by inspecting the event object:
+
+{title="delegated event handling - jQuery", lang=javascript}
+~~~~~~~
+$('#cars-list').on('click', 'button', function() {
+    $(this).closest('li').remove();
+});
+~~~~~~~
+
+But wait, we didn't have to examine the event object at all! jQuery provides a nice feature here by setting the event handler function's context (`this`) to the click element target. Note that this click event might target the "delete" span element _or_ the "x" icon, depending upon which of these elements are selected by our user. In either case, we are _only_ interested in click on the `<button>` or its children. jQuery ensures that our event handler will only be called if this is true, and at that point we can use jQuery's `closest` method to find the associated `<li>` and remove it from the DOM.
+
+{title="delegated event handling - web API - all modern browsers (with `closest` shim)", lang=javascript}
+~~~~~~~
+document.querySelector('#cars-list')
+  .addEventListener('click', function(event) {
+    if (event.target.closest('button')) {
+      var li = event.target.closest('li');
+      li.parentElement.removeChild(li);    
+    }
+  });
+~~~~~~~
+
+The above pure web API solution is a bit more verbose than jQuery's API (ok, it's a _lot_ more verbose). But it shows how to accomplish a few common goals _without_ jQuery:
+
+1. Attach a click event handler to an element.
+2. Examine an `Event` object to focus on events triggered only by one of our `<button>` elements.
+3. Remove the `<li>` associated with the clicked delete button.
+
+We're making use of `Element.closest` here to easily find the parent `<li>` and determine if the event target's parent is indeed a `<button>`, all without explicitly accounting for the fact that the event target may be multiple levels beneath the `<button>` or `<li>`. Since `Element.closest` is not supported in Internet Explorer, Microsoft Edge (at least, as of version 13), or older versions of iOS Safari and Android, you'll need to make use of [the shim demonstrated in the "Finding Elements" chapter](#element-closest) if you require solid cross-browser support.
+
+This may all seem a bit inelegant compared to jQuery, and that may certainly be true. But remember, the mission of "Beyond jQuery" isn't necessarily about compelling you to eschew jQuery or any other library, but rather to show you how to solve the same problems by yourself _without_ the aid of third-party dependencies. The knowledge gained from these exercises and demonstrations will empower you as a web developer by offering insight into the web API and allow you to make better decisions when deciding if your project will benefit from some outside help. And perhaps you will elect to pull in small and focused shims (such as the `Element.closest` polyfill demonstrated earlier) instead of depending on a large library like jQuery.
 
 
 ## Handling and triggering keyboard events
@@ -566,10 +641,12 @@ In both cases, the data attach to the `CustomEvent` is available to our listener
 [dom2-events]: https://www.w3.org/TR/DOM-Level-2-Events/
 [dom3-ui-events-w3c]: https://www.w3.org/TR/DOM-Level-3-Events
 [dom4-event]: https://www.w3.org/TR/dom/#interface-event
+[eventdelegation-react]: https://facebook.github.io/react/docs/interactivity-and-dynamic-uis.html#under-the-hood-autobinding-and-event-delegation
 [event-jquery]: https://api.jquery.com/category/events/event-object/
 [events-mdn]: https://developer.mozilla.org/en-US/docs/Web/Events
 [event-object-w3c]: https://www.w3.org/TR/uievents/#h-event-interfaces
 [focus-w3c]: https://www.w3.org/TR/uievents/#event-type-focus
 [htmlelement-html5]: https://www.w3.org/TR/html5/dom.html#htmlelement
 [htmlform-html5]: https://www.w3.org/TR/html5/forms.html#the-form-element
+[ionicons]: http://ionicons.com/
 [mousedown-w3c]: https://www.w3.org/TR/DOM-Level-3-Events/#event-type-mousedown

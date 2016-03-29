@@ -621,6 +621,7 @@ while (currentNode.parentElement) {
 }
 ~~~~~~~
 
+{#element-closest}
 We already know that jQuery provides a method that allows us to easily find the first matching ancestor of an element, `closest`. The web API has a similar method on the `Element` interface, also called `closest`. [`Element.closest()`][dom-element-closest] [is part of the WHATWG DOM "living standard"][whatwg-dom]. This method behaves exactly like jQuery's `closest()`. Unfortunately, browser support for this method is missing from any version of Internet Explorer, Microsoft Edge, and Safari as of 2015. In the following example, I'll demonstrate how the web API's `closest()` method can be used, and I will even include a simple fallback for browsers _without_ native support. Let's again use our example markup and try to locate the closest ancestor of the `<a>` that is a `<div>`.
 
 I> You may remember from the previous chapter that [the WHATWG develops a set of web specifications that differ a bit from the traditional W3C specs](#whatwg-vs-w3c).
