@@ -621,7 +621,17 @@ This may all seem a bit inelegant compared to jQuery, and that may certainly be 
 
 
 ## Handling and triggering keyboard events
-%% why is there a special section for this?
+
+Keyboard events are, as you might expect, native DOM event triggered by the browser when a user presses a key on their keyboard. Just like all other events, keyboard events bubble up the DOM, starting with the focused element that first receives the event. You might be wondering why I have dedicated a special section exclusively to keyboard events. As you'll see shortly, key events are a bit different than the other DOM and custom events discussed earlier. Plus, keyboard events _can_ be a bit trickier to handle than the other DOM events. This is mostly due to mostly misunderstood multiple keyboard event types _and_ the confusing array of event properties used to identify keys with varying browser support. Fear not, after this section, you'll have a pretty good understanding of keyboard events. You'll fully comprehend when to use the three types of keyboard events, how to identify the pressed key, and event how to put this knowledge to use to solve real problems.
+
+### 3 types of keyboard events
+%% keydown (any char), keypress (printable char), keyup (any char completed)
+
+### Identifying pressed keys
+%% prefer KeyboardEvent.key, fall back to KeyboardEvent.which
+
+### Making an image gallery keyboard accessible
+%% demo: an image gallery (left arrow for prev image, right arrow for next image)
 
 
 ## Determining when something has loaded
