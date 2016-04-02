@@ -624,11 +624,79 @@ This may all seem a bit inelegant compared to jQuery, and that may certainly be 
 
 Keyboard events are, as you might expect, native DOM event triggered by the browser when a user presses a key on their keyboard. Just like all other events, keyboard events bubble up the DOM, starting with the focused element that first receives the event. You might be wondering why I have dedicated a special section exclusively to keyboard events. As you'll see shortly, key events are a bit different than the other DOM and custom events discussed earlier. Plus, keyboard events _can_ be a bit trickier to handle than the other DOM events. This is mostly due to mostly misunderstood multiple keyboard event types _and_ the confusing array of event properties used to identify keys with varying browser support. Fear not, after this section, you'll have a pretty good understanding of keyboard events. You'll fully comprehend when to use the three types of keyboard events, how to identify the pressed key, and event how to put this knowledge to use to solve real problems.
 
+
 ### 3 types of keyboard events
-%% keydown (any char), keypress (printable char), keyup (any char completed)
+
+Each key on your keyboard is _not_ a separate event type. Instead, a keyboard-triggered action is attached to one of three possible keyboard-specific event types:
+
+1. keydown
+2. keyup
+3. keypress
+
+The browser triggers a "keydown" event before a pushed key is released. It may fire repeatedly if the key is held down, and is triggered for _any_ key on the keyboard (even shift/ctrl/command/etc). Though some keys will _not_ trigger multiple "keydown" events when held, such as shift/command/option/function. jQuery provides a `keydown` alias in its API to handle these events:
+
+{title="keydown event handler - jQuery", lang=javascript}
+~~~~~~~
+$(document).keydown(function(event) {
+  // do something with this event
+});
+~~~~~~~
+
+...and the same event can be handled without jQuery using trusty 'ole `addEventListener`:
+
+{title="keydown event handler - web API - modern browsers", lang=javascript}
+~~~~~~~
+document.addEventListener('keydown', function(event) {
+  // do something with this event  
+});
+~~~~~~~
+
+After a key (any key) in the down position is released, the browser fires a "keyup" event. The logic for handling this event is identical to "keydown" - just replace "keydown" with "keyup" in the code samples above. In fact, the same is true for the "keypress" event, which is the the final keyboard event type. The "keypress" event is _very_ similar to "keyup" - it is also triggered when a pressed key is in the down position. The only difference is that "keypress" events are only fired for printable characters. For example, pressing the "a", "enter" or "1" keys will trigger a "keypress" event. Conversely, "shift", "command", and the arrow keys will _not_ result in a "keypress" event.
+
 
 ### Identifying pressed keys
-%% prefer KeyboardEvent.key, fall back to KeyboardEvent.which
+
+Suppose we are building a modal dialog. If a user of our dialog presses the "ESC" key, we would like to close the dialog. In order to accomplish this, we need to do a few things:
+
+1. Listen for "keydown" events on the document.
+2. Determine if the "keydown" event corresponds to the "ESC" key.
+3. If the "keydown" event _is_ the result of pressing "ESC", close the modal dialog.
+
+If we are using jQuery, our code will look something like this:
+
+{title="closing a modal dialog on ESC - jQuery", lang=javascript}
+~~~~~~~
+$(document).keydown(function(event) {
+  if (event.which === 27) {
+    // close the dialog...
+  }
+});
+~~~~~~~
+
+The number 27 corresponds to [the ESC key's key code][keycodes-w3c]. We can make use of the same key code without jQuery by also looking at the `which` property on the `KeyboardEvent` that our handler receives:
+
+{title="closing a modal dialog on ESC - web API - modern browsers", lang=javascript}
+~~~~~~~
+document.addEventListener('keydown', function(event) {
+  if (event.which === 27) {
+    // close the dialog...
+  }
+});
+~~~~~~~
+
+But the web API is beginning to advance beyond jQuery in this respect. The [UI Events Specification][uievents-w3c], maintained by the W3C, defines a _new_ property on `KeyboardEvent`: [`key`][key-uievents]. When a key is pressed, the `KeyboardEvent` (in supported browsers) will contain a `key` property with a value that corresponds to the exact key pressed (for printable characters) _or_ a standardized string that describes the pressed key (for non-printable characters). For example, if the "a" key is pressed, the `key` property on the corresponding `KeyboardEvent` will contain a value of "a". In our case, the ESC key is represented as the string "Escape". This value, along with the `key` values for other non-printable characters, are [defined in the DOM Level 3 Events specification][dom3events-key], also maintained by W3C. If we are able to use this `key` property, our code can look like this:
+
+{title="closing a modal dialog on ESC - web API - some modern browsers", lang=javascript}
+~~~~~~~
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') {
+    // close the dialog...
+  }
+});
+~~~~~~~
+
+At the moment, Chrome and Safari do _not_ yet have support for this `KeyboardEvent` property, but IE9 and Firefox do. This will likely change as Chrome and Safari evolve. In the meantime, you may want to stick to the `which` property until all browsers have support for `key`.
+
 
 ### Making an image gallery keyboard accessible
 %% demo: an image gallery (left arrow for prev image, right arrow for next image)
@@ -649,6 +717,7 @@ Keyboard events are, as you might expect, native DOM event triggered by the brow
 [createevent-document]: https://www.w3.org/TR/DOM-Level-3-Events/#widl-DocumentEvent-createEvent
 [customevent-detail]: https://dom.spec.whatwg.org/#dom-customevent-detail
 [dom2-events]: https://www.w3.org/TR/DOM-Level-2-Events/
+[dom3events-key]: https://www.w3.org/TR/DOM-Level-3-Events-key/
 [dom3-ui-events-w3c]: https://www.w3.org/TR/DOM-Level-3-Events
 [dom4-event]: https://www.w3.org/TR/dom/#interface-event
 [eventdelegation-react]: https://facebook.github.io/react/docs/interactivity-and-dynamic-uis.html#under-the-hood-autobinding-and-event-delegation
@@ -659,4 +728,7 @@ Keyboard events are, as you might expect, native DOM event triggered by the brow
 [htmlelement-html5]: https://www.w3.org/TR/html5/dom.html#htmlelement
 [htmlform-html5]: https://www.w3.org/TR/html5/forms.html#the-form-element
 [ionicons]: http://ionicons.com/
+[keycodes-w3c]: https://lists.w3.org/Archives/Public/www-dom/2010JulSep/att-0182/keyCode-spec.html#fixed-virtual-key-codes
+[key-uievents]: https://www.w3.org/TR/uievents/#widl-KeyboardEvent-key
 [mousedown-w3c]: https://www.w3.org/TR/DOM-Level-3-Events/#event-type-mousedown
+[uievents-w3c]: https://www.w3.org/TR/uievents/
