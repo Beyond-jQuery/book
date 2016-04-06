@@ -314,7 +314,7 @@ $(someElement).one('click', function() {
 
 After the attached handler function is executed, the click event will no longer be observed.
 
-### Observing events with the web API
+### Observing events with the web API {#observing-events}
 
 Since the beginning of time (almost), there have been two simple ways to attach an event handler to a specific DOM element, both can be considered "inline". The first involves including the event handler function as the value of an attribute of the element in the document markup:
 
@@ -698,8 +698,86 @@ document.addEventListener('keydown', function(event) {
 At the moment, Chrome and Safari do _not_ yet have support for this `KeyboardEvent` property, but IE9 and Firefox do. This will likely change as Chrome and Safari evolve. In the meantime, you may want to stick to the `which` property until all browsers have support for `key`.
 
 
-### Making an image gallery keyboard accessible
-%% demo: an image gallery (left arrow for prev image, right arrow for next image)
+### Making an image carousel keyboard accessible with the web API
+
+One important benefit of mastering keyboard events - accessibility. An accessible web application is one that can be easily used by those with varying requirements. Perhaps the most common accessibility consideration involves ensuring that those without the ability to use a pointing device can completely and effectively navigate the web application. This requires, in some cases, listening for keyboard events and responding appropriately.
+
+Suppose you are building an image carousel library. An array of image URLS is passed to the carousel, the first image is rendered in a full-screen modal dialog, and the user can move to the next or previous image by clicking on buttons on either side of the current image. Making it possible to cycle through the images with the keyboard allows those without the ability to use a pointing device to use the carousel. It also adds convenience to the carousel for those who simply don't _want_ to use a mouse or trackpad.
+
+Just to keep this simple, let's say our image gallery HTML template looks like this:
+
+{title="image gallery markup", lang=html}
+~~~~~~~
+<div class="image-gallery">
+  <button class="previous" type="button">Previous</button>
+  <img>
+  <button class="next" type="button">Next</button>
+</div>
+~~~~~~~
+
+...and JavaScript to cycle through the images when a button is clicked looks like this:
+
+{title="support for cycling though images using button clicks - modern browsers", lang=javascript}
+~~~~~~~
+// assuming we have an array of images in an `images` var
+var currentImageIndex = 0;
+var container = document.querySelector('.image-gallery');
+var updateImg = function() {
+  container.querySelector('img').src =
+    images[currentImageIndex];
+};
+var moveToPreviousImage = function() {
+  if (currentImageIndex === 0) {
+    currentImageIndex = images.length - 1;
+  }
+  else {
+    currentImageIndex--;
+  }
+  updateImg();
+};
+var moveToNextImage = function() {
+  if (currentImageIndex === images.length - 1) {
+    currentImageIndex = 0;
+  }
+  else {
+    currentImageIndex++;
+  }
+  updateImg();
+};
+
+updateImg();
+
+container.querySelector('.previous')
+  .addEventListener('click', function() {
+    moveToPreviousImage();
+  });
+
+container.querySelector('.next')
+  .addEventListener('click', function() {
+    moveToNextImage();
+  });
+~~~~~~~
+
+If we want to allow our users to move though the set of images with the left and right arrow keys, we can attach keyboard event handlers to the left and right arrows and delegate to the existing `moveToPreviousImage` and `moveToNextImage` functions as appropriate:
+
+{title="support for cycling though images using button clicks - modern browsers", lang=javascript}
+~~~~~~~
+// add this after the block of code above:
+document.addEventListener('keydown', function(event) {
+  // left arrow
+  if (event.which === 37) {
+    event.preventDefault();
+    moveToPreviousImage();
+  }
+  // right arrow
+  else if (event.which === 39) {
+    event.preventDefault();
+    moveToNextImage();
+  }
+});
+~~~~~~~
+
+The addition of `event.preventDefault()` above ensures our arrow keys _only_ change the image in this context instead of providing any undesired default actions, such as scrolling the page. In our example above, it's not clear when our carousel is no longer in use, but we would likely provide some mechanism to close the carousel. Once the carousel is closed, don't forget to use `removeEventListener` to unregister the keydown event handler. You'll need to refactor the event listener code such that the logic is moved into a standalone function. This will make it easy to unregister the keydown handler by passing `removeEventListener` the 'keydown' event type as the first parameter, and the event listener function variable as the second. For more information on using `removeEventListener`, check out the [observing events section above](#observing-events).
 
 
 ## Determining when something has loaded
