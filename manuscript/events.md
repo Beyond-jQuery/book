@@ -782,6 +782,130 @@ The addition of `event.preventDefault()` above ensures our arrow keys _only_ cha
 
 ## Determining when something has loaded
 
+The following questions may occur to you as a web developer at one point or another:
+
+- When have all elements on the page fully loaded and rendered w/ applied styles?
+- When has all static markup been placed on the page?
+- When has a particular element on the page fully loaded? When has an element _failed_ to load?
+
+The answer to allow of these questions lies in the browser's native event system. The ["load" event][load-uievents], defined in the W3C UI Events specification, allows us to determine when an element or page has loaded. There are some other related events, such as "DOMContentLoaded" and "beforeupload". I'll discuss both of those as well in this section.
+
+
+### When have all elements on the page fully loaded and rendered w/ applied styles?
+
+In other to answer this particular question, we can rely on the "load" event fired by the `window` object. This event will  be fired after:
+
+1. All markup has been placed on the page.
+2. All stylesheets have been loaded.
+3. All `<img>` elements have loaded.
+4. All `<iframe>` elements have fully loaded.
+
+jQuery provides an alias for the "load" event, similar to other many other DOM events:
+
+{title="determine when a page has loaded - jQuery", lang=javascript}
+~~~~~~~
+$(window).load(function() {
+  // page is fully rendered
+})
+~~~~~~~
+
+...but you can also use the generic `on` method and pass in the name of the event - "load" - as well:
+
+{title="determine when a page has loaded - jQuery", lang=javascript}
+~~~~~~~
+$(window).on('load', function() {
+  // page is fully rendered
+})
+~~~~~~~
+
+The web API solution looks almost exactly like the above jQuery code. We're making using of `addEventListener`, which is available to all [modern browsers](#modern-browsers), and passing the name of the event followed by a callback to be invoked when the page has been loaded.
+
+{title="determine when a page has loaded - web API - modern browsers", lang=javascript}
+~~~~~~~
+window.addEventListener('load', function() {
+  // page is fully rendered
+})
+~~~~~~~
+
+But why might we care about this event? Why is it important to know when the page has entirely loaded? The most common understanding of the load event is that it should be used to determine when it is safe to perform DOM manipulation. This is technically true, but waiting for the "load" event is probably unnecessary. Do you really need to ensure all images, stylesheets, and iframes have loaded before operating on the document? Probably not.
+
+
+### When has all static markup been placed on the page?
+
+Another question we can ask here: When is the earliest point at which I can safely operate on the DOM? The answer to this and the headlining question is the same: wait for the browser to fire the "DOMContentLoaded" event. This event fires after all markup has been placed on the page, which means it often occurs much sooner than "load".
+
+jQuery provides a "ready" function that mirrors the behavior of the native "DOMContentLoaded". But under the covers, it delegates to "DOMContentLoaded" itself. Here's how you have been determining when a page is ready for interaction with jQuery:
+
+{title="determine when initial page content has been added - jQuery", lang=javascript}
+~~~~~~~
+$(document).ready(function() {
+  // markup is on the page
+})
+~~~~~~~
+
+You may even be familiar with the shorthand version:
+
+{title="determine when initial page content has been added - jQuery", lang=javascript}
+~~~~~~~
+$(function() {
+  // markup is on the page
+})
+~~~~~~~
+
+Since jQuery just makes use of the browser's native "DOMContentLoaded" event in modern browsers to feed its `ready` API method, we can build our own `ready` using "DOMContentLoaded" with `addEventListener`:
+
+{title="determine when initial page content has been added - web API - modern browsers", lang=javascript}
+~~~~~~~
+document.addEventListener('DOMContentLoaded', function() {
+  // markup is on the page
+})
+~~~~~~~
+
+Note that you will likely want to ensure your script that registers the "DOMContentLoaded" event handler is placed before any stylesheet `<link>` tags, since loading these stylesheets will block any script execution and prolong the "DOMContentLoaded" event until the defined stylesheets have completely loaded.
+
+
+### When has a particular element on the page fully loaded? When has it failed to load?
+
+In addition to `window`, load events are associated with a number of elements, such as `<img>`, `<link>`, and `<script>`. The most common use of this event outside of `window` is to determine when a specific image has loaded. The appropriately named "error" event is used to signal a failure to load an image (or a `<link>` or `<script>`, for example).
+
+jQuery, as you might expect, has aliases in its API for the "load" and "error" events. So to determine if an image has loaded or failed to load with jQuery, we can use the aliases, or simply rely on the `on` method. Our code looks something like this:
+
+{title="determining image load status - jQuery", lang=javascript}
+~~~~~~~
+$('img').load(function() {
+  // image has successfully loaded
+})
+
+// ... or
+$('img').on('load', function() {
+  // image has successfully loaded
+})
+
+$('img').error(function() {
+  // image has failed to load
+})
+
+// ...or
+$('img').on('error', function() {
+  // image has failed to load
+})
+~~~~~~~
+
+There is a one-to-one mapping between the event names used in jQuery and those used in the browser's native event system. As you might expect, jQuery relies on the browser's "load" and "error" events to signal success and failure, respectively. So, the same end can be reached without jQuery by registering for these events with `addEventListener`:
+
+{title="determining image load status - web api - modern browsers", lang=javascript}
+~~~~~~~
+document.querySelector('img').addEventListener('load', function() {
+  // image has successfully loaded
+})
+
+document.querySelector('img').addEventListener('error', function() {
+  // image has failed to load
+})
+~~~~~~~
+
+As we've seen many times before, the syntax between jQuery and the Web API here for modern browsers is strikingly similar.
+
 
 ## A history lesson: Ancient browser support
 %% listening/handling/un-listening
@@ -808,5 +932,6 @@ The addition of `event.preventDefault()` above ensures our arrow keys _only_ cha
 [ionicons]: http://ionicons.com/
 [keycodes-w3c]: https://lists.w3.org/Archives/Public/www-dom/2010JulSep/att-0182/keyCode-spec.html#fixed-virtual-key-codes
 [key-uievents]: https://www.w3.org/TR/uievents/#widl-KeyboardEvent-key
+[load-uievents]: https://www.w3.org/TR/uievents/#event-type-load
 [mousedown-w3c]: https://www.w3.org/TR/DOM-Level-3-Events/#event-type-mousedown
 [uievents-w3c]: https://www.w3.org/TR/uievents/
