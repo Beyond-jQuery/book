@@ -893,7 +893,7 @@ $('img').on('error', function() {
 
 There is a one-to-one mapping between the event names used in jQuery and those used in the browser's native event system. As you might expect, jQuery relies on the browser's "load" and "error" events to signal success and failure, respectively. So, the same end can be reached without jQuery by registering for these events with `addEventListener`:
 
-{title="determining image load status - web api - modern browsers", lang=javascript}
+{title="determining image load status - web API - modern browsers", lang=javascript}
 ~~~~~~~
 document.querySelector('img').addEventListener('load', function() {
   // image has successfully loaded
@@ -908,12 +908,115 @@ As we've seen many times before, the syntax between jQuery and the Web API here 
 
 
 ## A history lesson: Ancient browser support
-%% listening/handling/un-listening
-%% forms
-%% working with the Event object
-%% load events
+
+This final section in the events chapter is where I describe a time when jQuery _was_ a required library for web applications. This section applies to [ancient browsers](#ancient-browsers) only. Back when it was common to support Internet Explorer 8, the web API was a bit of a mess in _some_ instances. This was especially true when dealing with the browser's event system. In this section, I'll discuss how you can manage, observe, and fire events in ancient browsers. Since ancient browsers are becoming less important to worry about, all of this serves as more of a history lesson than a tutorial. Please keep that in mind when reading this section, as it is not intended to be a comprehensive guide to event handling in super-old browsers.
 
 
+### The API for listening to events is non-standard
+
+Take a look at the following code snippet which register for a click event:
+
+{title="observing native DOM events - web API - ancient browsers", lang=javascript}
+~~~~~~~
+someElement.attachEvent('onclick', function() {
+  // do something with the click event...
+})
+~~~~~~~
+
+You'll notice two distinct differences between this and the modern browser approach:
+
+1. We are relying on `attachEvent` instead of `addEventListener`.
+2. The click event name includes a prefix of "on".
+
+The [`attachEvent` method][attachevent-msdn] is proprietary to Microsoft's Internet Explorer. In fact, it is still technically supported up until (and including) Internet Explorer 10. `attachEvent` was never part of any official standard. Unless you must support IE8 and older, avoid using `attachEvent` entirely. The W3C standardized `addEventListener` provides a more elegant and comprehensive solution for observing events.
+
+Perhaps you're wondering how you can programmatically use the correct event handling method based on the current browser's capabilities. If you're developing apps exclusively for modern browsers, this isn't a concern. But if, for some reason, you must target ancient browsers such as IE8 (or older), you can use the following code to register for an event in _any_ browser:
+
+{title="observing native DOM events - web API - all browsers", lang=javascript}
+~~~~~~~
+function registerHandler(target, type, callback) {
+  var listenerMethod = target.addEventListener
+        || target.attachEvent,
+
+      eventName = target.addEventListener
+        ? type
+        : 'on' + type;
+
+  listenerMethod(eventName, callback);
+}
+
+// example use
+registerHandler(someElement, 'click', function() {
+  // do something with the click event...
+})
+~~~~~~~
+
+And if you want to _remove_ an event handler in an ancient browser, you must use `detachEvent` instead of `removeEventListener`. `detachEvent` is another non-standard proprietary web API method. If you're looking for a cross-browser way to remove an event listener, try this out:
+
+{title="remove event handlers - web API - all browsers", lang=javascript}
+~~~~~~~
+function unregisterHandler(target, type, callback) {
+  var removeMethod = target.removeEventListener
+        || target.detachEvent,
+
+      eventName = target.removeEventListener
+        ? type
+        : 'on' + type;
+
+  removeMethod(eventName, callback);
+}
+
+// example use
+unregisterHandler(someElement, 'click', someEventHandlerFunction);
+~~~~~~~
+
+
+### Form field change events are a minefield
+
+Very old versions of Internet Explorer have some serious change-event deficiencies. Here are the two big ones that you may come across (if you haven't already):
+
+1. Change events in ancient browsers do _not_ bubble.
+2. Checkboxes and radio buttons _may_ not trigger a change event at all in ancient browsers.
+
+Keep in mind that the second issue above was _also_ reproducible when using jQuery with IE7 _and_ 8 for quite a long time. As far as I can tell, current versions of jQuery do properly address this issue though. This is yet another reminder that jQuery is not without its own bugs.
+
+To solve the change event issue, you must attach a change handler _directly_ to _any_ form field that you'd like to monitor since event delegation is not possible. In order to tackle the checkbox and radio buttons conundrum, you're best bet may be to attach a click handler directly to radio/checkbox fields instead of relying on the change event to occur at all.
+
+
+### The `Event` object is also non-standard
+
+Some properties of the `Event` object instance are a bit different in older browsers. For example, while the target of an event in modern browsers can be found by checking the `target` property of the `Event` instance, IE8 and older contain a different property for this element - `srcElement`. The relevant portion of a cross-browser event handler function may look like this:
+
+{title="determine the event target - web API - all browsers", lang=javascript}
+~~~~~~~
+function myEventHandler(event) {
+  var target = event.target || event.srcElement
+  // ...
+}
+~~~~~~~
+
+In modern browsers, the `event.target` will be truthy, which short-circuits the conditional evaluation above. But in IE8 and older, the `Event` object instance will not contain a `target` property, so the `target` variable will be the value of the `srcElement` property on the `Event`.
+
+In terms of controlling your events, the `stopPropagation` method is _not_ available on an `Event` object instance in IE8 and older. If you want to stop an event from bubbling, you must instead set the non-standard `cancelBubble` property on the `Event` instance. A cross-browser solution looks like this:
+
+{title="stop an event from bubbling - web API - all browsers", lang=javascript}
+~~~~~~~
+function myEventHandler(event) {
+  if (event.stopPropgation) {
+      event.stopPropagation();
+  }
+  else {
+      event.cancelBubble = true;
+  }
+}
+~~~~~~~
+
+IE8 and older also do not have a `stopImmediatePropagation` method. There isn't much that can be done to work around this limitation. However, I personally don't see lack of this method as a big problem. Using `stopImmediatePropagation` seems like a code smell to me since the behavior of this call is completely dependent on the order that multiple event handlers are attached to the element in question.
+
+The important takeaway for this event chapter: events are pretty simple to work with in modern browsers without jQuery, but if you are unlucky enough to support Internet Explorer 8 or older, consider using the cross-browser functions demonstrated above, or pull in a reliable events library for more complex event handling requirements.
+
+
+[attachevent-msdn]: https://msdn.microsoft.com/en-us/library/ms536343(VS.85).aspx
 [basecamp-capturing]: https://signalvnoise.com/posts/3137-using-event-capturing-to-improve-basecamp-page-load-times
 [blur-w3c]: https://www.w3.org/TR/uievents/#event-type-blur
 [createevent-document]: https://www.w3.org/TR/DOM-Level-3-Events/#widl-DocumentEvent-createEvent
@@ -922,6 +1025,7 @@ As we've seen many times before, the syntax between jQuery and the Web API here 
 [dom3events-key]: https://www.w3.org/TR/DOM-Level-3-Events-key/
 [dom3-ui-events-w3c]: https://www.w3.org/TR/DOM-Level-3-Events
 [dom4-event]: https://www.w3.org/TR/dom/#interface-event
+[domcontentloaded-workaround-mdn]: https://developer.mozilla.org/en-US/docs/Web/Events/DOMContentLoaded#Cross-browser_fallback
 [eventdelegation-react]: https://facebook.github.io/react/docs/interactivity-and-dynamic-uis.html#under-the-hood-autobinding-and-event-delegation
 [event-jquery]: https://api.jquery.com/category/events/event-object/
 [events-mdn]: https://developer.mozilla.org/en-US/docs/Web/Events
