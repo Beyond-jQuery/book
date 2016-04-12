@@ -224,7 +224,7 @@ var event = new CustomEvent('image-removed', {
 libraryElement.dispatchEvent(event);
 ~~~~~~~
 
-Above, we can easily create our custom event, trigger it, and ensure it bubbles up to ancestor elements. So, our "image-removed" event is observable outside of our library. We've also passed the image ID in the `detail` property of the event payload. More on accessing this data later on. But there's a problem here - this will _not_ work in any version of Internet Explorer. Unfortunately, as I mentioned in the last section, Explorer does not support the `Event` constructor. So, we must fall back to the following approach in IE:
+Above, we can easily create our custom event, trigger it, and ensure it bubbles up to ancestor elements. So, our "image-removed" event is observable outside of our library. We've also passed the image ID in the `detail` property of the event payload. More on accessing this data later on. But there's a problem here - this will _not_ work in any version of Internet Explorer. Unfortunately, as I mentioned in the last section, Explorer does not support the `Event` constructor. So, we must fall back to the following approach for cross-browser support:
 
 {title="triggering custom events - web API - all modern browsers", lang=javascript}
 ~~~~~~~
@@ -233,10 +233,10 @@ event.initCustomEvent('image-removed', false, true, {id: 1});
 libraryElement.dispatchEvent(event);
 ~~~~~~~
 
-Instead of creating an 'Event', as we did when attempting to trigger a native DOM event in Internet Explorer in the previous section, we must instead create a 'CustomEvent'. This exposes an `initCustomEvent` method, which is defined on the `CustomEvent` interface. This special method allows us to pass custom data along with this event, such as the image ID in this case.
+Instead of creating an 'Event', as we did when attempting to trigger a native DOM event in Internet Explorer in the previous section, we must instead create a 'CustomEvent'. This exposes an `initCustomEvent` method, which is defined on the `CustomEvent` interface. This special method allows us to pass custom data along with this event, such as our image ID.
 
 {#customevent-workaround}
-The above code currently (as of early 2016) works in all modern browsers, but this _may_ change in the future once the `CustomEvent` constructor is supported in all browsers. It _may_ be removed from any future browser version. To make our code future proof and still ensure it works in Internet Explorer, we will need to use the same check for the `CustomEvent` constructor from the previous section.
+The above code currently (as of early 2016) works in all modern browsers, but this _may_ change in the future once the `CustomEvent` constructor is supported in all browsers. It _may_ be removed from any future browser version. To make our code future proof and still ensure it works in Internet Explorer, we will need to use the check for the existence of the `CustomEvent` constructor, just as we did with the `Event` constructor in the previous section.
 
 {title="triggering custom events - web API - all modern browsers", lang=javascript}
 ~~~~~~~
@@ -260,18 +260,18 @@ else {
 libraryElement.dispatchEvent(event);
 ~~~~~~~
 
-After Internet Explorer fades into obsolesce and Microsoft Edge takes its place, the above code will no longer be needed at all.
+After Internet Explorer fades into obsolesce and Microsoft Edge takes its place, you can use the `CustomEvent` constructor exclusively and the above code will no longer be needed at all.
 
 
-## Listening (and un-listening) for event notifications
+## Listening (and un-listening) to event notifications
 
-Triggering events is one important part of passing messages around the DOM, but these events don't provide any actual value without corresponding listeners. In this section, I'll cover handling DOM and custom events. Many of you may already be familiar with the process of registering event observers with jQuery, but I'll demonstrate how this is done first so that the differences when relying exclusively on the web API are apparent.
+Triggering events is _one_ important part of passing messages around the DOM, but these events provide more value with corresponding listeners. In this section, I'll cover handling DOM and custom events. Many of you may already are familiar with the process of registering event observers with jQuery, but I'll demonstrate how this is done first so that the differences are apparent when relying exclusively on the web API.
 
 A `window` resize event handler may be important to make adjustments to a complex application as the view of your page is changed by the user. This "resize" event, which is triggered on the `window` when the browser is resized by the user, will provide us with a good way to demonstrate registering and unregistering event listeners.
 
 ### jQuery event handlers
 
-jQuery's `on` API method provides everything necessary to observe both DOM and custom events triggered on an element in the document.
+jQuery's `on` API method provides everything necessary to observe both DOM and custom events triggered on an element.
 
 {title="observing a window resize event - jQuery", lang=javascript}
 ~~~~~~~
@@ -304,7 +304,6 @@ var resizeHandler = function() {
 $(window).on('resize', resizeHandler);
 
 // ...later
-
 // remove only our resize handler
 $(window).off('resize', resizeHandler);
 ~~~~~~~
@@ -329,9 +328,9 @@ Since the beginning of time (almost), there have been two simple ways to attach 
 <button onclick="handleButtonClick()">click me</button>
 ~~~~~~~
 
-There are a couple problems with the above approach. First, this requires a global `handleButtonClick` function. If you have a number of buttons or other elements that require specific click handler functions, you will end with a cluttered and messy global namespace. Global variables and functions should always be avoided to prevent conflicts and unnecessary access to internal logic. This type of inline event handler is a step in the wrong direction for that reason.
+There are a couple problems with the above approach. First, this requires a global `handleButtonClick` function. If you have a number of buttons or other elements that require specific click handler functions, you will end with a cluttered and messy global namespace. Global variables and functions should always be avoided to prevent conflicts and uncontrolled access to internal logic. This type of inline event handler is a step in the wrong direction for that reason.
 
-A second reason this is bad - it requires mixing your JavaScript and HTML in the same file. Generally speaking, this is discouraged as it goes against the principle of separation of concerns. That is, HTML belongs in HTML files and JavaScript belongs in JavaScript files. This isolates the code such that changes are potentially less risky, and caching is improved as changes to JavaScript do not invalidate the markup files, and vice versa.
+A second reason why this is bad - it requires mixing your JavaScript and HTML in the same file. Generally speaking, this is discouraged as it goes against the principle of separation of concerns. That is, HTML belongs in HTML files and JavaScript belongs in JavaScript files. This isolates the code such that changes are potentially less risky, and caching is improved as changes to JavaScript do not invalidate the markup files, and vice versa.
 
 Another way to register for the same click event requires attaching a handler function to the element's corresponding event property:
 
@@ -342,9 +341,9 @@ buttonEl.onclick = function() {
 };
 ~~~~~~~
 
-While this approach is slightly better than the HTML-based event handler, since we are not forced to bind to a global function, it is still a non-optimal solution. You cannot specify an attribute-based event handler _and_ an element property handler for the same event on the same element. The last specified handler will effectively remove any other inline event handler on the element for a given event type. In fact, only one total inline event handler may be specified for a given event on a given element. This is likely a big issue for modern web applications, as it is quite common for multiple uncoordinated modules to exist on the same page. Perhaps more than one of these modules needs to attach an event handler of the same type to the same element. With inline event handlers, this simply is not possible.
+While this approach is slightly better than the HTML-based event handler since we are not forced to bind to a global function, it is still a non-optimal solution. You cannot specify an attribute-based event handler _and_ an element property handler for the same event on the same element. The last specified handler will effectively remove any other inline event handler on the element for a given event type. In fact, only one total inline event handler may be specified for a given event on a given element. This is likely a big issue for modern web applications, as it is quite common for multiple uncoordinated modules to exist on the same page. Perhaps more than one of these modules needs to attach an event handler of the same type to the same element. With inline event handlers, this simply is not possible.
 
-Since Internet Explorer 9, an `addEventListener` method has been available on the `EventTarget` interface. All `Element`s implement this interface as does `Window` (among other DOM objects). The `EventTarget` interface first appeared in the [W3C DOM Level 2 Events specification][dom2-events], and the `addEventListener` method was part of this initial version of the interface. Registering for custom and DOM events is possible with this method, and the syntax is very similar to jQuery's `on` method. Continuing with the button example from above:
+Since Internet Explorer 9, an `addEventListener` method has been available on the `EventTarget` interface. All `Element` objects implement this interface, as does `Window` (among other DOM objects). The `EventTarget` interface first appeared in the [W3C DOM Level 2 Events specification][dom2-events], and the `addEventListener` method was part of this initial version of the interface. Registering for custom and DOM events is possible with this method, and the syntax is very similar to jQuery's `on` method. Continuing with the button example from above:
 
 {title="modern event handler - web API - all modern browsers", lang=javascript}
 ~~~~~~~
@@ -373,7 +372,6 @@ var resizeHandler = function() {
 window.addEventListener('resize', resizeHandler);
 
 // ...later
-
 // remove only our resize handler
 window.removeEventListener('resize', resizeHandler);
 ~~~~~~~
@@ -397,9 +395,9 @@ After the attached handler function is executed, the click event will no longer 
 
 I've showed you how to fire and observe events in the last couple sections, but sometimes your need to do more than just create or listen for events. Occasionally, you will need to either influence the bubbling/capturing phase or even attach data to an event in order to make it available to subsequent listeners.
 
-As a contrived example (but possibly realistic in a very twisted web application piloted by project managers who have no concept of reality), suppose you needed to prevent users from selecting any text or images on an entire page. How can you accomplish this? Perhaps by interfering with some mouse event, somehow. But which event, and how? Perhaps the event to focus on is "click". If this was your first guess, you were close, but not quite correct.
+As a contrived example (but possibly realistic in a very twisted web application piloted by project managers who have no understanding of the web), suppose you were asked to prevent users from selecting any text or images on an entire page. How can you accomplish this? Perhaps by interfering with some mouse event, somehow. But which event, and how? Perhaps the event to focus on is "click". If this was your first guess, you were close, but not quite correct.
 
-According to the W3C DOM Level 3 Events specification, [the "mousedown" event][mousedown-w3c] starts a drag or text selection operation as it's _default_ action. So, we must prevent the _default_ action of a "mousedown" event. We can prevent text and image selection/dragging across the entire page using jQuery _or_ the pure web API by simply registering a "mousedown" event listener on `window` and calling the `preventDefault()` method on the `Event` object that is passed to our handler once our handler is executed by the browser.
+According to the W3C DOM Level 3 Events specification, [the "mousedown" event][mousedown-w3c] starts a drag or text selection operation as its _default_ action. So, we must prevent the _default_ action of a "mousedown" event. We can prevent text and image selection/dragging across the entire page using jQuery _or_ the pure web API by simply registering a "mousedown" event listener on `window` and calling the `preventDefault()` method on the `Event` object that is passed to our handler once our handler is executed.
 
 {title="preventing a default event action - jQuery", lang=javascript}
 ~~~~~~~
@@ -423,7 +421,7 @@ window.addEventListener('mousedown', function(event) {
 The jQuery approach is almost identical to the one that only relies on the native web API. Either way, we've satisfied the requirements - no text or images can be selected or dragged on our page.
 
 {#event-object}
-This is probably a good time to start discussing the `Event` object. Above, an `Event` instance is passed to our event handler function when it is executed by jQuery or the browser (respectively). The `Event` interface is defined in [the W3C DOM4 specification][dom4-event]. When a custom or native DOM event is created, the browser creates an instance of `Event` and passes it to each registered listener during the capturing and bubbling phases.
+This is probably a good time to start discussing the `Event` object. Above, an `Event` instance is passed to our event handler function when it is executed by jQuery or the browser. The native `Event` interface is defined in [the W3C DOM4 specification][dom4-event]. When a custom or native DOM event is created, the browser creates an instance of `Event` and passes it to each registered listener during the capturing and bubbling phases.
 
 The event object passed to each listener contains a number of properties that, for instance, describe the associated event. Such as:
 
@@ -436,7 +434,7 @@ There are other similar properties, but the above list represents a good samplin
 
 jQuery has its [own version of the `Event` interface][event-jquery] (of course). According to jQuery's docs, their event object "normalizes the event object according to W3C standards". This was potentially useful for ancient browsers. But for modern browsers - not so much. For the most part, with the exception of a few properties and methods, the two interfaces are very similar.
 
-The next two examples demonstrate how to prevent a specific event from reaching other registered event handlers. In order to prevent a click event, for example, from reaching any event handler on subsequent DOM nodes, simply call `stopImmediatePropagation()` on the passed `Event` object. This method exists in both the jQuery `Event` interface _and_ the standardized web API `Event` interface.
+The next two examples demonstrate how to prevent a specific event from reaching other registered event handlers. In order to prevent a click event from reaching any event handler on subsequent DOM nodes, simply call `stopImmediatePropagation()` on the passed `Event` object. This method exists in both the jQuery `Event` interface _and_ the standardized web API `Event` interface.
 
 {title="stop a click event from bubbling - jQuery", lang=javascript}
 ~~~~~~~
@@ -482,12 +480,12 @@ someElement.addEventListener('click', function(event) {
 });
 ~~~~~~~
 
-Note that both jQuery and the web API offer a shortcut to prevent an event's default action _and_ to prevent the event from reaching handlers on subsequent DOM nodes. You can effectively call `event.preventDefault()` and `event.stopPropagation()` by returning `false` in your event handler.
+Note that both jQuery and the web API offer a shortcut to prevent an event's default action _and_ to prevent the event from reaching handlers on subsequent DOM nodes. You can effectively call both `event.preventDefault()` and `event.stopPropagation()` by returning `false` in your event handler.
 
 
 ## Passing data to event handlers
 
-Sometimes the standard data associated with an event is not enough. Sometimes event handlers need more specific information about the event they are handling. Remember the "uploadError" custom event I detailed in the [event types section](#event-types)? This is triggered from a library embedded on a page, and the "uploadError" event provides information to listeners outside of the library about a failed file upload. Suppose the file upload library we are using is attached to a container element, and our application wraps this container element and registers an "uploadError" event handler. When a particular file upload fails, this event is triggered and our handler displays an information message to the user. In order to customize this message, we need the name of the failed file. The upload library can pass the file's name to our handler in the `Event` object.
+Sometimes the standard data associated with an event is not enough. Event handlers may need more specific information about the event they are handling. Remember the "uploadError" custom event I detailed in the [event types section](#event-types)? This is triggered from a library embedded on a page, and the "uploadError" event exists to provide information to listeners outside of the library about a failed file upload. Suppose the file upload library we are using is attached to a container element, and our application wraps this container element and registers an "uploadError" event handler. When a particular file upload fails, this event is triggered and our handler displays an informational message to the user. In order to customize this message, we need the name of the failed file. The upload library can pass the file's name to our handler in the `Event` object.
 
 First, let's review how data is passed to event handlers with jQuery:
 
@@ -508,7 +506,7 @@ jQuery makes the object passed to the `trigger` function available to any event 
 
 To achieve the same result with the web API, we would make use of `CustomElement` and its built-in ability to handle data.
 
-{title="pass data to a custom event handler - web API - all modern browsers exception IE", lang=javascript}
+{title="pass data to a custom event handler - web API - all modern browsers except IE", lang=javascript}
 ~~~~~~~
 // send the failed filename w/ an error event
 var event = new CustomEvent('uploadError', {
@@ -525,7 +523,7 @@ uploaderParent.addEventListener('uploadError', function(event) {
 
 This is not as succinct as the jQuery solution, but it works, at least in all modern browsers other than IE. For a more cross-browser solution, you can rely on the old custom event API, as demonstrated earlier. I'll focus only on the old API in the following demonstration, but I encourage you to read about a more [future-proof method of creating `CustomEvent` instances](#customevent-workaround) covered earlier.
 
-{title="pass data to a custom event handler - web API - all modern browsers exception IE", lang=javascript}
+{title="pass data to a custom event handler - web API - all modern browsers", lang=javascript}
 ~~~~~~~
 // send the failed filename w/ an error event
 var event = document.createEvent('CustomEvent');
@@ -540,7 +538,7 @@ uploaderParent.addEventListener('uploadError', function(event) {
 });
 ~~~~~~~
 
-In both cases, the data attach to the `CustomEvent` is available to our listeners via a [standardized `detail` property][customevent-detail]. With the `CustomEvent` constructor, this data is provided on a `detail` property of the object passed when creating a new instance. The `detail` property on this object matches the `detail` property on the `CustomEvent` object available to our listeners, which is nice and consistent. Our listeners still have access to this same `detail` property when setting up our "uploadError" event, it is buried in a sea of parameters passed to `initCustomEvent`. In my experience, anything more than 2 parameters is confusing and non-intuitive. This is not an uncommon preference, which may explain why the more modern `CustomEvent` constructor only mandates two parameters, the second being an object where all custom event is provided.
+In both cases, the data attached to the `CustomEvent` is available to our listeners via a [standardized `detail` property][customevent-detail]. With the `CustomEvent` constructor, this data is provided on a `detail` property of the object passed when creating a new instance. The `detail` property on this object matches the `detail` property on the `CustomEvent` object available to our listeners, which is nice and consistent. Our listeners still have access to this same `detail` property when setting up our "uploadError" event using the old event creation API, but it is buried in a sea of parameters passed to `initCustomEvent`. In my experience, anything more than 2 parameters is confusing and non-intuitive. This is not an uncommon preference, which may explain why the more modern `CustomEvent` constructor only mandates two parameters, the second being an object where all custom even configuration and data is provided.
 
 
 ## Event delegation: powerful and underused {#event-delegation}
@@ -555,7 +553,7 @@ It's hard to imagine a common scenario where delegated event handling is both de
 
 In other words, all event handlers attached to elements with React are promoted to a single delegated event handler on a common parent element. Perhaps you still don't see an instance where delegated event handlers are appropriate. In the rest of this section, I'll focus on a simple example that demonstrates the power of event delegation.
 
-Suppose you have a list filled with list items, each with a button that removes an item from the list. You _could_ attach a click handler to each individual list item's button. But doesn't it seem like the wrong approach to loop over all of the button elements and attach the very same click handler function to each? You may argue that this is not unreasonable, and even easy to accomplish. But what if new items can added to this list dynamically after the initial page load. Now attaching a new event handler to each new list item, as it is added, becomes less appealing.
+Suppose you have a list filled with list items, each with a button that removes an item from the list. You _could_ attach a click handler to each individual list item's button. But doesn't it seem like the wrong approach to loop over all of the button elements and attach the very same click handler function to each? You may argue that this is not unreasonable, and even easy to accomplish. But what if new items can added to this list dynamically after the initial page load. Now attaching a new event handler to each new list item, after it is added, becomes less appealing.
 
 The best solution here is to use event delegation. In other words, attach one click handler to the list element. When any of the delete buttons inside of the list item elements are clicked, the event will bubble up to the list element. At this point, your one event handler will be hit and you can easily determine, by inspecting the event object, which list item was clicked and respond appropriately by removing the associated list item. Below, we're using some text to make our delete buttons more accessible, as well as close/remove icons from the [Ionicons site][ionicons] to enhance the appearance of our buttons.
 
@@ -602,7 +600,7 @@ $('#cars-list').on('click', 'button', function() {
 });
 ~~~~~~~
 
-But wait, we didn't have to examine the event object at all! jQuery provides a nice feature here by setting the event handler function's context (`this`) to the click element target. Note that this click event might target the "delete" span element _or_ the "x" icon, depending upon which of these elements are selected by our user. In either case, we are _only_ interested in click on the `<button>` or its children. jQuery ensures that our event handler will only be called if this is true, and at that point we can use jQuery's `closest` method to find the associated `<li>` and remove it from the DOM.
+But wait, we didn't have to examine the event object at all! jQuery provides a nice feature here by setting the event handler function's context (`this`) to the click element target. Note that this click event might target the "delete" span element _or_ the "x" icon, depending upon which of these elements are selected by our user. In either case, we are _only_ interested in clicks on the `<button>` or its children. jQuery ensures that our event handler will only be called if this is true, and at that point we can use jQuery's `closest` method to find the associated `<li>` and remove it from the DOM.
 
 {title="delegated event handling - web API - all modern browsers (with `closest` shim)", lang=javascript}
 ~~~~~~~
@@ -621,14 +619,14 @@ The above pure web API solution is a bit more verbose than jQuery's API (ok, it'
 2. Examine an `Event` object to focus on events triggered only by one of our `<button>` elements.
 3. Remove the `<li>` associated with the clicked delete button.
 
-We're making use of `Element.closest` here to easily find the parent `<li>` and determine if the event target's parent is indeed a `<button>`, all without explicitly accounting for the fact that the event target may be multiple levels beneath the `<button>` or `<li>`. Since `Element.closest` is not supported in Internet Explorer, Microsoft Edge (at least, as of version 13), or older versions of iOS Safari and Android, you'll need to make use of [the shim demonstrated in the "Finding Elements" chapter](#element-closest) if you require solid cross-browser support.
+We're making use of `Element.closest` here to easily find the parent `<li>` and determine if the event target's parent is indeed a `<button>`, all without explicitly dealing with the fact that the event target may be multiple levels beneath the `<button>` or `<li>`. Since `Element.closest` is not supported in Internet Explorer, Microsoft Edge (at least, as of version 13), or older versions of iOS Safari and Android, you'll need to make use of [the shim demonstrated in the "Finding Elements" chapter](#element-closest) if you require solid cross-browser support.
 
-This may all seem a bit inelegant compared to jQuery, and that may certainly be true. But remember, the mission of "Beyond jQuery" isn't necessarily about compelling you to eschew jQuery or any other library, but rather to show you how to solve the same problems by yourself _without_ the aid of third-party dependencies. The knowledge gained from these exercises and demonstrations will empower you as a web developer by offering insight into the web API and allow you to make better decisions when deciding if your project will benefit from some outside help. And perhaps you will elect to pull in small and focused shims (such as the `Element.closest` polyfill demonstrated earlier) instead of depending on a large library like jQuery.
+This may all seem a bit inelegant compared to jQuery, and that may indeed be true. But remember, the mission of "Beyond jQuery" isn't necessarily about compelling you to eschew jQuery or any other library, but rather to show you how to solve the same problems by yourself _without_ the aid of third-party dependencies. The knowledge gained from these exercises and demonstrations will empower you as a web developer by offering insight into the web API and allow you to make better decisions when deciding if your project will benefit from some outside help. And perhaps you will elect to pull in small and focused shims (such as the `Element.closest` polyfill demonstrated earlier) instead of depending on a large library like jQuery.
 
 
 ## Handling and triggering keyboard events
 
-Keyboard events are, as you might expect, native DOM event triggered by the browser when a user presses a key on their keyboard. Just like all other events, keyboard events bubble up the DOM, starting with the focused element that first receives the event. You might be wondering why I have dedicated a special section exclusively to keyboard events. As you'll see shortly, key events are a bit different than the other DOM and custom events discussed earlier. Plus, keyboard events _can_ be a bit trickier to handle than the other DOM events. This is mostly due to mostly misunderstood multiple keyboard event types _and_ the confusing array of event properties used to identify keys with varying browser support. Fear not, after this section, you'll have a pretty good understanding of keyboard events. You'll fully comprehend when to use the three types of keyboard events, how to identify the pressed key, and event how to put this knowledge to use to solve real problems.
+Keyboard events are, as you might expect, native DOM events triggered by the browser when a user presses a key on their keyboard. Just like all other events, keyboard events go through both a capturing and a bubbling phase. The target element is the one that is focused when the key is pressed. You might be wondering why I have dedicated a special section exclusively to keyboard events. As you'll see shortly, key events are a bit different than the other DOM and custom events discussed earlier. Plus, keyboard events _can_ be a bit trickier to handle than the other DOM events. This is mostly due to mostly misunderstood multiple keyboard event types _and_ the confusing array of event properties used to identify keys with varying browser support. Fear not, after this section, you'll have a pretty good understanding of keyboard events. You'll fully comprehend when to use the three types of keyboard events, how to identify the pressed key, and event how to put this knowledge to use to solve real problems.
 
 
 ### 3 types of keyboard events
@@ -657,7 +655,7 @@ document.addEventListener('keydown', function(event) {
 });
 ~~~~~~~
 
-After a key (any key) in the down position is released, the browser fires a "keyup" event. The logic for handling this event is identical to "keydown" - just replace "keydown" with "keyup" in the code samples above. In fact, the same is true for the "keypress" event, which is the the final keyboard event type. The "keypress" event is _very_ similar to "keyup" - it is also triggered when a pressed key is in the down position. The only difference is that "keypress" events are only fired for printable characters. For example, pressing the "a", "enter" or "1" keys will trigger a "keypress" event. Conversely, "shift", "command", and the arrow keys will _not_ result in a "keypress" event.
+After a key (any key) in the down position is released, the browser fires a "keyup" event. The logic for handling this event is identical to "keydown" - just replace "keydown" with "keyup" in the code samples above. In fact, the same is true for the "keypress" event, which is the the final keyboard event type. The "keypress" event is _very_ similar to "keydown" - it is also triggered when a pressed key is in the down position. The only difference is that "keypress" events are only fired for printable characters. For example, pressing the "a", "enter" or "1" keys will trigger a "keypress" event. Conversely, "shift", "command", and the arrow keys will _not_ result in a "keypress" event.
 
 
 ### Identifying pressed keys
@@ -690,7 +688,7 @@ document.addEventListener('keydown', function(event) {
 });
 ~~~~~~~
 
-But the web API is beginning to advance beyond jQuery in this respect. The [UI Events Specification][uievents-w3c], maintained by the W3C, defines a _new_ property on `KeyboardEvent`: [`key`][key-uievents]. When a key is pressed, the `KeyboardEvent` (in supported browsers) will contain a `key` property with a value that corresponds to the exact key pressed (for printable characters) _or_ a standardized string that describes the pressed key (for non-printable characters). For example, if the "a" key is pressed, the `key` property on the corresponding `KeyboardEvent` will contain a value of "a". In our case, the ESC key is represented as the string "Escape". This value, along with the `key` values for other non-printable characters, are [defined in the DOM Level 3 Events specification][dom3events-key], also maintained by W3C. If we are able to use this `key` property, our code can look like this:
+But the web API is beginning to advance beyond jQuery in this respect. The [UI Events Specification][uievents-w3c], maintained by the W3C, defines a _new_ property on `KeyboardEvent`: [`key`][key-uievents]. When a key is pressed, the `KeyboardEvent` (in supported browsers) will contain a `key` property with a value that corresponds to the exact key pressed (for printable characters) _or_ a standardized string that describes the pressed key (for non-printable characters). For example, if the "a" key is pressed, the `key` property on the corresponding `KeyboardEvent` will contain a value of "a". In our case, the ESC key is represented as the string "Escape". This value, along with the `key` values for other non-printable characters, are [defined in the DOM Level 3 Events specification][dom3events-key], also maintained by W3C. If we are able to use this `key` property, our code will look like this:
 
 {title="closing a modal dialog on ESC - web API - some modern browsers", lang=javascript}
 ~~~~~~~
@@ -794,7 +792,7 @@ The following questions may occur to you as a web developer at one point or anot
 - When has all static markup been placed on the page?
 - When has a particular element on the page fully loaded? When has an element _failed_ to load?
 
-The answer to allow of these questions lies in the browser's native event system. The ["load" event][load-uievents], defined in the W3C UI Events specification, allows us to determine when an element or page has loaded. There are some other related events, such as "DOMContentLoaded" and "beforeupload". I'll discuss both of those as well in this section.
+The answer to all of these questions lies in the browser's native event system. The ["load" event][load-uievents], defined in the W3C UI Events specification, allows us to determine when an element or page has loaded. There are some other related events, such as "DOMContentLoaded" and "beforeupload". I'll discuss both of those as well in this section.
 
 
 ### When have all elements on the page fully loaded and rendered w/ applied styles?
@@ -806,7 +804,7 @@ In other to answer this particular question, we can rely on the "load" event fir
 3. All `<img>` elements have loaded.
 4. All `<iframe>` elements have fully loaded.
 
-jQuery provides an alias for the "load" event, similar to other many other DOM events:
+jQuery provides an alias for the "load" event, similar to many other DOM events:
 
 {title="determine when a page has loaded - jQuery", lang=javascript}
 ~~~~~~~
@@ -913,6 +911,37 @@ document.querySelector('img').addEventListener('error', function() {
 As we've seen many times before, the syntax between jQuery and the Web API here for modern browsers is strikingly similar.
 
 
+### Preventing a user from accidentally leaving the current page
+
+Imagine yourself as a user (we can't always be the developer). You're filling out a (long) series of form fields. It takes 10 minutes to complete the form, but you're finally done. And... then... you... accidentally... close... the browser tab. All of your work is gone! Replace "filling out a form" with "writing a document", or "drawing a picture". Regardless of the situation, it's a tragic turn of events. As a developer, how can you save your users from this mistake? Can you? You can!
+
+The "beforeunload" event is fired on the `window` just before the current page is unloaded. By observing this event, you can force the user to confirm that they really to want to leave the current page, or close the browser, or reload the page. They will be presented with a confirm dialog, and if they select "cancel", they will remain safely on the current page.
+
+In jQuery-land, you can observe this event using the `on` API method and return a message for the user to be displayed in the confirm dialog:
+
+{title="confirm page unload - jQuery", lang=javascript}
+~~~~~~~
+$(window).on('beforeunload', function() {
+  return 'Are you sure you want to unload the page?';
+})
+~~~~~~~
+
+Note that not every browser will display this specific message. Some will always display a hardcoded message, and there is nothing that jQuery can do about this.
+
+The web API approach is similar, but we must deal with a small difference in implementation of this event between various browsers:
+
+{title="confirm page unload - web API - modern browsers", lang=javascript}
+~~~~~~~
+window.addEventListener('beforeunload', function(event) {
+  var message = 'Are you sure you want to unload the page?';
+  event.returnValue = message;
+  return message;
+})
+~~~~~~~
+
+Some browsers accept the return value of the handler function as the text to display to the user, while others take a more non-standard approach and require this message be set on the event's `returnValue` property. Still, this isn't much of a hoop to jump through. It's pretty simple either way.
+
+
 ## A history lesson: Ancient browser support
 
 This final section in the events chapter is where I describe a time when jQuery _was_ a required library for web applications. This section applies to [ancient browsers](#ancient-browsers) only. Back when it was common to support Internet Explorer 8, the web API was a bit of a mess in _some_ instances. This was especially true when dealing with the browser's event system. In this section, I'll discuss how you can manage, observe, and fire events in ancient browsers. Since ancient browsers are becoming less important to worry about, all of this serves as more of a history lesson than a tutorial. Please keep that in mind when reading this section, as it is not intended to be a comprehensive guide to event handling in super-old browsers.
@@ -920,7 +949,7 @@ This final section in the events chapter is where I describe a time when jQuery 
 
 ### The API for listening to events is non-standard
 
-Take a look at the following code snippet which register for a click event:
+Take a look at the following code snippet which registers for a click event:
 
 {title="observing native DOM events - web API - ancient browsers", lang=javascript}
 ~~~~~~~
@@ -981,12 +1010,12 @@ unregisterHandler(someElement, 'click', someEventHandlerFunction);
 
 Very old versions of Internet Explorer have some serious change-event deficiencies. Here are the two big ones that you may come across (if you haven't already):
 
-1. Change events in ancient browsers do _not_ bubble.
-2. Checkboxes and radio buttons _may_ not trigger a change event at all in ancient browsers.
+1. Change events in old versions of IE do _not_ bubble.
+2. Checkboxes and radio buttons _may_ not trigger a change event at all in old versions of IE.
 
-Keep in mind that the second issue above was _also_ reproducible when using jQuery with IE7 _and_ 8 for quite a long time. As far as I can tell, current versions of jQuery do properly address this issue though. This is yet another reminder that jQuery is not without its own bugs.
+Keep in mind that the second issue above was _also_ reproducible when using jQuery with IE7 _and_ 8 for quite a long time. As far as I can tell, current versions of jQuery do properly address this issue. But this is yet another reminder that jQuery is not without its own bugs.
 
-To solve the change event issue, you must attach a change handler _directly_ to _any_ form field that you'd like to monitor since event delegation is not possible. In order to tackle the checkbox and radio buttons conundrum, you're best bet may be to attach a click handler directly to radio/checkbox fields instead of relying on the change event to occur at all.
+To solve the change event issue, you must attach a change handler _directly_ to _any_ form field that you'd like to monitor, since event delegation is not possible. In order to tackle the checkbox and radio buttons conundrum, you're best bet may be to attach a click handler directly to radio/checkbox fields instead of relying on the change event to occur at all.
 
 
 ### The `Event` object is also non-standard
@@ -1019,7 +1048,7 @@ function myEventHandler(event) {
 
 IE8 and older also do not have a `stopImmediatePropagation` method. There isn't much that can be done to work around this limitation. However, I personally don't see lack of this method as a big problem. Using `stopImmediatePropagation` seems like a code smell to me since the behavior of this call is completely dependent on the order that multiple event handlers are attached to the element in question.
 
-The important takeaway for this event chapter: events are pretty simple to work with in modern browsers without jQuery, but if you are unlucky enough to support Internet Explorer 8 or older, consider using the cross-browser functions demonstrated above, or pull in a reliable events library for more complex event handling requirements.
+The important takeaway for this chapter: events are pretty simple to work with in modern browsers without jQuery, but if you are unlucky enough to support Internet Explorer 8 or older, consider using the cross-browser functions demonstrated above, or pull in a reliable events library for more complex event handling requirements.
 
 
 [attachevent-msdn]: https://msdn.microsoft.com/en-us/library/ms536343(VS.85).aspx
