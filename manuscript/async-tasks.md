@@ -60,3 +60,17 @@
 ### Making life easier w/ async iterators
 
 ### Browser support
+
+
+## Handling streams of data or events with Observable
+
+%% What is a data stream?
+%% What is an event stream?
+
+### What is an Observable?
+
+### Handling and filtering data streams
+
+### Handling and filtering event streams
+
+### Browser support
