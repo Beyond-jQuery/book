@@ -4,6 +4,7 @@
 %% real async situations
 %% APIs: the benefits of async support
 %% jQuery is _way_ behind the web API in this area
+%% FYI: Some of the latter sections deal with bleeding edge web API specs. Exciting, but still lacking browser support. With compilers and shims, most of these can all be used now though.
 
 
 ## Callbacks: The traditional approach for controlling async operations
