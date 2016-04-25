@@ -60,7 +60,7 @@ Even with the rising ubiquitousness of the mobile web, the current situation is 
 In some cases, due to very mobile-unique concerns, such as data use, common portions of web specifications behave differently. Take the [`autoplay` boolean attribute on the HTML5 `<video>` element][autoplay] as an example, which will ensure the associated video begins playing immediately after loading. Desktop browsers all support this standard feature, but support on the mobile side is a bit different. Safari running on iOS does not observe this attribute [to ensure that auto-playing videos do not adversely affect a user's limited (and relatively expensive) mobile data consumption][autoplay-ios]. There are other similar examples where the unique environment of a mobile browser may result in unexpected implementation gaps. This reality must be considered when writing "mobile first" libraries and applications.
 
 
-### Non-browsers
+### Non-browsers {#non-browsers}
 
 This section may seem a bit out of place, but to be complete I figured it is important to at least _touch_ on another environment where JavaScript is thriving. Full stack software development with JavaScript on both ends is possible due to the existence of node.js - a server-side runtime that uses [Chrome's JavaScript engine][v8]. Server-side JavaScript development does not include any type of web API, for obvious reasons. So, while the web-based discussions present throughout this book (and there are many) do not apply to node world, many of the pure JavaScript areas _do_ transcend the browser.
 

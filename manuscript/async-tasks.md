@@ -46,10 +46,39 @@ I'm assuming there is a modal dialog component with an `open` function that disp
 Notice how the above code depends on a number of varying conventions. A number of non-standard conventions. In fact, there really aren't any standards associated with callback functions. The value or values passed to the callback are part of a contract defined by the supplier of the function. In this case, the conventions are similar enough between the modal callback and the "beforeDelete" callback, but that may not always be the case. While callbacks are a simple and well-supported way to account for async results, some of the problems with this approach may already be clear to you.
 
 
-### Node.js: The champion of callbacks
+### Node.js & the error-first callback
 
-%% Built into many APIs
-%% Accepted convention
+While I haven't spent a lot of time discussing Node.js, it has come up a few times throughout this book. The [non-browsers section of the "Understanding the Web API & JS" chapter](#non-browsers) goes into a _bit_ of detail about this surprisingly popular server-side use JavaScript-based system. Node.js has long relied on callbacks to support asynchronous behavior across APIs. In fact, it has has popularized a very specific type of callback system - the "error-first" callback. This particular convention is _very_ common throughout the Node.js landscape, and can be found as part of the API in many major libraries, such as Express, Socket.IO, and request. It is arguably the most "standard" of all the various callback systems, though of course there is no _real_ standard, just conventions. Though some conventions are more popular than others.
+
+Error-first callbacks require, as you might expect, an error to be passed as the first parameter to a supplied callback function. Usually, this error parameter is expected to be an `Error` object. The `Error` object has always been part of JavaScript, starting with the first ECMAScript specification published back in 1997. The `Error` object can be thrown in exceptionally cases, or passed around as a standard way to describe an application error. With error-first callbacks, an `Error` object can be passed as the first parameter to a callback if the related operation failed in some way. If the operation succeeded, `null` should be passed as the first parameter instead. This makes is easy for the callback function itself to determine if the operation failed. And if the related task did _not_ fail, subsequent arguments are used to supply relevant information to the callback function.
+
+Let's look at a simple example of a module that asks the user for their email address, which is an asynchronous operation:
+
+{title="error-first callback example", lang=javascript}
+~~~~~~~
+function askForEmail(callback) {
+  promptForText('Enter email:', function(result) {
+      if (result.cancel) {
+        callback(new Error('User refused to supply email.'))    
+      }
+      else {
+        callback(null, result.text)
+      }
+  })
+}
+
+askForEmail(function(err, email) {
+  if (err) {
+    console.error('Unable to get email: ' + err.message)
+  }
+  else {
+    // do something with the `email`...
+  }
+})
+~~~~~~~
+
+Can you figure out the flow of the above code? An error-first callback is passed in as the sole parameter when invoking the function that ultimately asks our user for their email address. If the user declines to provide one, an `Error` with a description of the situation is passed as the first parameter to our error-first callback. The callback logs this and moves on. Otherwise, the `err` argument is `null`, which signals to the callback function that we did indeed receive a valid response from our user - the email address - which is contained in the second argument to the error-first callback.
+
 
 ### Solving common problems with callbacks
 
