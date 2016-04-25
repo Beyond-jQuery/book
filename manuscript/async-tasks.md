@@ -52,6 +52,11 @@ While I haven't spent a lot of time discussing Node.js, it has come up a few tim
 
 Error-first callbacks require, as you might expect, an error to be passed as the first parameter to a supplied callback function. Usually, this error parameter is expected to be an `Error` object. The `Error` object has always been part of JavaScript, starting with the first ECMAScript specification published back in 1997. The `Error` object can be thrown in exceptionally cases, or passed around as a standard way to describe an application error. With error-first callbacks, an `Error` object can be passed as the first parameter to a callback if the related operation failed in some way. If the operation succeeded, `null` should be passed as the first parameter instead. This makes is easy for the callback function itself to determine if the operation failed. And if the related task did _not_ fail, subsequent arguments are used to supply relevant information to the callback function.
 
+Don't worry if this is not entirely clear to you. You'll see error-first callbacks in action throughout the rest of this section as I feel this is the most elegant way to either signal an error _or_ deliver the requested information when supporting an asynchronous task via a system of callbacks.
+
+
+### Solving common problems with callbacks
+
 Let's look at a simple example of a module that asks the user for their email address, which is an asynchronous operation:
 
 {title="error-first callback example", lang=javascript}
@@ -79,11 +84,7 @@ askForEmail(function(err, email) {
 
 Can you figure out the flow of the above code? An error-first callback is passed in as the sole parameter when invoking the function that ultimately asks our user for their email address. If the user declines to provide one, an `Error` with a description of the situation is passed as the first parameter to our error-first callback. The callback logs this and moves on. Otherwise, the `err` argument is `null`, which signals to the callback function that we did indeed receive a valid response from our user - the email address - which is contained in the second argument to the error-first callback.
 
-
-### Solving common problems with callbacks
-
 %% Ajax request
-%% User input
 
 
 ## Promises: An answer to async complexity
