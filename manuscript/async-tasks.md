@@ -84,14 +84,64 @@ askForEmail(function(err, email) {
 
 Can you figure out the flow of the above code? An error-first callback is passed in as the sole parameter when invoking the function that ultimately asks our user for their email address. If the user declines to provide one, an `Error` with a description of the situation is passed as the first parameter to our error-first callback. The callback logs this and moves on. Otherwise, the `err` argument is `null`, which signals to the callback function that we did indeed receive a valid response from our user - the email address - which is contained in the second argument to the error-first callback.
 
-%% Ajax request
+Another practical use of callbacks is to handle the result of an ajax request. Since the very first version of jQuery, it has been possible to pass in a callback function to be invoked when an ajax request succeeds. In the chapter on ajax requests, I demonstrated GET requests (among others). Here's an alternate version of [the first GET request](#get-post-delete-put-patch):
+
+{title="callback on ajax request success - jQuery", lang=javascript}
+~~~~~~~
+$.get('/my/name', function (name) {
+  console.log('my name is ' + name)
+})
+~~~~~~~
+
+The second parameter is a success callback function, which jQuery will call with the response data if the request succeeds. But the above example only handles success. What if the request fails? Yet another way to write this _and_ account for both success and failure is to pass an object that contains the URL, success, and failure callback functions:
+
+{title="callbacks on ajax request success & failure - jQuery", lang=javascript}
+~~~~~~~
+$.get({
+  url: '/my/name',
+  success: function(name) {
+    console.log('my name is ' + name)  
+  },
+  error: function() {
+    console.error('Name request failed!')
+  }
+})
+~~~~~~~
+
+The same section in the ajax requests chapter demonstrates making this call without jQuery. This solution _also_ relies on callbacks to signal success and failure:
+
+{title="callbacks on ajax request success & failure - web API - all browsers", lang=javascript}
+~~~~~~~
+var xhr = new XMLHttpRequest()
+xhr.open('GET', '/my/name')
+xhr.onload = function() {
+  if (xhr.status >= 400) {
+    console.error('Name request failed!')
+  }
+  else {
+    console.log('my name is ' + xhr.responseText)
+  }
+};
+xhr.onerror = function() {
+  console.error('Name request failed!')
+};
+xhr.send()
+~~~~~~~
+
+Callbacks certainly seem to be a reasonable way to register for the result of an asynchronous task. And this is indeed true for simple cases. But a system of callbacks becomes less appealing for more complex scenarios.
 
 
 ## Promises: An answer to async complexity
 
-%% What is a promise?
+%% Why are callbacks flawed?
+%% - input and output mixed together in function params
+%% - convention-based
+%% - complex async tasks or handling many tasks at once is messy
+%% - syntax is inelegant and non-intuitive
 
-### Why are callbacks flawed?
+### The first standardized way to harness async
+
+%% What are promises?
 
 ### Using Promises to simplify async operations
 
