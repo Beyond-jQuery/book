@@ -133,14 +133,71 @@ Callbacks certainly seem to be a reasonable way to register for the result of an
 
 ## Promises: An answer to async complexity
 
-%% Why are callbacks flawed?
-%% - input and output mixed together in function params
-%% - convention-based
-%% - complex async tasks or handling many tasks at once is messy
-%% - syntax is inelegant and non-intuitive
+Before I discuss an alternative to callbacks, perhaps it would be prudent to _first_ point out some of the issues associated with depending on callbacks to manage async tasks. The first fundamental flaw in the callback system described in the previous section is evident in every method or function signature that supports this convention. When invoking a function that utilizes a callback to signal success or failure of an asynchronous operation, you must supply this callback as a method parameter. Any input values used by the method must also be passed as parameters. In this case, you are now passing input values _and_ managing the method's output all through method parameters. This is a bit non-intuitive and awkward. This callback contract also precludes any return value. Again, all work is done via method parameters.
+
+Another issue with callbacks - there is _no_ standard, only conventions. Whenever you find yourself needing to invoke a method that executes some logic asynchronously and expects a callback to manage this process, it _may_ expect an error-first callback, but it also may _not_. And how can you possibly know? Since there is no standard for callbacks, you are forced to refer to the API documentation and pass the appropriate callback. Perhaps you must interface with multiple libraries, all of which expect callbacks to manage async results, all of which rely on different callback method conventions. Some may expect error-first callbacks. Others may include an error or status flag elsewhere when invoking the supplied callback. Some may not even account for errors at all!
+
+Perhaps the biggest issue with callbacks becomes apparent when they are forced into non-trivial use. For example, consider a few asynchronous tasks that must run sequentially, each subsequent task depending on the result from the previous. To demonstrate such a scenario, imagine you need to send an ajax request to one endpoint to load a list of user IDs, then a request must be made to a server to load personal information for the first user in the list. After this, the user's info is presented on-screen for editing, and finally the modified record is sent back to the server. This whole process involves four asynchronous tasks, which each task depending on the result of the previous. How would we model this workflow with callbacks? It's not pretty, but it might look something like this:
+
+{title="using callbacks to support a series of dependent async tasks", lang=javascript}
+~~~~~~~
+getUserIds(function(error, ids) {
+  if (!error) {
+    getUserInfo(ids[0], function(error, info) {
+      if (!error) {
+        displayUserInfo(info, function(error, newInfo) {
+          if (!error) {
+            updateUserInfo(id, info, function(error) {
+              if (!error) {
+                console.log('Record updated!')  
+              }
+              else {
+                console.error(error)
+              }
+            })
+          }  
+          else {
+            console.error(error)
+          }
+        })
+      }
+      else {
+        console.error(error)
+      }
+    })
+  }
+  else {
+    console.error(error)
+  }
+})
+~~~~~~~
+
+The above code is commonly referred to as "callback hell". As you can see, the callback system does _not_ scale very well. Let's look at another example which further confirms this conclusion. This time, we need to send three separate ajax requests concurrently. We want to know when all requests have completed and if one or more failed. Either way, we need to notify our user with the result. If we are stuck using error-first callbacks, our solution is a bit of a mess:
+
+{title="using callbacks to support a series of dependent async tasks", lang=javascript}
+~~~~~~~
+var successfulRequests = 0
+
+function handleCompletedRequest(error) {
+  if (error) {
+    console.error(error)
+  }
+  else if (++successfulRequests === 3) {
+    console.log('All requests were successful!')
+  }
+}
+
+sendRequest('POST', file1, handleCompletedRequest)
+sendRequest('POST', file2, handleCompletedRequest)
+sendRequest('POST', file3, handleCompletedRequest)
+~~~~~~~
+
+The above code isn't _awful_ but we had to create our own system to track the result of these concurrent operations. What if we had to track more than three async tasks? Surely there must be a better way!
+
 
 ### The first standardized way to harness async
 
+%% The flaws in callbacks often lead developers to look for other solutions...
 %% What are promises?
 
 ### Using Promises to simplify async operations
