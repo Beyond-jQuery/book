@@ -172,7 +172,7 @@ getUserIds(function(error, ids) {
 })
 ~~~~~~~
 
-The above code is commonly referred to as "callback hell". As you can see, the callback system does _not_ scale very well. Let's look at another example which further confirms this conclusion. This time, we need to send three separate ajax requests concurrently. We want to know when all requests have completed and if one or more failed. Either way, we need to notify our user with the result. If we are stuck using error-first callbacks, our solution is a bit of a mess:
+The above code is commonly referred to as "callback hell". Each callback function must be nested inside of the previous one in order to make use of its result. As you can see, the callback system does _not_ scale very well. Let's look at another example which further confirms this conclusion. This time, we need to send three files submitted for a product in three separate ajax requests to three separate endpoints concurrently. We need to know when all requests have completed and if one or more of these requests failed. Regardless of the outcome, we need to notify our user with the result. If we are stuck using error-first callbacks, our solution is a bit of a mess:
 
 {title="using callbacks to support a series of dependent async tasks", lang=javascript}
 ~~~~~~~
@@ -187,9 +187,9 @@ function handleCompletedRequest(error) {
   }
 }
 
-sendRequest('POST', file1, handleCompletedRequest)
-sendRequest('POST', file2, handleCompletedRequest)
-sendRequest('POST', file3, handleCompletedRequest)
+sendFile('/file/docs', pdfManualFile, handleCompletedRequest)
+sendFile('/file/images', previewImage, handleCompletedRequest)
+sendFile('/file/video', howToUseVideo, handleCompletedRequest)
 ~~~~~~~
 
 The above code isn't _awful_ but we had to create our own system to track the result of these concurrent operations. What if we had to track more than three async tasks? Surely there must be a better way!
@@ -197,12 +197,40 @@ The above code isn't _awful_ but we had to create our own system to track the re
 
 ### The first standardized way to harness async
 
-%% The flaws in callbacks often lead developers to look for other solutions...
-%% What are promises?
+The flaws and inefficiencies associated with relying on callback conventions often lead developers to look for other solutions. Surely some of problems and boilerplate common to this async handling approach can be solved in and packaged into a more standardized API. The "Promises" specification defines an API that achieves this very goal, and so much more.
+
+Promises have been publicly discussed on the JavaScript front for some time. The first instance of a Promise-like proposal (that I am able to locate) was created by Kris Kowal. It dates back to mid-2011, and describes ["Thenable Promises"][uncommonjs-promises]. A couple lines from the introduction provide a good glimpse into the power of promises:
+
+>An asynchronous promise loosely represents the eventual result of a function. A resolution can either be "fulfilled" with a value or "rejected" with a reason, corresponding by analogy to synchronously returned values and thrown exceptions respectively.
+
+This loose proposal was, in part, used to form the [Promises/A+ specification][promises-aplus]. This specification has a number of implementations, many of which can be seen in various JavaScript libraries, such as [bluebird][bluebird], [Q][q], and [rsvp.js][rsvp.js]. But perhaps the more important implementation appeared in the [ECMAScript-262 6th Edition specification][es6-promise]. Remember from the ["Understanding the Web and JavaScript" chapter](#understanding-the-web) that the ECMAScript-262 standard defines a language specification implemented as JavaScript. The 6th edition of this spec was officially completed in 2015. At the writing of this chapter in "Beyond jQuery", the Promise object defined in this standard is available natively in all modern browsers, with the exception of Internet Explorer. Luckily, many lightweight [polyfills](#shims-and-polyfills) are available to fill in this gap.
+
 
 ### Using Promises to simplify async operations
 
+So what exactly _are_ promises? What is a promise? You _could_ read through the ES6 or A+ specifications, but, like more formal language specifications, these are both a bit dry and perplexing. First and foremost a Promise, in the context of ECMAScript, is an object used to manage the result of an asynchronous operation. It bridges all of the gaps in a complex application left by traditional convention-based callbacks.
+
+Once the overarching goal of promises is clear, it proved useful (for me) to read [Domenic Denicola's "States and Fates" article][states-and-fates-denicola]. From this document, we learn that promises have three states:
+
+1. Pending: the initial state, before the associated operation has concluded.
+2. Fulfilled: The associated operation monitored by the promise has completed without error.
+3. Rejected: The associated operation has reached an error condition.
+
+Domenic goes on to define a term that groups both the "fulfilled" and "rejected" states: "settled". So, a promise is initially pending, and then it is settled once it has concluded.
+
+There are also two distinct "fates" defined in this document:
+
+1. Resolved: A promise is resolved when it is fulfilled or rejected, _or_ when it has been redirected to follow another promise. An example of the latter condition can be seen when chaining asynchronous promise-returning operations together. More on that soon.
+2. Unresolved: As you might expect, this means that the associated promise has not yet been resolved.
+
+If you can understand the concepts described above, you are very close to mastering promises, and you will find working with the API defined in the A+ and ECMAScript-262 specifications much easier.
+
+%% the anatomy of the Promise object
+%% a simple promise example
+%% rewriting the above complex callback examples w/ promises
+
 ### jQuery's broken promise implementation
+
 
 ### Native browser support
 
@@ -247,3 +275,18 @@ The above code isn't _awful_ but we had to create our own system to track the re
 ### Handling and filtering event streams
 
 ### Browser support
+
+
+[bluebird]: https://github.com/petkaantonov/bluebird
+
+[es6-promise]: http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects
+
+[promises-aplus]: https://github.com/promises-aplus/promises-spec
+
+[q]: https://github.com/kriskowal/q
+
+[rsvp.js]: https://github.com/tildeio/rsvp.js
+
+[states-and-fates-denicola]: https://github.com/domenic/promises-unwrapping/blob/master/docs/states-and-fates.md
+
+[uncommonjs-promises]: https://github.com/kriskowal/uncommonjs/blob/ea03e6d40430318b1d9821a181f3961bbf02eb12/promises/specification.md
