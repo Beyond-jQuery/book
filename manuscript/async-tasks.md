@@ -225,8 +225,22 @@ There are also two distinct "fates" defined in this document:
 
 If you can understand the concepts described above, you are very close to mastering promises, and you will find working with the API defined in the A+ and ECMAScript-262 specifications much easier.
 
-%% the anatomy of the Promise object
-%% a simple promise example
+
+#### The anatomy of a `Promise`
+
+A JavaScript promise is created simply by constructing a `new` instance of an A+-compliant `Promise` object, such as the one detailed in the ECMAScript 6 specification. The `Promise` constructor takes one argument - a function. This function itself takes _two_ arguments which are both functions that give the promise a resolved "fate" as described above. The first argument passed to the `Promise` constructor is a "fulfilled" function. This is to be called when the associated asynchronous operation completes successfully. When the "fulfilled" function is invoked, a value related to the completion of the promissory task should be passed. For example if a `Promise` is used to monitor an ajax request, the server response may be passed to this "fulfilled" function argument once the request completes successfully.
+
+The _second_ argument passed to the `Promise` constructor's function parameter is a "reject" function. This function should be called when the promissory task has failed for some reason, and the reason describing the failure should be passed into this rejected function. Often, this will be an `Error` object. If an exception is thrown inside of the `Promise` constructor, this will automatically cause the "reject" function to be invoked with the thrown `Error` passed as an argument. Going back to the ajax request example - if the request were to fail, the "reject" function should be called, passing either a string description of the result, or perhaps the HTTP status code.
+
+When a function returns a `Promise`, the caller can "observe" the result a couple of different ways. The most common way to handle a promissory return value is to call the `then` method on the promise instance. This method takes two parameters - both functions. The first functional parameter is invoked if the associated promise is fulfilled. As expected, if a value is associated with this fulfillment (such as a server response for an ajax request) it is passed to this first function. The second function parameter is invoked if the promise fails in some way. You may omit the second parameter if you are only interested in fulfillment (though this is generally unsafe to assume your promise will succeed). Additionally, you may specify a value of `null` or `undefined`, or any value that is not considered to be ["callable"][es6-callable] as the first argument if you are only interested in promise rejection. An alternative to this, which also lets you focus exclusively on the error case, is to call the `catch` method on the returned `Promise`. This `catch` method takes one argument - a function that is invoked when/if the associated promise errors.
+
+The ES6 `Promise` object includes several other helpful methods, but one of the more useful non-instance methods is `all`, which allows you to monitor many promises at once. The `all` method returns a new `Promise` that is fulfilled ff all monitored promises are fulfilled, and rejects as soon as one of the monitored promises is rejected. The `Promise.race` method is very similar to `Promise.all`, the difference being that the `Promise` returned by `race` is fulfilled immediately when the first monitored `Promise` is fulfilled. It does not wait for all monitored `Promise` instances to be fulfilled first. One use for `race` could also apply to ajax requests. Imagine you were triggering an ajax request that persisted the same data to multiple redundant endpoints. All that is important is the success of one request, in which case `Promise.race` is more appropriate and much more efficient than waiting for all requests to complete with `Promise.all`.
+
+
+#### Simple `Promise` examples
+
+
+#### Fixing "callback hell" with promises
 %% rewriting the above complex callback examples w/ promises
 
 ### jQuery's broken promise implementation
@@ -278,6 +292,8 @@ If you can understand the concepts described above, you are very close to master
 
 
 [bluebird]: https://github.com/petkaantonov/bluebird
+
+[es6-callable]: http://www.ecma-international.org/ecma-262/6.0/#sec-iscallable
 
 [es6-promise]: http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects
 
