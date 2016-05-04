@@ -55,7 +55,7 @@ Error-first callbacks require, as you might expect, an error to be passed as the
 Don't worry if this is not entirely clear to you. You'll see error-first callbacks in action throughout the rest of this section as I feel this is the most elegant way to either signal an error _or_ deliver the requested information when supporting an asynchronous task via a system of callbacks.
 
 
-### Solving common problems with callbacks
+### Solving common problems with callbacks {#solving-problems-with-callbacks}
 
 Let's look at a simple example of a module that asks the user for their email address, which is an asynchronous operation:
 
@@ -238,6 +238,88 @@ The ES6 `Promise` object includes several other helpful methods, but one of the 
 
 
 #### Simple `Promise` examples
+
+If the previous sections wasn't enough to properly introduce you to JavaScript promises, a few code examples should push you over the edge. In the above ["solving problems with callbacks" section](#solving-problems-with-callbacks), I provided a a couple blocks that demonstrated handling of async task results using callbacks. The first such example outlined a function that prompts the user to enter an email address in a dialog box - an asynchronous task. An error-first callback system was used to handle both successful and unsuccessful outcomes. The same example can be rewritten to make use of promises:
+
+{title="a simple promise example - asking a user for an email address", lang=javascript}
+~~~~~~~
+function askForEmail() {
+  return new Promise(function(fulfill, reject) {
+    promptForText('Enter email:', function(result) {
+        if (result.cancel) {
+          reject(new Error('User refused to supply email.'))    
+        }
+        else {
+          fulfill(result.text)
+        }
+    })
+  })
+}
+
+askForEmail().then(
+  function fulfilled(emailAddress) {
+    // do something with the `email`...
+  },
+  function rejected(error) {
+    console.error('Unable to get email: ' + err.message)
+  }
+)
+~~~~~~~
+
+In the above example rewritten to support promises, our code is much more declarative and straightforward. The `askForEmail` function returns a `Promise` that describes the result of the "ask the user for their email" task. When calling this function, we can intuitively handle both a supplied email address and an instance where the email is not provided by following a codified standard. Notice that we are still assuming that the `promptForText` function API is unchanged, but the code can be simplified even further if this function also returns a promise:
+
+{title="a simple promise example - asking a user for an email address", lang=javascript}
+~~~~~~~
+function askForEmail() {
+  return promptForText('Enter email:')
+}
+
+askForEmail().then(
+  function fulfilled(emailAddress) {
+    // do something with the `email`...
+  },
+  function rejected(error) {
+    console.error('Unable to get email: ' + err.message)
+  }
+)
+~~~~~~~
+
+If `promptForText` returns a `Promise`, it _should_ pass the user-entered email address to the fulfilled function if an address is supplied, or a descriptive error to the rejected function if the user closes the dialog without entering an email address.  These implementation details are not visible above, but based on the `Promise` specification, this is what we should expect.
+
+The other example in the callbacks section demonstrates the `onload` and `onerror` callbacks provided by `XMLHttpRequest`. Just to recap, `onload` is called when the request completes (regardless of the server response status code) and `onerror` is invoked if the request fails to complete for some reason (such as due to CORS or other network issues). As I mentioned in the [Ajax Requests](#ajax-requests) chapter, the Fetch API brings a replacement for `XMLHttpRequest` that makes use of the `Promise` specific to signal the result of an ajax request. I'll dive into a more complex example that makes use of `fetch` shortly, but first, let's write a wrapper around the `XMLHttpRequest` call from the callbacks section that presents a more elegant interface using promises:
+
+{title="a reusable promise-wrapped XMLHttpRequest call", lang=javascript}
+~~~~~~~
+function get(url) {
+  return new Promise(function(fulfill, reject) {
+    var xhr = new XMLHttpRequest()
+    xhr.open('GET', url)
+    xhr.onload = function() {
+      if (xhr.status >= 400) {
+        reject('Name request failed w/ status code ' + xhr.status)
+      }
+      else {
+        fulfill(xhr.responseText)
+      }
+    }
+    xhr.onerror = function() {
+      reject('Name request failed!')
+    }
+    xhr.send()  
+  })
+}
+
+get('/my/name').then(
+  function fulfilled(name) {
+    console.log('Name is ' + name)
+  },
+  function rejected(error) {
+    console.error(error)
+  }
+)
+~~~~~~~
+
+While the `Promise`-wrapped `XMLHTTPRequest` doesn't simplify that code much, it gives us a great opportunity to generalize this GET request, which makes it more reusable. Also, our code that uses this new GET request method is easy to follow and magnificently readable and elegant. Both the success and failure conditions are a breeze to account for, and the logic required to manage this is wrapped away inside the `Promise` constructor function. Of course, we could have created a similar approach _without_ `Promise`, but the fact that this async task-handling mechanism is an accepted JavaScript language standard makes it all the more appealing.
 
 
 #### Fixing "callback hell" with promises
