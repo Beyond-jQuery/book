@@ -193,7 +193,7 @@ To demonstrate the various ways to clone elements using jQuery and the DOM API, 
 ~~~~~~~
 <ol class="numbers">
   <li>one</li>
-  </li>two</li>
+  <li>two</li>
 </ol>
 ~~~~~~~
 
