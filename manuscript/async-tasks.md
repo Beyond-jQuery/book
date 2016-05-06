@@ -319,11 +319,40 @@ get('/my/name').then(
 )
 ~~~~~~~
 
-While the `Promise`-wrapped `XMLHTTPRequest` doesn't simplify that code much, it gives us a great opportunity to generalize this GET request, which makes it more reusable. Also, our code that uses this new GET request method is easy to follow and magnificently readable and elegant. Both the success and failure conditions are a breeze to account for, and the logic required to manage this is wrapped away inside the `Promise` constructor function. Of course, we could have created a similar approach _without_ `Promise`, but the fact that this async task-handling mechanism is an accepted JavaScript language standard makes it all the more appealing.
+While the `Promise`-wrapped `XMLHttpRequest` doesn't simplify that code much, it gives us a great opportunity to generalize this GET request, which makes it more reusable. Also, our code that uses this new GET request method is easy to follow and magnificently readable and elegant. Both the success and failure conditions are a breeze to account for, and the logic required to manage this is wrapped away inside the `Promise` constructor function. Of course, we could have created a similar approach _without_ `Promise`, but the fact that this async task-handling mechanism is an accepted JavaScript language standard makes it all the more appealing.
 
 
 #### Fixing "callback hell" with promises
-%% rewriting the above complex callback examples w/ promises
+
+Earlier in this section, I demonstrated one of the many issues with callbacks that presents itself in a non-trivial situation where consecutive dependent async tasks are involved. That particular example required retrieving all user IDs in the system, followed by retrieval of the user information for the first returned user ID,, and then displaying the info for editing in a dialog, followed by a callback to the server with the updated user information. This accounts for four separate but interdependent asynchronous calls. The first attempt to handle this made use of several nested callbacks, which resulted in a pyramid-style code solution, often referred to as "callback hell". Promises are an elegant solution to this problem, and callback hell is avoided entirely due to the ability to chain promises. Take a look at a rewritten solution that makes use of the `Promise` API:
+
+{title="using promises to support a series of dependent async tasks", lang=javascript}
+~~~~~~~
+getUserIds()
+  .then(function(ids) {
+    return getUserInfo(ids[0])
+  })
+  .then(function(info) {
+    return displayUserInfo(info)
+  })
+  .then(function(updatedInfo) {
+    return updateUserInfo(updatedInfo.id, updatedInfo)
+  })
+  .then(function() {
+    console.log('Record updated!')
+  })
+  .catch(function(error) {
+    console.error(error)
+  })
+~~~~~~~
+
+That's quite a bit easier to follow, isn't it! The flow of the async operations is probably apparent as well. Just in case it isn't, I'll walk you through it. I've contributed a fulfilled function for each of the four `then` blocks to handle specific successful async operations. The `catch` block at the end will be invoked if _any_ of the async calls fail. Note that `catch` is _not_ part of the A+ Promise specification, though it _is_ part of the ECMAScript 6 `Promise` spec.
+
+Each async operation - `getUserIds`, `getUserInfo`, `displayUserInfo`, and `updateUserInfo` - returns a `Promise`. The fulfilled value for each async operation's returned `Promise` is made available to the fulfilled function on the subsequently chained `then` block. No more pyramids, no more callback hell, and a simple and elegant way to handle a failure of any call in the workflow.
+
+
+#### Monitoring multiple related async tasks with promises
+%% rewriting the "series of async tasks" example that used callbacks
 
 ### jQuery's broken promise implementation
 
