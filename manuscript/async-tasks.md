@@ -174,7 +174,7 @@ getUserIds(function(error, ids) {
 
 The above code is commonly referred to as "callback hell". Each callback function must be nested inside of the previous one in order to make use of its result. As you can see, the callback system does _not_ scale very well. Let's look at another example which further confirms this conclusion. This time, we need to send three files submitted for a product in three separate ajax requests to three separate endpoints concurrently. We need to know when all requests have completed and if one or more of these requests failed. Regardless of the outcome, we need to notify our user with the result. If we are stuck using error-first callbacks, our solution is a bit of a mess:
 
-{title="using callbacks to support a series of dependent async tasks", lang=javascript}
+{title="using callbacks to monitor a series of dependent async tasks", lang=javascript}
 ~~~~~~~
 var successfulRequests = 0
 
@@ -352,7 +352,27 @@ Each async operation - `getUserIds`, `getUserInfo`, `displayUserInfo`, and `upda
 
 
 #### Monitoring multiple related async tasks with promises
-%% rewriting the "series of async tasks" example that used callbacks
+
+Remember the callbacks example from the start of this promises section that illustrated one approach to handling three separate ajax requests to three separate endpoints concurrently? We needed to know when all requests completed _and_ if one or more of them failed. The solution wasn't ugly, but it was verbose and contained a fair amount of boilerplate that could become cumbersome should we find ourselves in this situation often. I surmised that there must be a better solution to this problem, and there is! The `Promise` API brings a much more elegant solution, particularly with the `all` method, which allows us to easily monitor all three asynchronous tasks and react when they all complete successfully, or when one fails. Take a look at the rewritten Promise-ified code:
+
+{title="using promises to monitor a series of dependent async tasks", lang=javascript}
+~~~~~~~
+Promise.all([
+  sendFile('/file/docs', pdfManualFile, handleCompletedRequest),
+  sendFile('/file/images', previewImage, handleCompletedRequest),
+  sendFile('/file/video', howToUseVideo, handleCompletedRequest)
+]).then(
+  function fulfilled() {
+    console.log('All requests were successful!')
+  },
+  function rejected(error) {
+    console.error(error)
+  }
+)
+~~~~~~~
+
+The above solution assumes `sendFile` returns a `Promise`. With this being true, monitoring these requests becomes much more intuitive and lacks almost all of the boilerplate and ambiguity from the callbacks example. `Promise.all` takes an array of `Promise` instances and returns a new `Promise`. This new returned `Promise` is fulfilled when all of the `Promise` objects passed to `all` are fulfilled, or it is rejected if _one_ of these passed `Promise` objects is rejected. This is _exactly_ what we are looking for, and the `Promise` API provides this support to us natively.
+
 
 ### jQuery's broken promise implementation
 
