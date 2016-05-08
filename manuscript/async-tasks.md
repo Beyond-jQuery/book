@@ -376,6 +376,14 @@ The above solution assumes `sendFile` returns a `Promise`. With this being true,
 
 ### jQuery's broken promise implementation
 
+Almost all of the code in this chapter, so far, has focused exclusively on the support for async tasks that is native to bare JavaScript. The rest of this chapter is going follow a similar pattern. This is mostly due to the fact that jQuery simply doesn't provide much in terms of powerful async support. The ECMAScript-262 standard is far ahead of jQuery in this regard. But since this book aims to explain much of the web API and JavaScript to those coming from a jQuery-centric perspective, I feel it is important to at least _mention_ jQuery in this section, since it _does_ have support for promises, but this support is, unfortunately broken and completely non-standard in all released versions of jQuery (at the time this chapter was written). While these issue are scheduled to be fixed in jQuery 3.0, promises have suffered from some notable deficiencies in the library for quite some time.
+
+%% point out (high-level) some of the biggest issues, but defer to one of the million articles that already explain in much more detail
+
+%% broken error handling: https://thewayofcode.wordpress.com/2013/01/22/javascript-promises-and-why-jquery-implementation-is-broken/
+
+%% broken order of operations: http://valera-rozuvan.github.io/nintoku/jquery/promises/jquery-broken-promises-illustrated
+
 
 ### Native browser support
 
