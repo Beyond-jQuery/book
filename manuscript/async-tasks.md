@@ -376,13 +376,26 @@ The above solution assumes `sendFile` returns a `Promise`. With this being true,
 
 ### jQuery's broken promise implementation
 
-Almost all of the code in this chapter, so far, has focused exclusively on the support for async tasks that is native to bare JavaScript. The rest of this chapter is going follow a similar pattern. This is mostly due to the fact that jQuery simply doesn't provide much in terms of powerful async support. The ECMAScript-262 standard is far ahead of jQuery in this regard. But since this book aims to explain much of the web API and JavaScript to those coming from a jQuery-centric perspective, I feel it is important to at least _mention_ jQuery in this section, since it _does_ have support for promises, but this support is, unfortunately broken and completely non-standard in all released versions of jQuery (at the time this chapter was written). While these issue are scheduled to be fixed in jQuery 3.0, promises have suffered from some notable deficiencies in the library for quite some time.
+Almost all of the code in this chapter has focused exclusively on the support for async tasks that is native to JavaScript. The rest of this chapter is going follow a similar pattern. This is mostly due to the fact that jQuery simply doesn't provide much in terms of powerful async support. The ECMAScript-262 standard is far ahead of jQuery in this regard. But since this book aims to explain much of the web API and JavaScript to those coming from a jQuery-centric perspective, I feel it is important to at least _mention_ jQuery in this section, since it _does_ have support for promises, but this support is, unfortunately, broken and completely non-standard in all released versions of jQuery (at the time this chapter was written). While these issues are scheduled to be fixed in jQuery 3.0, promises have suffered from some notable deficiencies in the library for quite some time.
 
-%% point out (high-level) some of the biggest issues, but defer to one of the million articles that already explain in much more detail
+There are _at least_ two serious implementation bugs in jQuery's promise implementation. Two deficiencies that make promises non-standard and frustrating to work with. The first deals with error handling. Suppose an `Error` is thrown inside of a promise's fulfilled function handler, part of a first `then` block. In order to catch this sort of issue, it is customary to register a rejected handler on a subsequent `then` block, chained to the first `then` block. Remember that each `then` block returns a _new_ promise. Your code may look something like this:
 
-%% broken error handling: https://thewayofcode.wordpress.com/2013/01/22/javascript-promises-and-why-jquery-implementation-is-broken/
+{title="handling errors thrown inside of an ES6 promise fulfilled function", lang=javascript}
+~~~~~~~
+someAsynTask
+  .then(
+    function fulfilled() {
+      throw new Error('oops!')
+    }
+  )
+  .then(null, function rejected(error) {
+    console.error('Caught an error: ' + error.message)
+  })
+~~~~~~~
 
-%% broken order of operations: http://valera-rozuvan.github.io/nintoku/jquery/promises/jquery-broken-promises-illustrated
+The code above will print an error log to the console that reads "Caught an error: oops!". But if the same pattern is implemented using [jQuery's `deferred` construct][jquery-deferred], the error will _not_ be caught by the chained rejected handler. Instead, it will remain uncaught. Valerio Gheri goes into much more detail in [his article on the subject][gheri-jquery-broken]. I'll leave it to you to read further if you are interested in more specifics regarding the issues with jQuery's promise error handling - it is not prudent to spend more time on this here.
+
+The second major issue with jQuery's promise implementation breaks the expected order of operations. In other words, instead of observing the expected execution order of code alongside promise handlers, jQuery changes the order of execution to match the order in which the code _appears_ in the executable source. This is an overly simplistic explanation, but I'd like to avoid spending too much time on this jQuery-specific bug. If you'd like to read more, take a peek at [Valera Rozuvan's "jQuery Broken Promises Illustrated" article][rozuvan-jquery-broken]. The lesson here is simple - avoid jQuery's promises implementation. It is non-standard and filled with bugs.
 
 
 ### Native browser support
@@ -436,9 +449,15 @@ Almost all of the code in this chapter, so far, has focused exclusively on the s
 
 [es6-promise]: http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects
 
+[gheri-jquery-broken]: https://thewayofcode.wordpress.com/2013/01/22/javascript-promises-and-why-jquery-implementation-is-broken/
+
+[jquery-deferred]: https://api.jquery.com/jquery.deferred/
+
 [promises-aplus]: https://github.com/promises-aplus/promises-spec
 
 [q]: https://github.com/kriskowal/q
+
+[rozuvan-jquery-broken]: http://valera-rozuvan.github.io/nintoku/jquery/promises/jquery-broken-promises-illustrated
 
 [rsvp.js]: https://github.com/tildeio/rsvp.js
 
