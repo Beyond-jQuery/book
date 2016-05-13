@@ -400,6 +400,8 @@ The second major issue with jQuery's promise implementation breaks the expected 
 
 ### Native browser support
 
+As I mentioned earlier, the `Promise` API is standardized as part of ECMAScript-262 6th edition. At the writing of this chapter, all [modern browsers](#modern-browsers), with the exception of Internet Explorer, implement promises natively. There are a number of Promises/A+ libraries available (such as RSVP.js, Q, and Bluebird) but I prefer a small and focused polyfill that makes the elements described in the ES6 specification available to non-compliant browsers (Internet Explorer). For this, I highly recommend the small and effective ["es6-promise"][es6-promise-polyfill] polyfill by Stefan Penner.
+
 
 ## Async functions: An abstraction for async tasks
 
@@ -448,6 +450,8 @@ The second major issue with jQuery's promise implementation breaks the expected 
 [es6-callable]: http://www.ecma-international.org/ecma-262/6.0/#sec-iscallable
 
 [es6-promise]: http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects
+
+[es6-promise-polyfill]: https://github.com/stefanpenner/es6-promise
 
 [gheri-jquery-broken]: https://thewayofcode.wordpress.com/2013/01/22/javascript-promises-and-why-jquery-implementation-is-broken/
 
