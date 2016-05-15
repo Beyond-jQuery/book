@@ -405,17 +405,26 @@ As I mentioned earlier, the `Promise` API is standardized as part of ECMAScript-
 
 ## Async functions: An abstraction for async tasks
 
-%% Short explanation of what async functions are without revealing too much
+%% ES.Next
+%% _May_ be part of ES8. Momentum. Seems inevitable
+%% Builds on promises
+%% You don't have to think about promises anymore!
 
 ### The problem with bare promises
+
+%% we have to _think_ about async here, and deal with it using unnatural and non-traditional constructs
+%% apis that return promissory values suffer from promise implementation noise
 %% How can we handle async tasks without thinking about the async part?
 
 ### Async functions to the rescue
+
 %% Rewriting our promises code w/ async functions
+%% async/await isn't perfect - you still have to define functions as async, but the syntax is _much_ simpler and more elegant. You can use familiar & traditional patterns to handle both async and non-async code
 
 ### Browser support
-%% jQuery?
-%% Supporting async functions in non-compliant browsers
+
+%% no browser support
+%% babel, typescript, etc
 
 
 ## Async iterators: A better way to control asynchronous loops
