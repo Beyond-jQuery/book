@@ -405,10 +405,10 @@ As I mentioned earlier, the `Promise` API is standardized as part of ECMAScript-
 
 ## Async functions: An abstraction for async tasks
 
-%% ES.Next
-%% _May_ be part of ES8. Momentum. Seems inevitable
-%% Builds on promises
-%% You don't have to think about promises anymore!
+The TC39 group that standardized promises in ECMAScript-262 6th edition has been working on a related specification that builds upon the existing `Promise` API. The [async functions specification][async-spec][tc39-process], also known as async/await, is not officially targeted for any specific ECMAScript-262 edition, though it seems likely that it will land in the 8th edition in 2017. At the writing of this chapter, it is currently sitting in stage 3, which is the second-to-last stage in the [TC39 specification acceptance process]. This means async functions are essentially complete and ready to be associated with a future formal ECMAScript-262 edition. There seems to be a lot of momentum and excitement surrounding async functions (and rightfully so). All things considered, async functions are likely to be standardized in the very near future, relatively speaking.
+
+Async functions provide several features that make handling async operations incredibly easy. Instead of getting lost in a sea of conventions or async-specific API methods, they allow you to treat asynchronous code as if it was completely synchronous. This feature presents another feature - you can use the same traditional constructs and patterns that you have always used. Need to catch an error in the asynchronous method? Simply wrap it in a try/catch block. Want to return a value from an async function? Go ahead, return it! The elegance of async functions is a bit surprising at first, and web development will benefit enormously once they become more commonly used and understood.
+
 
 ### The problem with bare promises
 
@@ -454,6 +454,8 @@ As I mentioned earlier, the `Promise` API is standardized as part of ECMAScript-
 ### Browser support
 
 
+[async-spec]: https://tc39.github.io/ecmascript-asyncawait/
+
 [bluebird]: https://github.com/petkaantonov/bluebird
 
 [es6-callable]: http://www.ecma-international.org/ecma-262/6.0/#sec-iscallable
@@ -475,5 +477,7 @@ As I mentioned earlier, the `Promise` API is standardized as part of ECMAScript-
 [rsvp.js]: https://github.com/tildeio/rsvp.js
 
 [states-and-fates-denicola]: https://github.com/domenic/promises-unwrapping/blob/master/docs/states-and-fates.md
+
+[tc39-process]: https://tc39.github.io/process-document/
 
 [uncommonjs-promises]: https://github.com/kriskowal/uncommonjs/blob/ea03e6d40430318b1d9821a181f3961bbf02eb12/promises/specification.md
