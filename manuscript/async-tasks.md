@@ -382,7 +382,7 @@ There are _at least_ two serious implementation bugs in jQuery's promise impleme
 
 {title="handling errors thrown inside of an ES6 promise fulfilled function", lang=javascript}
 ~~~~~~~
-someAsynTask
+someAsyncTask
   .then(
     function fulfilled() {
       throw new Error('oops!')
@@ -410,11 +410,43 @@ The TC39 group that standardized promises in ECMAScript-262 6th edition has been
 Async functions provide several features that make handling async operations incredibly easy. Instead of getting lost in a sea of conventions or async-specific API methods, they allow you to treat asynchronous code as if it was completely synchronous. This feature presents another feature - you can use the same traditional constructs and patterns that you have always used. Need to catch an error in the asynchronous method? Simply wrap it in a try/catch block. Want to return a value from an async function? Go ahead, return it! The elegance of async functions is a bit surprising at first, and web development will benefit enormously once they become more commonly used and understood.
 
 
-### The problem with bare promises
+### The problem with promises
 
-%% we have to _think_ about async here, and deal with it using unnatural and non-traditional constructs
-%% apis that return promissory values suffer from promise implementation noise
-%% How can we handle async tasks without thinking about the async part?
+The `Promise` API provides a refreshing break from callback hell and all of the other inelegance and inefficiency associated with callback-based async task handling conventions. But promises don't mask the process of handling these types of situations. `Promise` merely provide us with a more elegant API, an API that makes managing async a bit easier than the alternatives that came before it. Let's look at two code samples - one which deals with two very similar tasks - one synchronous, the other asynchronous:
+
+{title="handling a typical synchronous task", lang=javascript}
+~~~~~~~
+try {
+  var savedRecord = saveRecord(record)
+  showMessage('info', 'Record saved!')
+}
+catch(error) {
+  showMessage('error', 'Error saving!' + error.message)
+}
+~~~~~~~
+
+I> ## Regarding the `showMessage` function
+I>
+I> The implementation of `showMessage` has been left out as it is not important to the example code. It is intended to illustrate a method of handling success and errors by displaying a message to the user. While this code could be run on the server or in a browser, the assumption here is that a browser is involved, since the target of "Beyond jQuery" is, for the most part, the browser.
+
+Above, we're given a record of some sort, which is then "saved" with the help of the `saveRecord` function. In this case, the operation is synchronous. Apparently, it doesn't rely on an ajax call or some other out-of-band processing. Of course, this is a bit contrived and somewhat of an unlikely scenario. Replace this example with one that sorts an array if this bothers you. Anyway, we're able to use familiar constructs to handle all of this. When `saveRecord` is called, we expect a return value that represents the saved record. At that point, we may inform a user that the record was saved, for example. But if `saveRecord` fails unexpectedly, say it throws an `Error`, we have that covered too. A traditional try/catch block is all that is needed to account for such a failure. This is a basic pattern that virtually all developers are already familiar with.
+
+But suppose the `saveRecord` function _was_ asynchronous. Our code, using promises, would have to change to look something like this instead:
+
+{title="handling a typical asynchronous task", lang=javascript}
+~~~~~~~
+saveRecord(record).then(
+  function fulfilled(savedRecord) {
+    showMessage('info', 'Record saved!')
+  },
+  function rejected(error) {
+    showMessage('error', 'Error saving!' + error.message)
+  }
+)
+~~~~~~~
+
+The above code, rewritten to use promises due to the async nature of `saveRecord`, isn't terribly difficult to follow or write, but it's a notable departure from the familiar `var savedRecord = ` try/catch block from the previous example. The burden of directly depending on the `Promise` API becomes even more clear as we run into more promissory functions throughout our project. Instead of simply using familiar patterns, we are continually forced to _think_ about async. We must treat our async code completely different from our synchronous code. That's unfortunate. If only we could handle async tasks without thinking about the async part...
+
 
 ### Async functions to the rescue
 
