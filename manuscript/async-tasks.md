@@ -419,7 +419,7 @@ The `Promise` API provides a refreshing break from callback hell and all of the 
 function handleNewRecord(record) {
   try {
     var savedRecord = saveRecord(record)
-    showMessage('info', 'Record saved!')
+    showMessage('info', 'Record saved! ' + savedRecord)
   }
   catch(error) {
     showMessage('error', 'Error saving!' + error.message)
@@ -442,7 +442,7 @@ But suppose the `saveRecord` function _was_ asynchronous. Our code, using promis
 function handleNewRecord(record) {
   saveRecord(record).then(
     function fulfilled(savedRecord) {
-      showMessage('info', 'Record saved!')
+      showMessage('info', 'Record saved! ' + savedRecord)
     },
     function rejected(error) {
       showMessage('error', 'Error saving!' + error.message)
@@ -467,7 +467,7 @@ Let's start with a really simple and somewhat contrived example. Don't worry, we
 async function handleNewRecord(record) {
   try {
     var savedRecord = await saveRecord(record)
-    showMessage('info', 'Record saved!')
+    showMessage('info', 'Record saved! ' + savedRecord)
   }
   catch(error) {
     showMessage('error', 'Error saving!' + error.message)
