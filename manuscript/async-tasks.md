@@ -416,13 +416,17 @@ The `Promise` API provides a refreshing break from callback hell and all of the 
 
 {title="handling a typical synchronous task", lang=javascript}
 ~~~~~~~
-try {
-  var savedRecord = saveRecord(record)
-  showMessage('info', 'Record saved!')
+function handleNewRecord(record) {
+  try {
+    var savedRecord = saveRecord(record)
+    showMessage('info', 'Record saved!')
+  }
+  catch(error) {
+    showMessage('error', 'Error saving!' + error.message)
+  }
 }
-catch(error) {
-  showMessage('error', 'Error saving!' + error.message)
-}
+
+handleNewRecord({name: 'Ray', state: 'Wisconsin'})
 ~~~~~~~
 
 I> ## Regarding the `showMessage` function
@@ -435,20 +439,45 @@ But suppose the `saveRecord` function _was_ asynchronous. Our code, using promis
 
 {title="handling a typical asynchronous task", lang=javascript}
 ~~~~~~~
-saveRecord(record).then(
-  function fulfilled(savedRecord) {
-    showMessage('info', 'Record saved!')
-  },
-  function rejected(error) {
-    showMessage('error', 'Error saving!' + error.message)
-  }
-)
+function handleNewRecord(record) {
+  saveRecord(record).then(
+    function fulfilled(savedRecord) {
+      showMessage('info', 'Record saved!')
+    },
+    function rejected(error) {
+      showMessage('error', 'Error saving!' + error.message)
+    }
+  )
+}
+
+handleNewRecord({name: 'Ray', state: 'Wisconsin'})
 ~~~~~~~
 
 The above code, rewritten to use promises due to the async nature of `saveRecord`, isn't terribly difficult to follow or write, but it's a notable departure from the familiar `var savedRecord = ` try/catch block from the previous example. The burden of directly depending on the `Promise` API becomes even more clear as we run into more promissory functions throughout our project. Instead of simply using familiar patterns, we are continually forced to _think_ about async. We must treat our async code completely different from our synchronous code. That's unfortunate. If only we could handle async tasks without thinking about the async part...
 
 
 ### Async functions to the rescue
+
+The primary asset that async functions bring to the table is the almost total abstraction they offer, so much so that asynchronous promissory tasks _appear_ to be completely synchronous. It seems like magic at first. There are some things to be aware of, lest you get sucked up in the magic and become frustrated when an async function's dependency on promises leaks through the abstraction.
+
+Let's start with a really simple and somewhat contrived example. Don't worry, we'll work up to the _real_ examples from the promises section soon. But first, here's the `saveRecord` example that we recently discussed, written to make use of async functions:
+
+{title="handling a typical asynchronous task", lang=javascript}
+~~~~~~~
+async function handleNewRecord(record) {
+  try {
+    var savedRecord = await saveRecord(record)
+    showMessage('info', 'Record saved!')
+  }
+  catch(error) {
+    showMessage('error', 'Error saving!' + error.message)
+  }
+}
+
+handleNewRecord({name: 'Ray', state: 'Wisconsin'})
+~~~~~~~
+
+Holy shit. Did we just assign the result of an asynchronous operation to a variable _without_ using a `then` block _and_ handle an error by wrapping that call in a try/catch block? Yes, yes we did. The above code looks almost _exactly_ like the initial example where we called a completely synchronous `saveRecord` function. Under the covers, this is all promises, but there's no trace of a `then` or even a `catch` block. Nice. Very nice.
 
 %% Rewriting our promises code w/ async functions
 %% async/await isn't perfect - you still have to define functions as async, but the syntax is _much_ simpler and more elegant. You can use familiar & traditional patterns to handle both async and non-async code
