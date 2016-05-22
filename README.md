@@ -1,5 +1,7 @@
 <img src="manuscript/images/title_page.png" width="400">
 
+**UPDATE (22 May 2016): If you'd like a badass "code hand" laptop sticker (3 inches square) send me an email with your mailing address to beyond-jquery-book-stickers@raynicholus.com. I'll be happy to send you _one_ (1) for free, no strings attached (even to international addresses). The sticker looks _exactly_ like my GitHub gravatar. No post office boxes please. This offer will end when I run out of stickers.**
+
 This is a book-in-progress, [currently available for purchase on Leanpub][leanpub]. It aims to educate web developers and give them the confidence to abandon their jQuery crutches and walk freely with the power of the web API and JavaScript. You will learn about the most important concepts surrounding web development as I demystify jQuery.
 
 
