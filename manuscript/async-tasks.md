@@ -141,55 +141,63 @@ Perhaps the biggest issue with callbacks becomes apparent when they are forced i
 
 {title="using callbacks to support a series of dependent async tasks", lang=javascript}
 ~~~~~~~
-getUserIds(function(error, ids) {
-  if (!error) {
-    getUserInfo(ids[0], function(error, info) {
-      if (!error) {
-        displayUserInfo(info, function(error, newInfo) {
-          if (!error) {
-            updateUserInfo(id, info, function(error) {
-              if (!error) {
-                console.log('Record updated!')  
-              }
-              else {
-                console.error(error)
-              }
-            })
-          }  
-          else {
-            console.error(error)
-          }
-        })
-      }
-      else {
-        console.error(error)
-      }
-    })
-  }
-  else {
-    console.error(error)
-  }
-})
+function updateFirstUser() {
+  getUserIds(function(error, ids) {
+    if (!error) {
+      getUserInfo(ids[0], function(error, info) {
+        if (!error) {
+          displayUserInfo(info, function(error, newInfo) {
+            if (!error) {
+              updateUserInfo(id, info, function(error) {
+                if (!error) {
+                  console.log('Record updated!')  
+                }
+                else {
+                  console.error(error)
+                }
+              })
+            }  
+            else {
+              console.error(error)
+            }
+          })
+        }
+        else {
+          console.error(error)
+        }
+      })
+    }
+    else {
+      console.error(error)
+    }
+  })
+}
+
+updateFirstUser()
 ~~~~~~~
 
 The above code is commonly referred to as "callback hell". Each callback function must be nested inside of the previous one in order to make use of its result. As you can see, the callback system does _not_ scale very well. Let's look at another example which further confirms this conclusion. This time, we need to send three files submitted for a product in three separate ajax requests to three separate endpoints concurrently. We need to know when all requests have completed and if one or more of these requests failed. Regardless of the outcome, we need to notify our user with the result. If we are stuck using error-first callbacks, our solution is a bit of a mess:
 
-{title="using callbacks to monitor a series of dependent async tasks", lang=javascript}
+{title="using callbacks to monitor a number of concurrent async tasks", lang=javascript}
 ~~~~~~~
-var successfulRequests = 0
+function sendAllRequests() {
+  var successfulRequests = 0
 
-function handleCompletedRequest(error) {
-  if (error) {
-    console.error(error)
+  function handleCompletedRequest(error) {
+    if (error) {
+      console.error(error)
+    }
+    else if (++successfulRequests === 3) {
+      console.log('All requests were successful!')
+    }
   }
-  else if (++successfulRequests === 3) {
-    console.log('All requests were successful!')
-  }
+
+  sendFile('/file/docs', pdfManualFile, handleCompletedRequest)
+  sendFile('/file/images', previewImage, handleCompletedRequest)
+  sendFile('/file/video', howToUseVideo, handleCompletedRequest)
 }
 
-sendFile('/file/docs', pdfManualFile, handleCompletedRequest)
-sendFile('/file/images', previewImage, handleCompletedRequest)
-sendFile('/file/video', howToUseVideo, handleCompletedRequest)
+sendAllRequests()
 ~~~~~~~
 
 The above code isn't _awful_ but we had to create our own system to track the result of these concurrent operations. What if we had to track more than three async tasks? Surely there must be a better way!
@@ -322,28 +330,32 @@ get('/my/name').then(
 While the `Promise`-wrapped `XMLHttpRequest` doesn't simplify that code much, it gives us a great opportunity to generalize this GET request, which makes it more reusable. Also, our code that uses this new GET request method is easy to follow and magnificently readable and elegant. Both the success and failure conditions are a breeze to account for, and the logic required to manage this is wrapped away inside the `Promise` constructor function. Of course, we could have created a similar approach _without_ `Promise`, but the fact that this async task-handling mechanism is an accepted JavaScript language standard makes it all the more appealing.
 
 
-#### Fixing "callback hell" with promises
+#### Fixing "callback hell" with promises {#fixing-callback-hell}
 
 Earlier in this section, I demonstrated one of the many issues with callbacks that presents itself in a non-trivial situation where consecutive dependent async tasks are involved. That particular example required retrieving all user IDs in the system, followed by retrieval of the user information for the first returned user ID,, and then displaying the info for editing in a dialog, followed by a callback to the server with the updated user information. This accounts for four separate but interdependent asynchronous calls. The first attempt to handle this made use of several nested callbacks, which resulted in a pyramid-style code solution, often referred to as "callback hell". Promises are an elegant solution to this problem, and callback hell is avoided entirely due to the ability to chain promises. Take a look at a rewritten solution that makes use of the `Promise` API:
 
 {title="using promises to support a series of dependent async tasks", lang=javascript}
 ~~~~~~~
-getUserIds()
-  .then(function(ids) {
-    return getUserInfo(ids[0])
-  })
-  .then(function(info) {
-    return displayUserInfo(info)
-  })
-  .then(function(updatedInfo) {
-    return updateUserInfo(updatedInfo.id, updatedInfo)
-  })
-  .then(function() {
-    console.log('Record updated!')
-  })
-  .catch(function(error) {
-    console.error(error)
-  })
+function updateFirstUser() {
+  getUserIds()
+    .then(function(ids) {
+      return getUserInfo(ids[0])
+    })
+    .then(function(info) {
+      return displayUserInfo(info)
+    })
+    .then(function(updatedInfo) {
+      return updateUserInfo(updatedInfo.id, updatedInfo)
+    })
+    .then(function() {
+      console.log('Record updated!')
+    })
+    .catch(function(error) {
+      console.error(error)
+    })
+}
+
+updateFirstUser()
 ~~~~~~~
 
 That's quite a bit easier to follow, isn't it! The flow of the async operations is probably apparent as well. Just in case it isn't, I'll walk you through it. I've contributed a fulfilled function for each of the four `then` blocks to handle specific successful async operations. The `catch` block at the end will be invoked if _any_ of the async calls fail. Note that `catch` is _not_ part of the A+ Promise specification, though it _is_ part of the ECMAScript 6 `Promise` spec.
@@ -351,24 +363,28 @@ That's quite a bit easier to follow, isn't it! The flow of the async operations 
 Each async operation - `getUserIds`, `getUserInfo`, `displayUserInfo`, and `updateUserInfo` - returns a `Promise`. The fulfilled value for each async operation's returned `Promise` is made available to the fulfilled function on the subsequently chained `then` block. No more pyramids, no more callback hell, and a simple and elegant way to handle a failure of any call in the workflow.
 
 
-#### Monitoring multiple related async tasks with promises
+#### Monitoring multiple related async tasks with promises {#multiple-related-async-tasks-promises}
 
 Remember the callbacks example from the start of this promises section that illustrated one approach to handling three separate ajax requests to three separate endpoints concurrently? We needed to know when all requests completed _and_ if one or more of them failed. The solution wasn't ugly, but it was verbose and contained a fair amount of boilerplate that could become cumbersome should we find ourselves in this situation often. I surmised that there must be a better solution to this problem, and there is! The `Promise` API brings a much more elegant solution, particularly with the `all` method, which allows us to easily monitor all three asynchronous tasks and react when they all complete successfully, or when one fails. Take a look at the rewritten Promise-ified code:
 
-{title="using promises to monitor a series of dependent async tasks", lang=javascript}
+{title="using promises to monitor a number of concurrent async tasks", lang=javascript}
 ~~~~~~~
-Promise.all([
-  sendFile('/file/docs', pdfManualFile, handleCompletedRequest),
-  sendFile('/file/images', previewImage, handleCompletedRequest),
-  sendFile('/file/video', howToUseVideo, handleCompletedRequest)
-]).then(
-  function fulfilled() {
-    console.log('All requests were successful!')
-  },
-  function rejected(error) {
-    console.error(error)
-  }
-)
+function sendAllRequests() {
+  Promise.all([
+    sendFile('/file/docs', pdfManualFile, handleCompletedRequest),
+    sendFile('/file/images', previewImage, handleCompletedRequest),
+    sendFile('/file/video', howToUseVideo, handleCompletedRequest)
+  ]).then(
+    function fulfilled() {
+      console.log('All requests were successful!')
+    },
+    function rejected(error) {
+      console.error(error)
+    }
+  )
+}
+
+sendAllRequests()
 ~~~~~~~
 
 The above solution assumes `sendFile` returns a `Promise`. With this being true, monitoring these requests becomes much more intuitive and lacks almost all of the boilerplate and ambiguity from the callbacks example. `Promise.all` takes an array of `Promise` instances and returns a new `Promise`. This new returned `Promise` is fulfilled when all of the `Promise` objects passed to `all` are fulfilled, or it is rejected if _one_ of these passed `Promise` objects is rejected. This is _exactly_ what we are looking for, and the `Promise` API provides this support to us natively.
@@ -462,7 +478,7 @@ The primary asset that async functions bring to the table is the almost total ab
 
 Let's start with a really simple and somewhat contrived example. Don't worry, we'll work up to the _real_ examples from the promises section soon. But first, here's the `saveRecord` example that we recently discussed, written to make use of async functions:
 
-{title="handling a typical asynchronous task", lang=javascript}
+{title="handling a typical asynchronous task w/ async functions", lang=javascript}
 ~~~~~~~
 async function handleNewRecord(record) {
   try {
@@ -479,8 +495,74 @@ handleNewRecord({name: 'Ray', state: 'Wisconsin'})
 
 Did we just assign the result of an asynchronous operation to a variable _without_ using a `then` block _and_ handle an error by wrapping that call in a try/catch block? Why, yes we did! The above code looks almost _exactly_ like the initial example where we called a completely synchronous `saveRecord` function. Under the covers, this is all promises, but there's no trace of a `then` or even a `catch` block. Nice. Very nice.
 
-%% Rewriting our promises code w/ async functions
-%% async/await isn't perfect - you still have to define functions as async, but the syntax is _much_ simpler and more elegant. You can use familiar & traditional patterns to handle both async and non-async code
+Earlier, I demonstrated [how to prevent "callback hell" with the help of the `Promise` API](#fixing-callback-hell). The solution presented in that section is certainly a vast improvement over the traditional callback-based approach, but the code is still a bit unfamiliar, and of course we are clearly forced to explicitly deal with the fact that we are invoking a number of interdependent asynchronous calls. Our code must be structured to account for this reality. Not so with async functions:
+
+{title="using async functions to support a series of dependent async tasks", lang=javascript}
+~~~~~~~
+async function updateFirstUser() {
+  try {
+    var ids = await getUserIds(),
+        info = await getUserInfo(ids[0]),
+        updatedInfo = await displayUserInfo(info)
+
+    await updateUserInfo(updatedInfo.id, updatedInfo)
+    console.log('Record updated!')
+  }
+  catch(error) {
+    console.error(error)
+  }
+}
+
+updateFirstUser()
+~~~~~~~
+
+The above is markedly more succinct and elegant than the previous version that relied on direct use of promises. But what about the code in the next section of the promises section? This is the one where I converted the callback example that sent, managed, and monitored three files submitted for a product in three separate ajax requests to three separate endpoints concurrently. I made use of the `Promise.all` method to simplify the code. Well, we can simplify that even further with some help from async functions.
+
+But remember, as of the writing of this chapter, async functions are still an ECMAScript-262 proposal. They are not part of any formal specification _yet_ (though they likely will be very soon). As with many proposals, async functions have changed a bit since the initial version of the proposal. In fact, this initial version included some syntactic sugar to make it even easier and more elegant to monitor an array of promissory functions. Let's look at a rewrite of the concurrent async tasks example, using the initial async functions proposal:
+
+{title="using async functions to monitor a number of concurrent async tasks - initial proposal", lang=javascript}
+~~~~~~~
+async function sendAllRequests() {
+  try {
+    // This is no longer valid syntax - do not use!
+    await* [
+      sendFile('/file/docs', pdfManualFile, handleCompletedRequest),
+      sendFile('/file/images', previewImage, handleCompletedRequest),
+      sendFile('/file/video', howToUseVideo, handleCompletedRequest)
+    ]
+    console.log('All requests were successful!')
+  }
+  catch(error) {
+    console.error(error)
+  }  
+}
+
+sendAllRequests()
+~~~~~~~
+
+At one point early on in the development of the async functions proposal, `await*` was included as a sort of alias for `Promise.all` (this is perhaps an oversimplification). Sometime after April 2014, this was removed from the proposal, apparently to avoid confusion with a keyword in the "generators" specification in ECMAScript 6th edition standard. The `yield*` keyword in this spec resembles `await*` in appearance, but the two do not share similar behaviors. So, it was removed from the proposal. The appropriate way to monitor a number of concurrent promissory functions with async functions requires making use of `Promise.all`:
+
+{title="using async functions to monitor a number of concurrent async tasks - final proposal", lang=javascript}
+~~~~~~~
+async function sendAllRequests() {
+  try {
+    await Promise.all([
+      sendFile('/file/docs', pdfManualFile, handleCompletedRequest),
+      sendFile('/file/images', previewImage, handleCompletedRequest),
+      sendFile('/file/video', howToUseVideo, handleCompletedRequest)
+    ])
+    console.log('All requests were successful!')
+  }
+  catch(error) {
+    console.error(error)
+  }
+}
+
+sendAllRequests()
+~~~~~~~
+
+It's perhaps unfortunate that we still much make some direct use of promises in this one specific case, even when utilizing async functions, but this doesn't negatively impact the readability of elegance of the solution, does it? But it's true, async functions aren't perfect - you still have to define functions as async, and you still must include the `await` keyword before a function that returns a Promise, but but the syntax is _much_ simpler and more elegant than the bare `Promise` API. You can use familiar & traditional patterns to handle both async and non-async code. That's seems to be a pretty clear win to me. This is one of many ways in which specifications are evolving quite rapidly, building upon each other, and outpacing the progression of jQuery.
+
 
 ### Browser support
 
