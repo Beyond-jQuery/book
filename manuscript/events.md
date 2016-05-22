@@ -254,7 +254,7 @@ else {
     event = document.createEvent('CustomEvent');
     event.initCustomEvent('image-removed', false, true,
       {id: 1}
-    });
+    );
 }
 
 libraryElement.dispatchEvent(event);
