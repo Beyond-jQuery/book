@@ -540,7 +540,7 @@ async function sendAllRequests() {
 sendAllRequests()
 ~~~~~~~
 
-At one point early on in the development of the async functions proposal, `await*` was included as a sort of alias for `Promise.all` (this is perhaps an oversimplification). Sometime after April 2014, this was removed from the proposal, apparently to avoid confusion with a keyword in the "generators" specification in ECMAScript 6th edition standard. The `yield*` keyword in this spec resembles `await*` in appearance, but the two do not share similar behaviors. So, it was removed from the proposal. The appropriate way to monitor a number of concurrent promissory functions with async functions requires making use of `Promise.all`:
+At one point early on in the development of the async functions proposal, `await*` was included as a sort of alias for `Promise.all` (this is perhaps an oversimplification). Sometime after April 2014, this was removed from the proposal, apparently to avoid confusion with a keyword in the "generators" specification in ECMAScript 6th edition standard (which I will mention in the next section). The `yield*` keyword in this spec resembles `await*` in appearance, but the two do not share similar behaviors. So, it was removed from the proposal. The appropriate way to monitor a number of concurrent promissory functions with async functions requires making use of `Promise.all`:
 
 {title="using async functions to monitor a number of concurrent async tasks - final proposal", lang=javascript}
 ~~~~~~~
