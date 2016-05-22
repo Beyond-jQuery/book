@@ -477,7 +477,7 @@ async function handleNewRecord(record) {
 handleNewRecord({name: 'Ray', state: 'Wisconsin'})
 ~~~~~~~
 
-Holy shit. Did we just assign the result of an asynchronous operation to a variable _without_ using a `then` block _and_ handle an error by wrapping that call in a try/catch block? Yes, yes we did. The above code looks almost _exactly_ like the initial example where we called a completely synchronous `saveRecord` function. Under the covers, this is all promises, but there's no trace of a `then` or even a `catch` block. Nice. Very nice.
+Did we just assign the result of an asynchronous operation to a variable _without_ using a `then` block _and_ handle an error by wrapping that call in a try/catch block? Why, yes we did! The above code looks almost _exactly_ like the initial example where we called a completely synchronous `saveRecord` function. Under the covers, this is all promises, but there's no trace of a `then` or even a `catch` block. Nice. Very nice.
 
 %% Rewriting our promises code w/ async functions
 %% async/await isn't perfect - you still have to define functions as async, but the syntax is _much_ simpler and more elegant. You can use familiar & traditional patterns to handle both async and non-async code
