@@ -529,7 +529,7 @@ This is not as succinct as the jQuery solution, but it works, at least in all mo
 var event = document.createEvent('CustomEvent');
 event.initCustomEvent('uploadError', true, true, {
   filename: 'picture.jpeg'
-});
+);
 uploaderElement.dispatchEvent(event);
 
 // ...and this is a listener for the event
