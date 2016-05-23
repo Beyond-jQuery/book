@@ -573,13 +573,22 @@ There are many such tools that are able to compile async function syntax into cr
 
 ## Async iterators: A better way to control asynchronous loops
 
-%% What are async iterators (async functions + generators)
+%% What are async iterators (mix of async functions & generators)
+%% Spec status
+%% Why would you use these?
 
-### An example of when we might find ourselves looping over async data
-%% Solving this with bare promises
-%% Solving this with async functions
+### An introduction to ECMAScript 6 generator functions
 
-### Making life easier w/ async iterators
+%% Spec status
+%% Use cases
+%% Examples
+
+
+### Elegant support for asynchronous loops with async iterators
+
+%% Loop with async values using bare promises
+%% Solving this with async iterators
+
 
 ### Browser support
 
