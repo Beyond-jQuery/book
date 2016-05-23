@@ -566,8 +566,9 @@ It's perhaps unfortunate that we still much make some direct use of promises in 
 
 ### Browser support
 
-%% no browser support
-%% babel, typescript, etc
+Sadly, async functions are not natively supported in _any_ browsers as of June 2016. But this is to be expected as this proposal is just that, a proposal - it is not part of any formal JavaScript standard _yet_. But this doesn't mean you must wait for browser adoption before using async functions in your project. Since async functions offer new keywords, a [polyfill](#shims-and-polyfills) is not the appropriate solution. Instead, you will have to make use of a tool that compiles your async functions at build time into something that browsers can understand.
+
+There are many such tools that are able to compile async function syntax into cross-browser JavaScript. Babel is one such tool, and a number of Babel plug-ins exist to accomplish this task. While discussing Babel or any other JavaScript compilation tool is beyond the scope of "Beyond jQuery", I can tell you that most plug-ins seems to compile async functions to ES6 generator functions. Generator functions must then be compiled down into ECMAScript 5 code if the project is browser based (since generator functions are not natively supported in all modern browsers). Typescript is another JavaScript compilation tool that performs many of the same tasks as Babel, but also supports a number of non-standard language features. Typescript currently offers native support for async functions, but only in browsers that natively support generator functions. That limitation may very well be relaxed in a future release.
 
 
 ## Async iterators: A better way to control asynchronous loops
