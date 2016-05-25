@@ -571,6 +571,12 @@ Sadly, async functions are not natively supported in _any_ browsers as of June 2
 There are many such tools that are able to compile async function syntax into cross-browser JavaScript. Babel is one such tool, and a number of Babel plug-ins exist to accomplish this task. While discussing Babel or any other JavaScript compilation tool is beyond the scope of "Beyond jQuery", I can tell you that most plug-ins seems to compile async functions to ES6 generator functions. Generator functions must then be compiled down into ECMAScript 5 code if the project is browser based (since generator functions are not natively supported in all modern browsers). Typescript is another JavaScript compilation tool that performs many of the same tasks as Babel, but also supports a number of non-standard language features. Typescript currently offers native support for async functions, but only in browsers that natively support generator functions. That limitation may very well be relaxed in a future release.
 
 
+## The future of standardized async task handling
+
+%% Async iterators
+%% Observable
+
+
 [async-spec]: https://tc39.github.io/ecmascript-asyncawait/
 
 [bluebird]: https://github.com/petkaantonov/bluebird
