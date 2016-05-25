@@ -228,9 +228,13 @@ It is rarely appropriate to rely exclusively on JavaScript in any form (includin
 
 {title="adding a style to the document - modern browsers", lang=javascript}
 ~~~~~~~
-stylesheet.insertRule(
-  'h2 { font-weight: italic; }', stylesheet.cssRules.length - 1
-);
+// This grabs the first loaded stylesheet on the current page.
+// This also assumes the first stylesheet is appropriate here.
+var sheet = document.styleSheets[0]
+
+sheet.insertRule(
+  'h2 { font-weight: italic; }', sheet.cssRules.length - 1
+)
 ~~~~~~~
 
 The above example will create a new style that will display all `<h2>` elements in italics. The rule will be appended to the end of a stylesheet. The `stylesheet` variable can refer to a `<style>` element we've created on-demand for these sorts of dynamic styles, or even an existing stylesheet imported using a `<link>` tag. If you need to support Internet Explorer 8, you'll have to use `addRule` instead, if it is defined in the browser's implementation of the DOM API.
