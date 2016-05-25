@@ -19,12 +19,12 @@ There is no telling exactly when the function purposed with handling the server 
 
 In a general sense, APIs benefit from supporting async operations. For example, consider a library that executes a provided function when a user chooses a file to be uploaded. The function can prevent the file from being uploaded by returning `false`. But what if the function must delegate to a server endpoint to determine if the file is valid? This is an asynchronous operation. If the library doesn't provide support for this type of task in its API, integration is limited to some degree. Another example - a library that maintains a list of contacts. The user is provided with the ability to delete a contact via a `<button>`. While this is  does not provide the best user experience, it is common to display a confirm dialog before _actually_ deleting the contact. This fictional library provides a function that is called before the delete operation occurs, and allows it to be ignored if the function returns `false`. If you want a confirm dialog that stops execution of your code before the user responds, you _could_ use the browser's built-in confirm dialog and then return `false` if the user elects to cancel the operation, but the native confirm dialog is barebones and ugly. It isn't an ideal choice for most projects, so you will need to provide your own styled dialog, which will be non-blocking. In other words, the library will need to account for the asynchronous nature of waiting for a user to decide if they are _really sure_ that the file should be deleted forever. These are just two examples of how important it may be to consider async support when building an API, but there are many more.
 
-While this chapter deals with traditional and some relatively new methods for dealing with async functions, I will also cover some other solutions that can probably be classified as "bleeding edge". Some of the later sections of this chapter will even cover solutions that are only rudimentary [ECMAScript](#js-history) specifications at the moment. The reason for inclusion of these now futuristic specifications in this chapter is to provide you with an indication of how important dealing with the asynchronous nature of the web has become, and how the maintainers of JavaScript are doing their best to make a traditionally difficult concept to manage much easier. On a positive note, compilers and shims or libraries make all of the draft-level solutions later on in this chapter usable now, even before they have been adopted browsers and Node.js.
+While this chapter deals with traditional and some relatively new methods for dealing with async functions, I will also cover another solution that can probably be classified as "bleeding edge". The reason for inclusion of a now futuristic specification in this chapter is to provide you with an indication of how important dealing with the asynchronous nature of the web has become, and how the maintainers of JavaScript are doing their best to make a traditionally difficult concept to manage much easier. On a positive note, compilers and shims or libraries make all of the draft-level solutions later on in this chapter usable now, even before they have been adopted by browsers and Node.js.
 
 
 ## Callbacks: The traditional approach for controlling async operations
 
-The most traditional way to provide support asynchronous tasks is via a system of callback functions. Let's take the the contacts list library example we just discussed and apply a callback function to account for the fact that a `beforeDelete` handler function may need to ask the user to confirm the contact removal, which is an async operation without the built-in `window.confirm` dialog. The code may look seomthing like this:
+The most traditional way to provide support asynchronous tasks is via a system of callback functions. Let's take the the contacts list library example we just discussed and apply a callback function to account for the fact that a `beforeDelete` handler function may need to ask the user to confirm the contact removal, which is an async operation without the built-in `window.confirm` dialog. The code may look something like this:
 
 {title="supporting an async task with a callback function", lang=javascript}
 ~~~~~~~
@@ -569,42 +569,6 @@ It's perhaps unfortunate that we still much make some direct use of promises in 
 Sadly, async functions are not natively supported in _any_ browsers as of June 2016. But this is to be expected as this proposal is just that, a proposal - it is not part of any formal JavaScript standard _yet_. But this doesn't mean you must wait for browser adoption before using async functions in your project. Since async functions offer new keywords, a [polyfill](#shims-and-polyfills) is not the appropriate solution. Instead, you will have to make use of a tool that compiles your async functions at build time into something that browsers can understand.
 
 There are many such tools that are able to compile async function syntax into cross-browser JavaScript. Babel is one such tool, and a number of Babel plug-ins exist to accomplish this task. While discussing Babel or any other JavaScript compilation tool is beyond the scope of "Beyond jQuery", I can tell you that most plug-ins seems to compile async functions to ES6 generator functions. Generator functions must then be compiled down into ECMAScript 5 code if the project is browser based (since generator functions are not natively supported in all modern browsers). Typescript is another JavaScript compilation tool that performs many of the same tasks as Babel, but also supports a number of non-standard language features. Typescript currently offers native support for async functions, but only in browsers that natively support generator functions. That limitation may very well be relaxed in a future release.
-
-
-## Async iterators: A better way to control asynchronous loops
-
-%% What are async iterators (mix of async functions & generators)
-%% Spec status
-%% Why would you use these?
-
-### An introduction to ECMAScript 6 generator functions
-
-%% Spec status
-%% Use cases
-%% Examples
-
-
-### Elegant support for asynchronous loops with async iterators
-
-%% Loop with async values using bare promises
-%% Solving this with async iterators
-
-
-### Browser support
-
-
-## Handling streams of data or events with Observable
-
-%% What is a data stream?
-%% What is an event stream?
-
-### What is an Observable?
-
-### Handling and filtering data streams
-
-### Handling and filtering event streams
-
-### Browser support
 
 
 [async-spec]: https://tc39.github.io/ecmascript-asyncawait/
