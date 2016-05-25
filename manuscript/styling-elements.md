@@ -233,7 +233,7 @@ It is rarely appropriate to rely exclusively on JavaScript in any form (includin
 var sheet = document.styleSheets[0]
 
 sheet.insertRule(
-  'h2 { font-weight: italic; }', sheet.cssRules.length - 1
+  'h2 { font-style: italic; }', sheet.cssRules.length - 1
 )
 ~~~~~~~
 
