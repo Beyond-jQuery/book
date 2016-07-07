@@ -6,7 +6,7 @@ Hi there readers. Thanks to all of you for supporting my work on the book over t
 
 I certainly hope you enjoyed reading and following my progress, and I hope you'll check out the Apress version of the book when it's ready. I expect to "retire" the Leanpub version of "Beyond jQuery" soon and use the [book's Leanpub page][leanpub] to include status updates until the Apress version is ready.
 
-If you'd like to contact me with further questions, you can find me on [Twitter](https://twitter.com/raynicholus].
+If you'd like to contact me with further questions, you can find me on [Twitter][twitter].
 
 best regards,
 
@@ -36,3 +36,4 @@ Currently, most nights each week, usually between the hours of 8pm and midnight 
 [apress]: https://www.apress.com/
 [leanpub]: https://leanpub.com/beyondjquery
 [raynicholus.com]: http://raynicholus.com/
+[twitter]: https://twitter.com/raynicholus
