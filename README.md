@@ -1,4 +1,4 @@
-<img src="manuscript/images/title_page.png" width="400">
+<img src="https://s3.amazonaws.com/titlepages.leanpub.com/beyondjquery/hero?1467862892" width="400">
 
 ## UPDATE (6 July 2016)
 
