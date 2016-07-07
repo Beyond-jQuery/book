@@ -4,7 +4,7 @@
 
 Hi there readers. Thanks to all of you for supporting my work on the book over the last year and a half. It's been a long journey, a lot of work, and a lot of fun too. The next chapter in the life of "Beyond jQuery" is about to begin. I have recently signed a contract with [Apress][apress] to publish the book both in print and electronic forms. There is still much work to be done before publishing, so I will need to dedicate my free time to this effort to ensure the book is published as quickly as possible.
 
-I certainly hope you enjoyed reading and following my progress, and I hope you'll check out the Apress version of the book when it's ready. I expect to "retire" the Leanpub version of "Beyond jQuery" soon and use the [book's Leanpub page][leanpub] to include status updates until the Apress version is ready.
+I certainly hope you enjoyed reading and following my progress, and I hope you'll check out the Apress version of the book when it's ready. The [Leanpub version of "Beyond jQuery"][leanpub] has been retired and will be updated with publishing-related status until the Apress version is ready.
 
 If you'd like to contact me with further questions, you can find me on [Twitter][twitter].
 
