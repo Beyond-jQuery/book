@@ -20,7 +20,7 @@ The book is not yet ready for purchase. Please check back for updates.
 
 ### How long is this book going to be?
 
-About 300 pages, but possibly more.
+About 300 pages, possibly more.
 
 
 ### Why are you doing this?
