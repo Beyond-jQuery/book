@@ -1,8 +1,8 @@
 <a href="https://amzn.com/1484222342"><img src="beyond-jquery-cover.jpg" height="350"></a>
 
-## UPDATE (20 August 2016)
+## UPDATE (19 October 2016)
 
-Hi there readers. Thanks to all of you for supporting my work on the book over the last year and a half. It's been a long journey, a lot of work, and a lot of fun too. The next chapter in the life of "Beyond jQuery" is about to begin. My book is scheduled to be published by Apress in October of 2016. You can now [pre-order a copy on Amazon][amazon]!
+Hi there readers. Thanks to all of you for supporting my work on the book over the last year and a half. It's been a long journey, a lot of work, and a lot of fun too. The next chapter in the life of "Beyond jQuery" is about to begin. My book is scheduled to be published by Apress in November of 2016. You can now [pre-order a copy on Amazon][amazon]!
 
 I certainly hope you enjoyed reading and following my progress, and I hope you'll check out the Apress version of the book when it's ready.
 
