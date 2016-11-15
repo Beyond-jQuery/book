@@ -2,7 +2,7 @@
 
 ## UPDATE (19 October 2016)
 
-Hi there readers. Thanks to all of you for supporting my work on the book over the last year and a half. It's been a long journey, a lot of work, and a lot of fun too. The next chapter in the life of "Beyond jQuery" is about to begin. My book is scheduled to be published by Apress in November of 2016. You can now [pre-order a copy on Amazon][amazon]!
+Hi there readers. Thanks to all of you for supporting my work on the book over the last year and a half. It's been a long journey, a lot of work, and a lot of fun too. The next chapter in the life of "Beyond jQuery" has begun. My book was published in November of 2016. You can now [order a copy on Amazon][amazon]!
 
 I certainly hope you enjoyed reading and following my progress, and I hope you'll check out the Apress version of the book when it's ready.
 
@@ -15,7 +15,7 @@ Ray Nicholus
 
 ### How can I get a copy?
 
-Many places, such as Amazon.com, Barnes & Noble, and Apress.com. Beyond jQuery is currently available for pre-order on [Amazon][amazon].
+Many places, such as Amazon.com and Barnes & Noble. Beyond jQuery is currently available for purchase on [Amazon][amazon].
 
 
 ### How long is this book?
@@ -34,6 +34,5 @@ Currently, most nights each week, usually between the hours of 8pm and midnight 
 
 
 [amazon]: https://amzn.com/1484222342
-[apress]: https://www.apress.com/
 [raynicholus.com]: http://raynicholus.com/
 [twitter]: https://twitter.com/raynicholus
